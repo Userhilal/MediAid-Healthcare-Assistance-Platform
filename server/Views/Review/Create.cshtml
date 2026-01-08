@@ -1,0 +1,157 @@
+@model MediAid.DTOs.CreateReviewDto
+@{
+    ViewData["Title"] = "Évaluer l'aidant";
+    var request = ViewBag.Request as MediAid.Models.Request;
+}
+
+<div class="page-header-modern">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-star-fill"></i> Évaluer l'aidant
+        </h1>
+        <p class="page-subtitle">Partagez votre expérience</p>
+    </div>
+    <a href="@Url.Action("Index", "Request")" class="btn-secondary-modern">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+
+<div class="review-layout">
+    @if (request != null)
+    {
+        <div class="card-modern neumorphic-card">
+            <div class="card-header-modern">
+                <h2 class="card-title-modern">
+                    <i class="bi bi-info-circle"></i> Demande concernée
+                </h2>
+            </div>
+            <div class="card-body-modern">
+                <h3 style="color: var(--color-navy); margin-bottom: var(--spacing-sm);">@request.Title</h3>
+                <p style="color: var(--color-gray-600);">
+                    <i class="bi bi-calendar"></i> Créée le @request.CreatedAt.ToString("dd MMM yyyy à HH:mm")
+                </p>
+            </div>
+        </div>
+    }
+
+    <div class="card-modern neumorphic-card">
+        <div class="card-header-modern">
+            <h2 class="card-title-modern">
+                <i class="bi bi-star"></i> Votre évaluation
+            </h2>
+        </div>
+        <div class="card-body-modern">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert-modern alert-danger-modern mb-4"></div>
+
+                <input type="hidden" asp-for="RequestId" />
+                <input type="hidden" asp-for="AidantId" />
+
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <i class="bi bi-star-fill"></i> Note (obligatoire)
+                    </label>
+                    <div class="rating-input-modern">
+                        @for (int i = 5; i >= 1; i--)
+                        {
+                            <input type="radio" asp-for="Rating" value="@i" id="rating@i" class="rating-radio" />
+                            <label for="rating@i" class="star-label-modern" title="@i étoile(s)">
+                                <i class="bi bi-star"></i>
+                            </label>
+                        }
+                    </div>
+                    <span asp-validation-for="Rating" class="field-validation"></span>
+                    <small class="form-hint">Cliquez sur les étoiles pour noter (1 à 5 étoiles)</small>
+                </div>
+
+                <div class="form-group-modern">
+                    <label asp-for="Comment" class="form-label-modern">
+                        <i class="bi bi-chat-left-text"></i> Commentaire (optionnel)
+                    </label>
+                    <textarea asp-for="Comment" class="form-control-modern" rows="6" placeholder="Partagez votre expérience avec cet aidant..."></textarea>
+                    <span asp-validation-for="Comment" class="field-validation"></span>
+                    <small class="form-hint">Maximum 1000 caractères</small>
+                </div>
+
+                <div class="form-actions">
+                    <a href="@Url.Action("Index", "Request")" class="btn-secondary-modern">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn-primary-modern">
+                        <i class="bi bi-check-circle"></i> Envoyer l'évaluation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .review-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .rating-input-modern {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: var(--spacing-sm);
+        font-size: 2.5rem;
+        margin: var(--spacing-md) 0;
+    }
+
+    .rating-radio {
+        display: none;
+    }
+
+    .star-label-modern {
+        cursor: pointer;
+        color: var(--color-gray-300);
+        transition: all 0.2s ease;
+    }
+
+    .star-label-modern:hover,
+    .star-label-modern:hover ~ .star-label-modern {
+        color: #FCD34D;
+        transform: scale(1.1);
+    }
+
+    .rating-radio:checked ~ .star-label-modern,
+    .rating-radio:checked + .star-label-modern ~ .star-label-modern {
+        color: #F59E0B;
+    }
+
+    .field-validation {
+        display: block;
+        color: var(--color-danger);
+        font-size: var(--font-size-sm);
+        margin-top: var(--spacing-xs);
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.querySelectorAll('.rating-radio').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const value = parseInt(this.value);
+                const labels = document.querySelectorAll('.star-label-modern');
+                labels.forEach((label, index) => {
+                    if (5 - index <= value) {
+                        label.querySelector('i').classList.add('bi-star-fill');
+                        label.querySelector('i').classList.remove('bi-star');
+                    } else {
+                        label.querySelector('i').classList.remove('bi-star-fill');
+                        label.querySelector('i').classList.add('bi-star');
+                    }
+                });
+            });
+        });
+    </script>
+}

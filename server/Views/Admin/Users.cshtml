@@ -1,0 +1,108 @@
+@model List<MediAid.Models.User>
+@{
+    ViewData["Title"] = "Gestion des utilisateurs";
+}
+
+<div class="page-header-modern">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-people"></i> Gestion des utilisateurs
+        </h1>
+        <p class="page-subtitle">Gérez tous les utilisateurs de la plateforme</p>
+    </div>
+</div>
+
+<div class="card-modern neumorphic-card">
+    <div class="table-responsive">
+        <table class="table-modern">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Nom complet</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Créé le</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@user.Email</strong>
+                        </td>
+                        <td>@user.FirstName @user.LastName</td>
+                        <td>
+                            <span class="badge-modern badge-primary">@user.Role</span>
+                        </td>
+                        <td>
+                            @if (user.IsActive)
+                            {
+                                <span class="badge-modern badge-success">
+                                    <i class="bi bi-check-circle"></i> Actif
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-modern badge-danger">
+                                    <i class="bi bi-x-circle"></i> Suspendu
+                                </span>
+                            }
+                        </td>
+                        <td>@user.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <div class="action-buttons" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                @if (user.IsActive)
+                                {
+                                    <form asp-action="SuspendUser" asp-route-userId="@user.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-warning-modern" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                            <i class="bi bi-pause-circle"></i> Suspendre
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="ActivateUser" asp-route-userId="@user.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-success-modern" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                            <i class="bi bi-play-circle"></i> Activer
+                                        </button>
+                                    </form>
+                                }
+                                <form asp-action="ChangeRole" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@user.Id" />
+                                    <select name="role" class="form-select-modern" style="width: auto; padding: 0.5rem;" onchange="this.form.submit()">
+                                        <option value="Patient" selected="@(user.Role == "Patient")">Patient</option>
+                                        <option value="Aidant" selected="@(user.Role == "Aidant")">Aidant</option>
+                                        <option value="Expert" selected="@(user.Role == "Expert")">Expert</option>
+                                        <option value="Admin" selected="@(user.Role == "Admin")">Admin</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .btn-warning-modern {
+        background: linear-gradient(135deg, var(--color-warning) 0%, #F97316 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        cursor: pointer;
+    }
+
+    .btn-warning-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+    }
+</style>

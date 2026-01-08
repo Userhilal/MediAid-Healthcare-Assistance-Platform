@@ -1,0 +1,117 @@
+@model MediAid.Models.Request
+@{
+    ViewData["Title"] = "Valider la demande";
+}
+
+<div class="page-header-modern">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-shield-check"></i> Valider la demande
+        </h1>
+        <p class="page-subtitle">Validation experte requise</p>
+    </div>
+    <a href="@Url.Action("Index")" class="btn-secondary-modern">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+
+<div class="validation-layout">
+    <div class="card-modern neumorphic-card">
+        <div class="card-header-modern">
+            <h2 class="card-title-modern">
+                <i class="bi bi-file-text"></i> Détails de la demande
+            </h2>
+        </div>
+        <div class="card-body-modern">
+            <h3 style="color: var(--color-navy); margin-bottom: var(--spacing-md);">@Model.Title</h3>
+            <div class="request-details-grid">
+                <div>
+                    <div class="detail-label">Description</div>
+                    <div class="detail-value">@Model.Description</div>
+                </div>
+                <div>
+                    <div class="detail-label">Catégorie</div>
+                    <div class="detail-value">
+                        <span class="badge-modern badge-primary">@Model.Category</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="detail-label">Urgence</div>
+                    <div class="detail-value">
+                        <span class="badge-modern urgency-@Model.Urgency.ToLower()">@Model.Urgency</span>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.City))
+                {
+                    <div>
+                        <div class="detail-label">Localisation</div>
+                        <div class="detail-value">
+                            <i class="bi bi-geo-alt"></i> @Model.City @Model.PostalCode
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card-modern neumorphic-card">
+        <div class="card-header-modern">
+            <h2 class="card-title-modern">
+                <i class="bi bi-check-circle"></i> Validation experte
+            </h2>
+        </div>
+        <div class="card-body-modern">
+            <form asp-action="Validate" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <div class="form-group-modern">
+                    <label for="recommendations" class="form-label-modern">
+                        <i class="bi bi-clipboard-check"></i> Recommandations (optionnel)
+                    </label>
+                    <textarea name="recommendations" id="recommendations" class="form-control-modern" rows="6" placeholder="Ajoutez des recommandations spécifiques pour cette demande..."></textarea>
+                    <small class="form-hint">Ces recommandations seront visibles par les aidants</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-success-modern">
+                        <i class="bi bi-check-circle"></i> Valider la demande
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn-secondary-modern">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .validation-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+
+    .request-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-lg);
+        margin-top: var(--spacing-lg);
+    }
+
+    .detail-label {
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        color: var(--color-gray-600);
+        margin-bottom: var(--spacing-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .detail-value {
+        font-size: var(--font-size-base);
+        color: var(--color-navy);
+        font-weight: 500;
+    }
+</style>

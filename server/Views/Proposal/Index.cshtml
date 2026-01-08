@@ -1,0 +1,275 @@
+@model List<MediAid.Models.Request>
+@using System.Linq
+@{
+    ViewData["Title"] = "Demandes disponibles";
+    var aidant = ViewBag.Aidant as MediAid.Models.Aidant;
+    var user = ViewBag.User as MediAid.Models.User;
+    var nearbyCount = ViewBag.NearbyCount as int? ?? 0;
+    var totalCount = Model?.Count ?? 0;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="~/css/professional-proposals.css" asp-append-version="true" />
+
+<div class="command-center-layout">
+    <!-- Left Sidebar: Navigation & Quick Stats -->
+    <aside class="command-sidebar-left">
+        <div class="sidebar-header">
+            <div class="user-avatar">
+                @{
+                    var initial = user?.FirstName?.Substring(0, 1).ToUpper() ?? "A";
+                }
+                <span>@initial</span>
+            </div>
+            <div class="user-info">
+                <h3 class="user-name">@(user?.FirstName ?? "Aidant")</h3>
+                <p class="user-role">Aidant bénévole</p>
+            </div>
+        </div>
+
+        <div class="quick-stats-card">
+            <h4 class="stats-title">Aide ce mois</h4>
+            <div class="stat-value-large">@(aidant?.CompletedMissions ?? 0)</div>
+            <p class="stat-label">missions complétées</p>
+        </div>
+
+        <div class="quick-stats-card">
+            <h4 class="stats-title">Disponibilité</h4>
+            <div class="availability-indicator">
+                <span class="status-dot @(aidant?.AvailabilityStatus == "Available" ? "available" : "")"></span>
+                <span>@(aidant?.AvailabilityStatus == "Available" ? "Disponible" : "Occupé")</span>
+            </div>
+        </div>
+
+        @if (aidant?.Location != null)
+        {
+            <div class="quick-stats-card">
+                <h4 class="stats-title">Rayon</h4>
+                <div class="stat-value-large">@aidant.InterventionRadius km</div>
+            </div>
+        }
+
+        <nav class="sidebar-nav">
+            <a href="@Url.Action("MyProposals", "Proposal")" class="nav-item">
+                <i class="bi bi-inbox"></i> Mes missions
+            </a>
+            <a href="@Url.Action("Conversations", "Chat")" class="nav-item">
+                <i class="bi bi-chat-dots"></i> Messages
+            </a>
+            <a href="@Url.Action("Profile", "Aidant")" class="nav-item">
+                <i class="bi bi-person"></i> Mon profil
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Center Feed: Requests -->
+    <main class="command-center-main">
+        <!-- Header with Filters -->
+        <div class="feed-header-glass">
+            <div class="header-content">
+                <div>
+                    <h1 class="page-title-pro">Demandes disponibles</h1>
+                    <p class="page-subtitle-pro">
+                        @if (nearbyCount > 0)
+                        {
+                            <span class="highlight-count">@nearbyCount</span> <text>demande(s) à proximité</text>
+                        }
+                        @if (totalCount > 0)
+                        {
+                            <span class="total-count">• @totalCount au total</span>
+                        }
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <a href="@Url.Action("Profile", "Aidant")" class="btn-icon-only">
+                        <i class="bi bi-gear"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="filters-bar">
+                <form method="get" class="filters-form-inline">
+                    <div class="filter-chip-group">
+                        <label class="filter-chip">
+                            <i class="bi bi-tag"></i>
+                            <select name="category" class="filter-select-inline" onchange="this.form.submit()">
+                                <option value="">Toutes catégories</option>
+                                <option value="Transport" selected="@(Context.Request.Query["category"] == "Transport")">Transport</option>
+                                <option value="Medication" selected="@(Context.Request.Query["category"] == "Medication")">Médicaments</option>
+                                <option value="Accompaniment" selected="@(Context.Request.Query["category"] == "Accompaniment")">Accompagnement</option>
+                                <option value="LightAssistance" selected="@(Context.Request.Query["category"] == "LightAssistance")">Assistance</option>
+                                <option value="PostHospitalization" selected="@(Context.Request.Query["category"] == "PostHospitalization")">Post-hospitalisation</option>
+                            </select>
+                        </label>
+                        <label class="filter-chip">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <select name="urgency" class="filter-select-inline" onchange="this.form.submit()">
+                                <option value="">Tous niveaux</option>
+                                <option value="Low" selected="@(Context.Request.Query["urgency"] == "Low")">Faible</option>
+                                <option value="Normal" selected="@(Context.Request.Query["urgency"] == "Normal")">Normale</option>
+                                <option value="High" selected="@(Context.Request.Query["urgency"] == "High")">Élevée</option>
+                                <option value="Critical" selected="@(Context.Request.Query["urgency"] == "Critical")">Critique</option>
+                            </select>
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Alert Message -->
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert-glass @((ViewBag.Message as string)?.Contains("⚠️") == true ? "alert-warning" : "alert-info")">
+                <i class="bi @((ViewBag.Message as string)?.Contains("⚠️") == true ? "bi-exclamation-triangle" : "bi-info-circle")"></i>
+                <span>@ViewBag.Message</span>
+                @if (aidant?.Location == null)
+                {
+                    <a href="@Url.Action("Profile", "Aidant")" class="alert-link">Configurer →</a>
+                }
+            </div>
+        }
+
+        <!-- Requests Feed -->
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-state-pro">
+                <div class="empty-icon">📭</div>
+                <h2>Aucune demande disponible</h2>
+                <p>Il n'y a actuellement aucune demande correspondant à vos critères.</p>
+            </div>
+        }
+        else
+        {
+            <div class="requests-feed">
+                @foreach (var request in Model)
+                {
+                    var categoryIcons = new Dictionary<string, string>
+                    {
+                        { "Transport", "bi-car-front" },
+                        { "Medication", "bi-capsule-pill" },
+                        { "Accompaniment", "bi-person-heart" },
+                        { "LightAssistance", "bi-house-heart" },
+                        { "PostHospitalization", "bi-hospital" }
+                    };
+                    var iconClass = categoryIcons.GetValueOrDefault(request.Category, "bi-clipboard");
+                    
+                    // Get distance from ViewBag
+                    var requestDistances = ViewBag.RequestDistances as Dictionary<string, double> ?? new Dictionary<string, double>();
+                    double? distance = null;
+                    if (request.Id != null && requestDistances.ContainsKey(request.Id))
+                    {
+                        distance = requestDistances[request.Id];
+                    }
+
+                    <article class="request-card-pro" data-request-id="@request.Id" onclick="openRequestDetails('@request.Id')">
+                        <!-- Card Header with Urgency -->
+                        <div class="card-header-pro">
+                            <div class="urgency-pill urgency-@request.Urgency.ToLower()">
+                                <span class="urgency-dot"></span>
+                                @request.Urgency
+                            </div>
+                            <div class="card-meta-mini">
+                                @if (distance.HasValue)
+                                {
+                                    <span class="meta-item">
+                                        <i class="bi bi-geo-alt"></i> @distance.Value.ToString("F1") km
+                                    </span>
+                                }
+                                <span class="meta-item">
+                                    <i class="bi bi-clock"></i> @request.CreatedAt.ToString("HH:mm")
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="card-body-pro">
+                            <div class="card-title-row">
+                                <div class="category-icon"><i class="bi @iconClass"></i></div>
+                                <h3 class="card-title-pro">@request.Title</h3>
+                            </div>
+                            
+                            <p class="card-description-pro">@(request.Description.Length > 150 ? request.Description.Substring(0, 150) + "..." : request.Description)</p>
+
+                            <!-- Mini Map -->
+                            @if (request.Location != null && request.Location.Coordinates?.Length >= 2)
+                            {
+                                <div class="mini-map-container" id="map-@request.Id" data-lat="@request.Location.Coordinates[1]" data-lon="@request.Location.Coordinates[0]"></div>
+                            }
+
+                            <!-- Progress Timeline -->
+                            <div class="progress-timeline">
+                                <div class="timeline-step completed">
+                                    <div class="step-dot"></div>
+                                    <span>Créée</span>
+                                </div>
+                                <div class="timeline-connector"></div>
+                                <div class="timeline-step active">
+                                    <div class="step-dot"></div>
+                                    <span>Recherche aide</span>
+                                </div>
+                                <div class="timeline-connector"></div>
+                                <div class="timeline-step">
+                                    <div class="step-dot"></div>
+                                    <span>Assignée</span>
+                                </div>
+                            </div>
+
+                            <!-- Location & Time -->
+                            <div class="card-details-pro">
+                                @if (!string.IsNullOrEmpty(request.City))
+                                {
+                                    <div class="detail-item-pro">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                        <span>@request.City @request.PostalCode</span>
+                                    </div>
+                                }
+                                @if (request.RequestedDate.HasValue)
+                                {
+                                    <div class="detail-item-pro">
+                                        <i class="bi bi-calendar-event"></i>
+                                        <span>Souhaité: @request.RequestedDate.Value.ToString("dd MMM HH:mm")</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Card Footer with CTA -->
+                        <div class="card-footer-pro">
+                            <button class="btn-propose-pro" onclick="event.stopPropagation(); proposeHelp('@request.Id')">
+                                <span class="btn-glow"></span>
+                                <i class="bi bi-hand-thumbs-up-fill"></i>
+                                <span>Proposer mon aide</span>
+                            </button>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </main>
+
+    <!-- Right Detail Pane -->
+    <aside class="command-sidebar-right" id="detailPane">
+        <div class="detail-pane-content">
+            <div class="detail-pane-header">
+                <h3>Détails de la demande</h3>
+                <button class="btn-close-pane" onclick="closeDetailPane()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="detail-pane-body" id="detailPaneBody">
+                <div class="detail-placeholder">
+                    <i class="bi bi-cursor"></i>
+                    <p>Sélectionnez une demande pour voir les détails</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script src="~/js/professional-proposals.js" asp-append-version="true"></script>
+

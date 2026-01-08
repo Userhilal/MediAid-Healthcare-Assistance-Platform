@@ -1,0 +1,168 @@
+@model MediAid.DTOs.DeleteAccountDto
+@{
+    ViewData["Title"] = "Supprimer le compte";
+}
+
+<div class="page-header-modern">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-exclamation-triangle-fill"></i> Supprimer le compte
+        </h1>
+        <p class="page-subtitle">Action irréversible</p>
+    </div>
+    <a href="@Url.Action("Index", "Profile")" class="btn-secondary-modern">
+        <i class="bi bi-arrow-left"></i> Retour au profil
+    </a>
+</div>
+
+<div class="delete-account-layout">
+    <div class="card-modern neumorphic-card" style="border-left: 4px solid var(--color-danger);">
+        <div class="card-header-modern">
+            <h2 class="card-title-modern" style="color: var(--color-danger);">
+                <i class="bi bi-exclamation-triangle-fill"></i> Suppression de compte
+            </h2>
+        </div>
+        <div class="card-body-modern">
+            <div class="alert-modern alert-danger-modern mb-4">
+                <div style="display: flex; align-items: start; gap: var(--spacing-md);">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size: 1.5rem; flex-shrink: 0;"></i>
+                    <div>
+                        <strong>Attention : Cette action est irréversible</strong>
+                        <p style="margin: var(--spacing-sm) 0 0 0;">Toutes vos données seront supprimées définitivement :</p>
+                        <ul style="margin: var(--spacing-sm) 0 0 var(--spacing-lg); padding-left: 0;">
+                            <li>Vos demandes et propositions</li>
+                            <li>Vos messages et conversations</li>
+                            <li>Votre profil et informations personnelles</li>
+                            <li>Toutes les données associées à votre compte</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="DeleteAccount" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert-modern alert-danger-modern mb-4"></div>
+
+                <div class="form-group-modern">
+                    <label asp-for="Password" class="form-label-modern">
+                        <i class="bi bi-lock"></i> Confirmer avec votre mot de passe
+                    </label>
+                    <div class="input-wrapper">
+                        <input asp-for="Password" type="password" class="form-control-modern" required placeholder=" " />
+                        <i class="bi bi-lock input-icon"></i>
+                        <label asp-for="Password" class="input-label">Mot de passe</label>
+                    </div>
+                    <span asp-validation-for="Password" class="field-validation"></span>
+                    <small class="form-hint">Veuillez entrer votre mot de passe pour confirmer la suppression</small>
+                </div>
+
+                <div class="form-group-modern">
+                    <div class="confirmation-checkbox">
+                        <input asp-for="ConfirmDeletion" class="form-check-input" type="checkbox" id="confirmDeletion" />
+                        <label asp-for="ConfirmDeletion" class="form-check-label" for="confirmDeletion">
+                            <strong>Je comprends et confirme que je souhaite supprimer définitivement mon compte</strong>
+                            <br>
+                            <small style="color: var(--color-gray-600);">Cette action ne peut pas être annulée.</small>
+                        </label>
+                        <span asp-validation-for="ConfirmDeletion" class="field-validation"></span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="@Url.Action("Index", "Profile")" class="btn-secondary-modern">
+                        <i class="bi bi-arrow-left"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn-danger-modern" onclick="return confirm('Êtes-vous absolument sûr ? Cette action est IRRÉVERSIBLE ! Toutes vos données seront perdues.');">
+                        <i class="bi bi-trash"></i> Supprimer définitivement mon compte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .delete-account-layout {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        color: #94A3B8;
+        font-size: 1.125rem;
+        z-index: 1;
+        pointer-events: none;
+        transition: color 0.3s ease;
+    }
+
+    .input-label {
+        position: absolute;
+        left: 3rem;
+        top: 1rem;
+        color: #94A3B8;
+        font-size: 1rem;
+        font-weight: 400;
+        pointer-events: none;
+        transition: all 0.3s ease-in-out;
+        opacity: 0.6;
+        background: white;
+        padding: 0 0.25rem;
+    }
+
+    .form-control-modern:focus ~ .input-label,
+    .form-control-modern:not(:placeholder-shown) ~ .input-label {
+        top: -0.5rem;
+        left: 2.75rem;
+        font-size: 0.75rem;
+        color: #10B981;
+        opacity: 1;
+        font-weight: 500;
+    }
+
+    .form-control-modern:focus ~ .input-icon,
+    .form-control-modern:not(:placeholder-shown) ~ .input-icon {
+        color: #10B981;
+    }
+
+    .form-control-modern {
+        padding-left: 3rem;
+    }
+
+    .confirmation-checkbox {
+        padding: var(--spacing-lg);
+        background: var(--color-gray-50);
+        border-radius: var(--radius-md);
+        border: 2px solid var(--color-gray-200);
+    }
+
+    .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: var(--spacing-sm);
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .field-validation {
+        display: block;
+        color: var(--color-danger);
+        font-size: var(--font-size-sm);
+        margin-top: var(--spacing-xs);
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

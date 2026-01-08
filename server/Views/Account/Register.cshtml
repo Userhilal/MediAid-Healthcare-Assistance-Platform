@@ -1,0 +1,482 @@
+@model MediAid.DTOs.RegisterDto
+@{
+    ViewData["Title"] = "Inscription";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MediAid</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #F8FAFC;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Blobs */
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #1E3A8A;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 500px;
+            height: 500px;
+            background: #0EA5E9;
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+
+        .blob-3 {
+            width: 350px;
+            height: 350px;
+            background: #10B981;
+            top: 50%;
+            left: 10%;
+            animation-delay: 10s;
+        }
+
+        .blob-4 {
+            width: 300px;
+            height: 300px;
+            background: #0D9488;
+            top: 20%;
+            right: 20%;
+            animation-delay: 15s;
+        }
+
+        @@keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(40px, -40px) scale(1.1);
+            }
+            66% {
+                transform: translate(-30px, 30px) scale(0.9);
+            }
+        }
+
+        /* Main Container */
+        .auth-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 560px;
+            padding: 2rem;
+            margin: 2rem auto;
+        }
+
+        /* Card */
+        .auth-card {
+            background: #FFFFFF;
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        /* Header */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #0EA5E9 0%, #10B981 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.2);
+        }
+
+        .auth-logo i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .auth-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1A365D;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.02em;
+        }
+
+        .auth-subtitle {
+            font-size: 0.9375rem;
+            color: #64748B;
+            font-weight: 400;
+        }
+
+        /* Form */
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .validation-summary {
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            border-left: 3px solid #DC2626;
+        }
+
+        /* Two Column Layout */
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Input Group */
+        .input-group {
+            position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            color: #94A3B8;
+            font-size: 1.125rem;
+            z-index: 1;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            background: #FFFFFF;
+            font-size: 1rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1A365D;
+            transition: all 0.3s ease-in-out;
+            outline: none;
+        }
+
+        .input-field::placeholder {
+            color: transparent;
+        }
+
+        .input-field:focus {
+            border-color: #10B981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .input-field:focus ~ .input-icon,
+        .input-field:not(:placeholder-shown) ~ .input-icon {
+            color: #10B981;
+        }
+
+        .input-label {
+            position: absolute;
+            left: 3rem;
+            top: 1rem;
+            color: #94A3B8;
+            font-size: 1rem;
+            font-weight: 400;
+            pointer-events: none;
+            transition: all 0.3s ease-in-out;
+            opacity: 0.6;
+            background: white;
+            padding: 0 0.25rem;
+        }
+
+        .input-field:focus ~ .input-label,
+        .input-field:not(:placeholder-shown) ~ .input-label {
+            top: -0.5rem;
+            left: 2.75rem;
+            font-size: 0.75rem;
+            color: #10B981;
+            opacity: 1;
+            font-weight: 500;
+        }
+
+        .required-asterisk {
+            color: #DC2626;
+        }
+
+        .field-validation {
+            display: block;
+            color: #DC2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+        }
+
+        .input-hint {
+            display: block;
+            color: #64748B;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            padding-left: 3rem;
+        }
+
+        /* Select Field */
+        .select-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 3rem;
+            cursor: pointer;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        .btn-submit i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-submit:hover i {
+            transform: translateX(4px);
+        }
+
+        /* Footer */
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #E2E8F0;
+            color: #64748B;
+            font-size: 0.9375rem;
+        }
+
+        .auth-footer a {
+            color: #1E3A8A;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            color: #0EA5E9;
+        }
+
+        /* Responsive */
+        @@media (max-width: 640px) {
+            .auth-container {
+                padding: 1rem;
+            }
+
+            .auth-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .auth-title {
+                font-size: 22px;
+            }
+
+            .form-row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-container">
+        <div class="bg-blob blob-1"></div>
+        <div class="bg-blob blob-2"></div>
+        <div class="bg-blob blob-3"></div>
+        <div class="bg-blob blob-4"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+                <h1 class="auth-title">Inscription</h1>
+                <p class="auth-subtitle">Rejoignez la communauté MediAid</p>
+            </div>
+
+            <!-- Form -->
+            <form asp-action="Register" method="post" class="auth-form">
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+                
+                <!-- First Name & Last Name Row -->
+                <div class="form-row-2">
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <input asp-for="FirstName" class="input-field" type="text" placeholder=" " id="FirstName" />
+                            <i class="bi bi-person input-icon"></i>
+                            <label asp-for="FirstName" class="input-label" for="FirstName">Prénom</label>
+                        </div>
+                        <span asp-validation-for="FirstName" class="field-validation"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <input asp-for="LastName" class="input-field" type="text" placeholder=" " id="LastName" />
+                            <i class="bi bi-person-badge input-icon"></i>
+                            <label asp-for="LastName" class="input-label" for="LastName">Nom</label>
+                        </div>
+                        <span asp-validation-for="LastName" class="field-validation"></span>
+                    </div>
+                </div>
+
+                <!-- Email Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input asp-for="Email" class="input-field" type="email" placeholder=" " required id="Email" />
+                        <i class="bi bi-envelope input-icon"></i>
+                        <label asp-for="Email" class="input-label" for="Email">Email <span class="required-asterisk">*</span></label>
+                    </div>
+                    <span asp-validation-for="Email" class="field-validation"></span>
+                </div>
+
+                <!-- Phone Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input asp-for="PhoneNumber" class="input-field" type="tel" placeholder=" " id="PhoneNumber" />
+                        <i class="bi bi-telephone input-icon"></i>
+                        <label asp-for="PhoneNumber" class="input-label" for="PhoneNumber">Téléphone</label>
+                    </div>
+                    <span asp-validation-for="PhoneNumber" class="field-validation"></span>
+                </div>
+
+                <!-- Role Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <select asp-for="Role" class="input-field select-field" required id="Role">
+                            <option value="">Sélectionnez un rôle</option>
+                            <option value="Patient">Patient</option>
+                            <option value="Aidant">Aidant / Bénévole</option>
+                        </select>
+                        <i class="bi bi-person-check input-icon"></i>
+                        <label asp-for="Role" class="input-label" for="Role">Rôle <span class="required-asterisk">*</span></label>
+                    </div>
+                    <span asp-validation-for="Role" class="field-validation"></span>
+                </div>
+
+                <!-- Password Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input asp-for="Password" class="input-field" type="password" placeholder=" " required id="Password" />
+                        <i class="bi bi-lock input-icon"></i>
+                        <label asp-for="Password" class="input-label" for="Password">Mot de passe <span class="required-asterisk">*</span></label>
+                    </div>
+                    <span asp-validation-for="Password" class="field-validation"></span>
+                    <small class="input-hint">Minimum 8 caractères</small>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input asp-for="ConfirmPassword" class="input-field" type="password" placeholder=" " required id="ConfirmPassword" />
+                        <i class="bi bi-lock-fill input-icon"></i>
+                        <label asp-for="ConfirmPassword" class="input-label" for="ConfirmPassword">Confirmer le mot de passe <span class="required-asterisk">*</span></label>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="field-validation"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">
+                    <span>Créer mon compte</span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- Footer -->
+            <div class="auth-footer">
+                <p>Déjà un compte ? <a asp-action="Login">Se connecter</a></p>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+</body>
+</html>

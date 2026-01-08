@@ -1,0 +1,138 @@
+@model List<MediAid.Models.Request>
+@{
+    ViewData["Title"] = "Historique";
+    var reviewsByRequestId = ViewBag.ReviewsByRequestId as Dictionary<string, bool> ?? new Dictionary<string, bool>();
+}
+
+<div class="page-header-modern">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-clock-history"></i> Historique des demandes
+        </h1>
+        <p class="page-subtitle">Toutes vos demandes passées</p>
+    </div>
+    <a href="@Url.Action("ExportHistoryPdf", "Patient")" class="btn-primary-modern" target="_blank">
+        <i class="bi bi-file-earmark-pdf"></i> Exporter en PDF
+    </a>
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="card-modern neumorphic-card">
+        <div class="empty-state-modern text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 4rem; color: var(--color-gray-400); margin-bottom: 1rem;"></i>
+            <h3>Aucun historique</h3>
+            <p class="text-gray-600">Vous n'avez pas encore créé de demandes.</p>
+            <a href="@Url.Action("Create", "Request")" class="btn-primary-modern mt-3">
+                <i class="bi bi-plus-circle"></i> Créer une demande
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card-modern neumorphic-card">
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Titre</th>
+                        <th>Catégorie</th>
+                        <th>Urgence</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in Model.OrderByDescending(r => r.CreatedAt))
+                    {
+                        <tr>
+                            <td>@request.CreatedAt.ToString("dd MMM yyyy à HH:mm")</td>
+                            <td>
+                                <strong>@request.Title</strong>
+                            </td>
+                            <td>
+                                <span class="badge-modern badge-primary">@request.Category</span>
+                            </td>
+                            <td>
+                                @if (request.Urgency == "Critical")
+                                {
+                                    <span class="badge-modern badge-danger">
+                                        <i class="bi bi-exclamation-triangle"></i> Critique
+                                    </span>
+                                }
+                                else if (request.Urgency == "High")
+                                {
+                                    <span class="badge-modern badge-warning">
+                                        <i class="bi bi-exclamation-circle"></i> Élevée
+                                    </span>
+                                }
+                                else if (request.Urgency == "Normal")
+                                {
+                                    <span class="badge-modern badge-info">
+                                        <i class="bi bi-info-circle"></i> Normale
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-modern badge-success">
+                                        <i class="bi bi-check-circle"></i> Faible
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                @if (request.Status == "Completed")
+                                {
+                                    <span class="badge-modern badge-success">
+                                        <i class="bi bi-check-circle"></i> Terminée
+                                    </span>
+                                }
+                                else if (request.Status == "Cancelled")
+                                {
+                                    <span class="badge-modern badge-secondary">
+                                        <i class="bi bi-x-circle"></i> Annulée
+                                    </span>
+                                }
+                                else if (request.Status == "InProgress")
+                                {
+                                    <span class="badge-modern badge-info">
+                                        <i class="bi bi-clock"></i> En cours
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-modern badge-warning">
+                                        <i class="bi bi-hourglass-split"></i> En attente
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <a href="@Url.Action("Details", "Request", new { id = request.Id })" class="btn-secondary-modern" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                        <i class="bi bi-eye"></i> Détails
+                                    </a>
+                                    @if (request.Status == "Completed" && !string.IsNullOrEmpty(request.AssignedAidantId))
+                                    {
+                                        @if (reviewsByRequestId.ContainsKey(request.Id!) && reviewsByRequestId[request.Id!])
+                                        {
+                                            <span class="badge-modern badge-success" style="padding: 0.5rem 1rem;">
+                                                <i class="bi bi-star-fill"></i> Évalué
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <a href="@Url.Action("Create", "Review", new { requestId = request.Id })" class="btn-primary-modern" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                                <i class="bi bi-star"></i> Évaluer
+                                            </a>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

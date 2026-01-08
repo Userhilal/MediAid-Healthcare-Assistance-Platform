@@ -1,0 +1,128 @@
+@{
+    ViewData["Title"] = "Tableau de bord administrateur";
+}
+
+<div class="page-header-modern">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-speedometer2"></i> Tableau de bord administrateur
+        </h1>
+        <p class="page-subtitle">Vue d'ensemble de la plateforme MediAid</p>
+    </div>
+</div>
+
+<div class="stats-grid-modern">
+    <div class="stat-card-modern neumorphic-card">
+        <div class="stat-icon-wrapper stat-icon-blue">
+            <i class="bi bi-people"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-label-modern">Utilisateurs totaux</div>
+            <div class="stat-value-modern">@ViewBag.TotalUsers</div>
+        </div>
+    </div>
+
+    <div class="stat-card-modern neumorphic-card">
+        <div class="stat-icon-wrapper stat-icon-cyan">
+            <i class="bi bi-inbox"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-label-modern">Demandes totales</div>
+            <div class="stat-value-modern">@ViewBag.TotalRequests</div>
+        </div>
+    </div>
+
+    <div class="stat-card-modern neumorphic-card">
+        <div class="stat-icon-wrapper stat-icon-teal">
+            <i class="bi bi-heart-pulse"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-label-modern">Aidants actifs</div>
+            <div class="stat-value-modern">@ViewBag.ActiveAidants</div>
+        </div>
+    </div>
+
+    <div class="stat-card-modern neumorphic-card">
+        <div class="stat-icon-wrapper stat-icon-purple">
+            <i class="bi bi-clock-history"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-label-modern">Demandes en attente</div>
+            <div class="stat-value-modern">@ViewBag.PendingRequests</div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid-modern mt-4">
+    <div class="card-modern neumorphic-card">
+        <div class="card-header-modern">
+            <h2 class="card-title-modern">
+                <i class="bi bi-tools"></i> Actions rapides
+            </h2>
+        </div>
+        <div class="card-body-modern">
+            <div class="quick-actions-grid">
+                <a href="@Url.Action("Users", "Admin")" class="quick-action-item">
+                    <i class="bi bi-people"></i>
+                    <span>Gérer les utilisateurs</span>
+                </a>
+                <a href="@Url.Action("AuditLogs", "Admin")" class="quick-action-item">
+                    <i class="bi bi-journal-text"></i>
+                    <span>Voir les logs</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stats-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .dashboard-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: var(--spacing-lg);
+    }
+
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+    }
+
+    .quick-action-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-lg);
+        background: var(--color-gray-50);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        color: var(--color-navy);
+        transition: all 0.2s ease;
+        border: 1px solid var(--color-gray-200);
+    }
+
+    .quick-action-item i {
+        font-size: 2rem;
+        color: var(--color-sky-blue);
+    }
+
+    .quick-action-item:hover {
+        background: var(--color-white);
+        border-color: var(--color-sky-blue);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .quick-action-item span {
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+    }
+</style>

@@ -1,0 +1,1356 @@
+@model MediAid.DTOs.CreateRequestWizardDto
+@{
+    ViewData["Title"] = "Nouvelle demande - Assistant";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="wizard-container" style="background: #F8FAFC; padding: 2rem 0 4rem;">
+    <div class="row justify-content-center" style="margin: 0;">
+        <div class="col-lg-10 col-xl-9" style="padding: 0;">
+            <!-- Modern Slim Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+                <div class="step-indicators-modern">
+                    <div class="step-circle active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Type</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step-circle" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Détails</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step-circle" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Urgence</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step-circle" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Localisation</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step-circle" data-step="5">
+                        <div class="step-number">5</div>
+                        <div class="step-label">Confirmation</div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="wizardForm" asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!-- Étape 1: Type d'aide -->
+                <div class="wizard-step-card" id="step1" data-step="1">
+                    <div class="step-header">
+                        <h1 class="step-title-engaging">Quel type d'assistance médicale vous est nécessaire aujourd'hui ?</h1>
+                        <p class="step-subtitle">Choisissez le service qui correspond à vos besoins</p>
+                    </div>
+                    <div class="step-content">
+                        <div class="medical-cards-grid">
+                            <div class="medical-card category-card" data-category="Transport">
+                                <div class="card-accent"></div>
+                                <div class="card-content">
+                                    <div class="card-icon">
+                                        <i class="bi bi-car-front"></i>
+                                    </div>
+                                    <h5>Transport médical</h5>
+                                    <p>Transfert sécurisé vers un établissement de santé</p>
+                                </div>
+                            </div>
+                            <div class="medical-card category-card" data-category="Medication">
+                                <div class="card-accent"></div>
+                                <div class="card-content">
+                                    <div class="card-icon">
+                                        <i class="bi bi-capsule-pill"></i>
+                                    </div>
+                                    <h5>Récupération médicaments</h5>
+                                    <p>Retrait et livraison de vos ordonnances</p>
+                                </div>
+                            </div>
+                            <div class="medical-card category-card" data-category="Accompaniment">
+                                <div class="card-accent"></div>
+                                <div class="card-content">
+                                    <div class="card-icon">
+                                        <i class="bi bi-person-heart"></i>
+                                    </div>
+                                    <h5>Accompagnement clinique</h5>
+                                    <p>Soutien pour vos rendez-vous médicaux</p>
+                                </div>
+                            </div>
+                            <div class="medical-card category-card" data-category="LightAssistance">
+                                <div class="card-accent"></div>
+                                <div class="card-content">
+                                    <div class="card-icon">
+                                        <i class="bi bi-house-heart"></i>
+                                    </div>
+                                    <h5>Assistance à domicile</h5>
+                                    <p>Aide quotidienne et soins non urgents</p>
+                                </div>
+                            </div>
+                            <div class="medical-card category-card full-width" data-category="PostHospitalization">
+                                <div class="card-accent"></div>
+                                <div class="card-content">
+                                    <div class="card-icon">
+                                        <i class="bi bi-hospital"></i>
+                                    </div>
+                                    <h5>Suivi post-hospitalisation</h5>
+                                    <p>Accompagnement après une sortie d'hôpital</p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" asp-for="Category" id="selectedCategory" />
+                        <div class="step-actions">
+                            <button type="button" class="btn-next" onclick="nextStep()">
+                                Suivant <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 2: Détails -->
+                <div class="wizard-step-card d-none" id="step2" data-step="2">
+                    <div class="step-header">
+                        <div class="step-badge">Étape 2</div>
+                        <h2 class="step-title">Détails de la demande</h2>
+                        <p class="step-subtitle">Fournissez tous les détails nécessaires</p>
+                    </div>
+                    <div class="step-content">
+                        <div class="modern-input-group">
+                            <div class="input-wrapper">
+                                <i class="input-icon bi bi-file-text"></i>
+                                <input asp-for="Title" class="modern-input" required placeholder=" " />
+                                <label class="floating-label">Titre de la demande *</label>
+                            </div>
+                            <span asp-validation-for="Title" class="error-text"></span>
+                        </div>
+
+                        <div class="modern-input-group">
+                            <div class="input-wrapper">
+                                <textarea asp-for="Description" class="modern-input modern-textarea" rows="6" required placeholder=" "></textarea>
+                                <label class="floating-label">Description détaillée *</label>
+                            </div>
+                            <span asp-validation-for="Description" class="error-text"></span>
+                            <small class="input-hint">
+                                <i class="bi bi-info-circle"></i> Indiquez tous les détails nécessaires pour que les aidants comprennent votre besoin
+                            </small>
+                        </div>
+
+                        <div class="modern-input-group">
+                            <label class="modern-label">Documents (optionnel)</label>
+                            <div class="file-upload-zone" id="fileUploadZone">
+                                <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png" />
+                                <div class="upload-content">
+                                    <i class="bi bi-cloud-upload upload-icon"></i>
+                                    <p class="upload-text">Glissez-déposez vos fichiers ici ou <span class="upload-link">cliquez pour parcourir</span></p>
+                                    <small class="upload-hint">PDF, JPG, PNG (max 10MB par fichier)</small>
+                                </div>
+                                <div id="fileList" class="file-list"></div>
+                            </div>
+                        </div>
+
+                        <div class="step-actions">
+                            <button type="button" class="btn-secondary" onclick="previousStep()">
+                                <i class="bi bi-arrow-left"></i> Précédent
+                            </button>
+                            <button type="button" class="btn-next" onclick="nextStep()">
+                                Suivant <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 3: Urgence -->
+                <div class="wizard-step-card d-none" id="step3" data-step="3">
+                    <div class="step-header">
+                        <div class="step-badge">Étape 3</div>
+                        <h2 class="step-title">Niveau d'urgence</h2>
+                        <p class="step-subtitle">Indiquez l'urgence de votre demande</p>
+                    </div>
+                    <div class="step-content">
+                        <div class="urgency-alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <div>
+                                <strong>Important :</strong> En cas de douleur intense ou urgence vitale, contactez immédiatement les services d'urgence (15, 112).
+                            </div>
+                        </div>
+                        <div class="medical-cards-grid">
+                            <div class="medical-card urgency-card" data-urgency="Low">
+                                <div class="card-accent urgency-low"></div>
+                                <div class="card-content">
+                                    <div class="card-icon urgency-icon">
+                                        <i class="bi bi-circle-fill"></i>
+                                    </div>
+                                    <h5>Faible</h5>
+                                    <p>Pas d'urgence, peut attendre quelques jours</p>
+                                </div>
+                            </div>
+                            <div class="medical-card urgency-card active" data-urgency="Normal">
+                                <div class="card-accent urgency-normal"></div>
+                                <div class="card-content">
+                                    <div class="card-icon urgency-icon">
+                                        <i class="bi bi-circle-fill"></i>
+                                    </div>
+                                    <h5>Normale</h5>
+                                    <p>Besoin dans les prochains jours</p>
+                                </div>
+                            </div>
+                            <div class="medical-card urgency-card" data-urgency="High">
+                                <div class="card-accent urgency-high"></div>
+                                <div class="card-content">
+                                    <div class="card-icon urgency-icon">
+                                        <i class="bi bi-circle-fill"></i>
+                                    </div>
+                                    <h5>Élevée</h5>
+                                    <p>Besoin dans les prochaines heures</p>
+                                </div>
+                            </div>
+                            <div class="medical-card urgency-card" data-urgency="Critical">
+                                <div class="card-accent urgency-critical"></div>
+                                <div class="card-content">
+                                    <div class="card-icon urgency-icon">
+                                        <i class="bi bi-circle-fill"></i>
+                                    </div>
+                                    <h5>Critique</h5>
+                                    <p>Besoin immédiat (attention: pas d'urgence vitale)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" asp-for="Urgency" id="selectedUrgency" value="Normal" />
+                        <div class="step-actions">
+                            <button type="button" class="btn-secondary" onclick="previousStep()">
+                                <i class="bi bi-arrow-left"></i> Précédent
+                            </button>
+                            <button type="button" class="btn-next" onclick="nextStep()">
+                                Suivant <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 4: Localisation -->
+                <div class="wizard-step-card d-none" id="step4" data-step="4">
+                    <div class="step-header">
+                        <div class="step-badge">Étape 4</div>
+                        <h2 class="step-title">Localisation</h2>
+                        <p class="step-subtitle">Indiquez votre position approximative (pour la confidentialité)</p>
+                    </div>
+                    <div class="step-content">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="modern-input-group">
+                                    <div class="input-wrapper">
+                                        <i class="input-icon bi bi-geo-alt"></i>
+                                        <input asp-for="City" class="modern-input" required placeholder=" " />
+                                        <label class="floating-label">Ville *</label>
+                                    </div>
+                                    <span asp-validation-for="City" class="error-text"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="modern-input-group">
+                                    <div class="input-wrapper">
+                                        <i class="input-icon bi bi-postcard"></i>
+                                        <input asp-for="PostalCode" class="modern-input" placeholder=" " />
+                                        <label class="floating-label">Code postal</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modern-input-group">
+                            <div class="input-wrapper">
+                                <i class="input-icon bi bi-house"></i>
+                                <input asp-for="Address" class="modern-input" placeholder=" " />
+                                <label class="floating-label">Adresse approximative (optionnel)</label>
+                            </div>
+                            <small class="input-hint">Pour votre sécurité, ne donnez pas d'adresse exacte ici</small>
+                        </div>
+                        <div class="modern-input-group">
+                            <label class="modern-label">Sélectionnez votre localisation sur la carte</label>
+                            <div id="map" class="modern-map"></div>
+                            <small class="input-hint">Cliquez sur la carte pour définir votre position approximative</small>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="modern-input-group">
+                                    <label class="modern-label">Latitude</label>
+                                    <input asp-for="Latitude" id="latitudeInput" class="modern-input" type="number" step="any" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="modern-input-group">
+                                    <label class="modern-label">Longitude</label>
+                                    <input asp-for="Longitude" id="longitudeInput" class="modern-input" type="number" step="any" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-geolocation" onclick="getCurrentLocation()">
+                            <i class="bi bi-crosshair"></i> Utiliser ma position actuelle
+                        </button>
+                        <div class="step-actions">
+                            <button type="button" class="btn-secondary" onclick="previousStep()">
+                                <i class="bi bi-arrow-left"></i> Précédent
+                            </button>
+                            <button type="button" class="btn-next" onclick="nextStep()">
+                                Suivant <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 5: Confirmation -->
+                <div class="wizard-step-card d-none" id="step5" data-step="5">
+                    <div class="step-header">
+                        <div class="step-badge">Étape 5</div>
+                        <h2 class="step-title">Confirmation</h2>
+                        <p class="step-subtitle">Vérifiez les détails avant de créer votre demande</p>
+                    </div>
+                    <div class="step-content">
+                        <div class="confirmation-ticket">
+                            <div class="ticket-header">
+                                <div class="ticket-logo">
+                                    <i class="bi bi-heart-pulse"></i>
+                                    <span>MediAid</span>
+                                </div>
+                                <div class="ticket-badge verified">
+                                    <i class="bi bi-shield-check"></i> Vérifié
+                                </div>
+                            </div>
+                            <div class="ticket-body">
+                                <div class="ticket-row">
+                                    <div class="ticket-label">Type</div>
+                                    <div class="ticket-value" id="summaryCategory"></div>
+                                </div>
+                                <div class="ticket-divider"></div>
+                                <div class="ticket-row">
+                                    <div class="ticket-label">Titre</div>
+                                    <div class="ticket-value" id="summaryTitle"></div>
+                                </div>
+                                <div class="ticket-divider"></div>
+                                <div class="ticket-row">
+                                    <div class="ticket-label">Description</div>
+                                    <div class="ticket-value ticket-description" id="summaryDescription"></div>
+                                </div>
+                                <div class="ticket-divider"></div>
+                                <div class="ticket-row">
+                                    <div class="ticket-label">Niveau d'urgence</div>
+                                    <div class="ticket-value">
+                                        <span class="urgency-badge" id="summaryUrgency"></span>
+                                    </div>
+                                </div>
+                                <div class="ticket-divider"></div>
+                                <div class="ticket-row">
+                                    <div class="ticket-label">Localisation</div>
+                                    <div class="ticket-value" id="summaryLocation"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modern-input-group">
+                            <div class="modern-checkbox">
+                                <input type="checkbox" asp-for="RequiresExpertValidation" id="expertValidation" />
+                                <label for="expertValidation">
+                                    Cette demande nécessite une validation par un expert
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="modern-input-group">
+                            <label class="modern-label">Date souhaitée (optionnel)</label>
+                            <input asp-for="RequestedDate" class="modern-input" type="datetime-local" />
+                            <span asp-validation-for="RequestedDate" class="error-text"></span>
+                        </div>
+
+                        <div class="info-box">
+                            <i class="bi bi-info-circle"></i>
+                            <div>
+                                Après validation, votre demande sera visible par les aidants à proximité. Vous recevrez des notifications pour chaque proposition.
+                            </div>
+                        </div>
+
+                        <div class="step-actions">
+                            <button type="button" class="btn-secondary" onclick="previousStep()">
+                                <i class="bi bi-arrow-left"></i> Précédent
+                            </button>
+                            <button type="submit" class="btn-submit">
+                                <i class="bi bi-check-circle"></i> Créer la demande
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #F8FAFC !important;
+        }
+
+        .wizard-container {
+            background: #F8FAFC;
+            min-height: calc(100vh - 200px);
+            padding: 2rem 0 4rem;
+            margin: 0;
+        }
+
+        .container {
+            background: transparent !important;
+        }
+
+        /* Progress Container */
+        .progress-container {
+            margin-bottom: 3rem;
+        }
+
+        .progress-track {
+            height: 4px;
+            background: #E2E8F0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0EA5E9 0%, #2563EB 100%);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+            width: 20%;
+        }
+
+        .step-indicators-modern {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .step-circle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            color: #64748B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            color: #64748B;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        .step-circle.active .step-number {
+            background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+
+        .step-circle.active .step-label {
+            color: #1A365D;
+            font-weight: 600;
+        }
+
+        .step-circle.completed .step-number {
+            background: #10B981;
+            color: white;
+        }
+
+        .step-line {
+            width: 60px;
+            height: 2px;
+            background: #E2E8F0;
+            margin: 0 0.5rem;
+        }
+
+        .step-line.completed {
+            background: #10B981;
+        }
+
+        /* Wizard Step Card */
+        .wizard-step-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid #E2E8F0;
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .step-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .step-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);
+            color: white;
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .step-title-engaging {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1A365D;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+        }
+
+        .step-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1A365D;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-subtitle {
+            color: #64748B;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Medical Cards */
+        .medical-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .medical-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .medical-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-accent {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: transparent;
+            transition: background 0.3s ease;
+        }
+
+        .medical-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: #0EA5E9;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .medical-card.selected .card-accent,
+        .medical-card.active .card-accent {
+            background: #0EA5E9;
+        }
+
+        .medical-card.selected,
+        .medical-card.active {
+            border-color: #0EA5E9;
+            background: rgba(14, 165, 233, 0.05);
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.2);
+        }
+
+        .card-content {
+            text-align: center;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: #0EA5E9;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .medical-card:hover .card-icon {
+            transform: scale(1.1);
+        }
+
+        .card-content h5 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1A365D;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-content p {
+            color: #64748B;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        /* Urgency Colors */
+        .urgency-low .card-accent { background: #10B981; }
+        .urgency-normal .card-accent { background: #0EA5E9; }
+        .urgency-high .card-accent { background: #F59E0B; }
+        .urgency-critical .card-accent { background: #EF4444; }
+
+        .urgency-card.selected .card-accent,
+        .urgency-card.active .card-accent {
+            width: 4px;
+        }
+
+        .urgency-icon {
+            font-size: 2.5rem !important;
+        }
+
+        .urgency-card[data-urgency="Low"] .urgency-icon { color: #10B981; }
+        .urgency-card[data-urgency="Normal"] .urgency-icon { color: #0EA5E9; }
+        .urgency-card[data-urgency="High"] .urgency-icon { color: #F59E0B; }
+        .urgency-card[data-urgency="Critical"] .urgency-icon { color: #EF4444; }
+
+        /* Modern Input Fields */
+        .modern-input-group {
+            margin-bottom: 2rem;
+        }
+
+        .modern-label {
+            display: block;
+            font-weight: 600;
+            color: #1A365D;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748B;
+            z-index: 1;
+        }
+
+        .modern-input,
+        .modern-textarea {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+            color: #1A365D;
+        }
+
+        .modern-input:focus,
+        .modern-textarea:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        }
+
+        .modern-textarea {
+            padding-top: 1.5rem;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .floating-label {
+            position: absolute;
+            left: 3rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748B;
+            font-size: 1rem;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            background: white;
+            padding: 0 0.5rem;
+        }
+
+        .modern-input:focus + .floating-label,
+        .modern-input:not(:placeholder-shown) + .floating-label,
+        .modern-textarea:focus + .floating-label,
+        .modern-textarea:not(:placeholder-shown) + .floating-label {
+            top: 0;
+            font-size: 0.75rem;
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+
+        .input-hint {
+            display: block;
+            color: #64748B;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .error-text {
+            color: #EF4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        /* File Upload */
+        .file-upload-zone {
+            border: 2px dashed #CBD5E1;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: #F8FAFC;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .file-upload-zone:hover {
+            border-color: #0EA5E9;
+            background: rgba(14, 165, 233, 0.05);
+        }
+
+        .file-upload-zone input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-content {
+            pointer-events: none;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #0EA5E9;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: #1A365D;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-link {
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+
+        .upload-hint {
+            color: #64748B;
+            font-size: 0.875rem;
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .file-item {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Buttons */
+        .step-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .btn-next,
+        .btn-submit {
+            background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);
+            color: white;
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-next:hover,
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #64748B;
+            padding: 0.875rem 2rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            border-color: #CBD5E1;
+            background: #F8FAFC;
+        }
+
+        .btn-geolocation {
+            background: white;
+            color: #0EA5E9;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #0EA5E9;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-geolocation:hover {
+            background: #0EA5E9;
+            color: white;
+        }
+
+        /* Map */
+        .modern-map {
+            height: 400px;
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            overflow: hidden;
+        }
+
+        /* Urgency Alert */
+        .urgency-alert {
+            background: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            color: #92400E;
+        }
+
+        .urgency-alert i {
+            font-size: 1.5rem;
+            color: #F59E0B;
+        }
+
+        /* Confirmation Ticket */
+        .confirmation-ticket {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .confirmation-ticket::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="50" font-size="80" fill="%23F1F5F9" opacity="0.3" text-anchor="middle" dominant-baseline="middle" font-family="Arial">✓</text></svg>') no-repeat;
+            background-size: contain;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .ticket-header {
+            background: linear-gradient(135deg, #1A365D 0%, #2D3748 100%);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .ticket-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .ticket-logo i {
+            font-size: 1.5rem;
+        }
+
+        .ticket-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ticket-body {
+            padding: 2rem;
+        }
+
+        .ticket-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        .ticket-label {
+            font-weight: 600;
+            color: #64748B;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ticket-value {
+            color: #1A365D;
+            font-weight: 500;
+        }
+
+        .ticket-description {
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .ticket-divider {
+            height: 1px;
+            background: #E2E8F0;
+            margin: 0.5rem 0;
+        }
+
+        .urgency-badge {
+            display: inline-block;
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .urgency-badge[data-urgency="Low"] {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .urgency-badge[data-urgency="Normal"] {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .urgency-badge[data-urgency="High"] {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .urgency-badge[data-urgency="Critical"] {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        /* Checkbox */
+        .modern-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .modern-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #0EA5E9;
+        }
+
+        .modern-checkbox label {
+            cursor: pointer;
+            color: #1A365D;
+            font-weight: 500;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #DBEAFE;
+            border-left: 4px solid #0EA5E9;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            color: #1E40AF;
+        }
+
+        .info-box i {
+            font-size: 1.25rem;
+            color: #0EA5E9;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .medical-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step-actions {
+                flex-direction: column-reverse;
+                gap: 1rem;
+            }
+
+            .btn-next,
+            .btn-submit,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .wizard-step-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .ticket-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+    <script>
+        let currentStepNum = 1;
+        const totalSteps = 5;
+
+        // Category selection
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('selectedCategory').value = this.dataset.category;
+            });
+        });
+
+        // Pre-select category from URL parameter
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryParam = urlParams.get('category');
+            if (categoryParam) {
+                // Map category names from dashboard to wizard format
+                const categoryMap = {
+                    'Médicaments': 'Medication',
+                    'Transport': 'Transport',
+                    'Accompagnement': 'Accompaniment',
+                    'Aide à domicile': 'LightAssistance',
+                    'Post-hospitalisation': 'PostHospitalization'
+                };
+                
+                const mappedCategory = categoryMap[categoryParam] || categoryParam;
+                const categoryCard = document.querySelector(`.category-card[data-category="${mappedCategory}"]`);
+                if (categoryCard) {
+                    categoryCard.click();
+                }
+            }
+        });
+
+        // Urgency selection
+        document.querySelectorAll('.urgency-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.urgency-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('selectedUrgency').value = this.dataset.urgency;
+            });
+        });
+
+        function updateProgress() {
+            const percentage = (currentStepNum / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+
+            // Update step circles
+            document.querySelectorAll('.step-circle').forEach((circle, index) => {
+                const stepNum = index + 1;
+                circle.classList.remove('active', 'completed');
+                if (stepNum < currentStepNum) {
+                    circle.classList.add('completed');
+                    if (circle.nextElementSibling && circle.nextElementSibling.classList.contains('step-line')) {
+                        circle.nextElementSibling.classList.add('completed');
+                    }
+                } else if (stepNum === currentStepNum) {
+                    circle.classList.add('active');
+                }
+            });
+        }
+
+        function nextStep() {
+            if (currentStepNum === 1 && !document.getElementById('selectedCategory').value) {
+                alert('Veuillez sélectionner un type d\'aide');
+                return;
+            }
+            if (currentStepNum === 2) {
+                const title = document.querySelector('[name="Title"]').value;
+                const description = document.querySelector('[name="Description"]').value;
+                if (!title || !description) {
+                    alert('Veuillez remplir le titre et la description');
+                    return;
+                }
+            }
+
+            if (currentStepNum < totalSteps) {
+                document.getElementById('step' + currentStepNum).classList.add('d-none');
+                currentStepNum++;
+                document.getElementById('step' + currentStepNum).classList.remove('d-none');
+                updateProgress();
+                updateSummary();
+                
+                if (currentStepNum === 4) {
+                    setTimeout(function() {
+                        if (!map) {
+                            initMap();
+                        } else {
+                            map.invalidateSize();
+                        }
+                    }, 300);
+                }
+            }
+        }
+
+        function previousStep() {
+            if (currentStepNum > 1) {
+                document.getElementById('step' + currentStepNum).classList.add('d-none');
+                currentStepNum--;
+                document.getElementById('step' + currentStepNum).classList.remove('d-none');
+                updateProgress();
+            }
+        }
+
+        function updateSummary() {
+            if (currentStepNum === 5) {
+                const categories = {
+                    'Transport': 'Transport médical',
+                    'Medication': 'Récupération médicaments',
+                    'Accompaniment': 'Accompagnement clinique',
+                    'LightAssistance': 'Assistance à domicile',
+                    'PostHospitalization': 'Suivi post-hospitalisation'
+                };
+                const urgencies = {
+                    'Low': 'Faible',
+                    'Normal': 'Normale',
+                    'High': 'Élevée',
+                    'Critical': 'Critique'
+                };
+
+                const urgencyValue = document.getElementById('selectedUrgency').value;
+                const urgencyText = urgencies[urgencyValue] || '';
+
+                document.getElementById('summaryCategory').textContent = categories[document.getElementById('selectedCategory').value] || '';
+                document.getElementById('summaryTitle').textContent = document.querySelector('[name="Title"]').value;
+                document.getElementById('summaryDescription').textContent = document.querySelector('[name="Description"]').value;
+                
+                const urgencyBadge = document.getElementById('summaryUrgency');
+                urgencyBadge.textContent = urgencyText;
+                urgencyBadge.setAttribute('data-urgency', urgencyValue);
+
+                const city = document.querySelector('[name="City"]').value;
+                const postalCode = document.querySelector('[name="PostalCode"]').value;
+                document.getElementById('summaryLocation').textContent = city + (postalCode ? ' (' + postalCode + ')' : '');
+            }
+        }
+
+        // File upload handling
+        const fileUploadZone = document.getElementById('fileUploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+
+        fileUploadZone.addEventListener('click', () => fileInput.click());
+
+        fileUploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadZone.style.borderColor = '#0EA5E9';
+            fileUploadZone.style.background = 'rgba(14, 165, 233, 0.1)';
+        });
+
+        fileUploadZone.addEventListener('dragleave', () => {
+            fileUploadZone.style.borderColor = '#CBD5E1';
+            fileUploadZone.style.background = '#F8FAFC';
+        });
+
+        fileUploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadZone.style.borderColor = '#CBD5E1';
+            fileUploadZone.style.background = '#F8FAFC';
+            fileInput.files = e.dataTransfer.files;
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            fileList.innerHTML = '';
+            Array.from(files).forEach(file => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `<i class="bi bi-file-earmark"></i> <span>${file.name}</span>`;
+                fileList.appendChild(div);
+            });
+        }
+
+        // Map initialization
+        var map;
+        var marker;
+        var initialLat = 48.8566;
+        var initialLon = 2.3522;
+
+        function initMap() {
+            var mapContainer = document.getElementById('map');
+            if (!mapContainer) {
+                console.error('Map container not found');
+                return;
+            }
+
+            if (map) {
+                try {
+                    map.remove();
+                } catch(e) {
+                    console.log('Error removing existing map:', e);
+                }
+                map = null;
+            }
+
+            map = L.map('map').setView([initialLat, initialLon], 10);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            setTimeout(function() {
+                if (map) {
+                    map.invalidateSize();
+                }
+            }, 100);
+
+            map.on('click', function(e) {
+                updateMarker(e.latlng.lat, e.latlng.lng);
+            });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    initialLat = position.coords.latitude;
+                    initialLon = position.coords.longitude;
+                    if (map) {
+                        map.setView([initialLat, initialLon], 13);
+                        updateMarker(initialLat, initialLon);
+                    }
+                }, function(error) {
+                    console.log('Geolocation error:', error);
+                    updateMarker(initialLat, initialLon);
+                });
+            } else {
+                updateMarker(initialLat, initialLon);
+            }
+        }
+
+        function updateMarker(lat, lon) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            marker = L.marker([lat, lon]).addTo(map);
+            document.getElementById('latitudeInput').value = lat.toFixed(6);
+            document.getElementById('longitudeInput').value = lon.toFixed(6);
+        }
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    map.setView([lat, lon], 13);
+                    updateMarker(lat, lon);
+                }, function(error) {
+                    alert('Impossible d\'obtenir votre position. Veuillez sélectionner votre position sur la carte.');
+                });
+            } else {
+                alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+            }
+        }
+
+        // Initialize progress
+        updateProgress();
+    </script>
+}

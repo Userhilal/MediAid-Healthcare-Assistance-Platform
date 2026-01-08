@@ -1,0 +1,422 @@
+@using MediAid.Models
+@{
+    ViewData["Title"] = "Profil Aidant";
+    var targetAidant = ViewBag.TargetAidant as Aidant;
+    var targetUser = ViewBag.TargetUser as User;
+    var currentAidant = ViewBag.CurrentAidant as Aidant;
+    var comments = ViewBag.Comments as List<dynamic> ?? new List<dynamic>();
+    var existingComment = ViewBag.ExistingComment as AidantComment;
+    var reviews = ViewBag.Reviews as List<dynamic> ?? new List<dynamic>();
+    var isOwnProfile = ViewBag.IsOwnProfile as bool? ?? false;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="~/css/aidant-profile.css" asp-append-version="true" />
+
+<div class="aidant-profile-page">
+    <!-- Header du profil -->
+    <div class="profile-header">
+        <div class="profile-cover">
+            <div class="profile-avatar-large">
+                @{
+                    var initial = targetUser?.FirstName?.Substring(0, 1).ToUpper() ?? "A";
+                }
+                <span>@initial</span>
+                @if (targetAidant?.IsVerified == true)
+                {
+                    <div class="verified-badge-large">
+                        <i class="bi bi-shield-check-fill"></i>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="profile-info-header">
+            <h1 class="profile-name">@targetUser?.FirstName @targetUser?.LastName</h1>
+            <div class="profile-badges">
+                @if (targetAidant?.IsVerified == true)
+                {
+                    <span class="badge-verified">
+                        <i class="bi bi-shield-check-fill"></i> Vérifié
+                    </span>
+                }
+                <span class="badge-status status-@(targetAidant?.AvailabilityStatus?.ToLower() ?? "available")">
+                    <i class="bi bi-circle-fill"></i> @(targetAidant?.AvailabilityStatus == "Available" ? "Disponible" : targetAidant?.AvailabilityStatus == "Busy" ? "Occupé" : "Indisponible")
+                </span>
+            </div>
+            <div class="profile-rating">
+                @for (int i = 0; i < 5; i++)
+                {
+                    <i class="bi bi-star-fill @(i < Math.Floor(targetAidant?.ReputationScore ?? 0) ? "star-filled" : "star-empty")"></i>
+                }
+                <span class="rating-value">@(targetAidant?.ReputationScore.ToString("F1") ?? "0.0")</span>
+                <span class="rating-count">(@(targetAidant?.CompletedMissions ?? 0) missions)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-content-grid">
+        <!-- Colonne gauche -->
+        <div class="profile-left-column">
+            <!-- Informations principales -->
+            <section class="profile-section">
+                <h2 class="section-title">À propos</h2>
+                @if (!string.IsNullOrEmpty(targetAidant?.Bio))
+                {
+                    <p class="bio-text">@targetAidant.Bio</p>
+                }
+                else
+                {
+                    <p class="bio-text text-muted">Aucune description disponible.</p>
+                }
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <div>
+                            <span class="info-label">Ville</span>
+                            <span class="info-value">@(targetAidant?.City ?? "Non spécifiée")</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="bi bi-clock-history"></i>
+                        <div>
+                            <span class="info-label">Heures totales</span>
+                            <span class="info-value">@(targetAidant?.TotalHours.ToString("F1") ?? "0") h</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="bi bi-trophy-fill"></i>
+                        <div>
+                            <span class="info-label">Missions complétées</span>
+                            <span class="info-value">@(targetAidant?.CompletedMissions ?? 0)</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="bi bi-signpost-split-fill"></i>
+                        <div>
+                            <span class="info-label">Rayon d'intervention</span>
+                            <span class="info-value">@(targetAidant?.InterventionRadius ?? 10) km</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compétences -->
+            @if (targetAidant?.Skills != null && targetAidant.Skills.Any())
+            {
+                <section class="profile-section">
+                    <h2 class="section-title">Compétences</h2>
+                    <div class="skills-list">
+                        @foreach (var skill in targetAidant.Skills)
+                        {
+                            <span class="skill-badge">@skill</span>
+                        }
+                    </div>
+                </section>
+            }
+
+            <!-- Langues -->
+            @if (targetAidant?.Languages != null && targetAidant.Languages.Any())
+            {
+                <section class="profile-section">
+                    <h2 class="section-title">Langues</h2>
+                    <div class="languages-list">
+                        @foreach (var language in targetAidant.Languages)
+                        {
+                            <span class="language-badge">@language</span>
+                        }
+                    </div>
+                </section>
+            }
+
+            <!-- Trust Badge Matrix -->
+            <section class="profile-section">
+                <h2 class="section-title">Badges de confiance</h2>
+                <div class="trust-badges-grid">
+                    @{
+                        var hasCriminalRecordCheck = targetAidant?.Certifications?.Any(c => c.Name.Contains("Criminal Record") || c.Name.Contains("Casier judiciaire")) == true;
+                        var hasFirstAid = targetAidant?.Certifications?.Any(c => c.Name.Contains("First Aid") || c.Name.Contains("Premiers secours")) == true;
+                        var hasIDVerified = targetAidant?.IsVerified == true;
+                        var hasBackgroundCheck = targetAidant?.IsVerified == true;
+                    }
+                    
+                    @if (hasCriminalRecordCheck)
+                    {
+                        <div class="trust-badge-item verified">
+                            <i class="bi bi-shield-check-fill"></i>
+                            <div>
+                                <strong>Casier judiciaire vérifié</strong>
+                                <span class="badge-timestamp">Vérifié le @(targetAidant?.Certifications?.FirstOrDefault(c => c.Name.Contains("Criminal Record") || c.Name.Contains("Casier judiciaire"))?.IssueDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
+                            </div>
+                        </div>
+                    }
+                    
+                    @if (hasFirstAid)
+                    {
+                        <div class="trust-badge-item verified">
+                            <i class="bi bi-heart-pulse-fill"></i>
+                            <div>
+                                <strong>Premiers secours certifié</strong>
+                                <span class="badge-timestamp">Certifié le @(targetAidant?.Certifications?.FirstOrDefault(c => c.Name.Contains("First Aid") || c.Name.Contains("Premiers secours"))?.IssueDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
+                            </div>
+                        </div>
+                    }
+                    
+                    @if (hasIDVerified)
+                    {
+                        <div class="trust-badge-item verified">
+                            <i class="bi bi-person-badge-fill"></i>
+                            <div>
+                                <strong>Identité vérifiée</strong>
+                                <span class="badge-timestamp">Vérifié le @(targetAidant?.CreatedAt.ToString("dd/MM/yyyy"))</span>
+                            </div>
+                        </div>
+                    }
+                    
+                    @if (!hasCriminalRecordCheck && !hasFirstAid && !hasIDVerified)
+                    {
+                        <p class="text-muted">Aucun badge de confiance disponible pour le moment.</p>
+                    }
+                </div>
+            </section>
+
+            <!-- Certifications -->
+            @if (targetAidant?.Certifications != null && targetAidant.Certifications.Any())
+            {
+                <section class="profile-section">
+                    <h2 class="section-title">Certifications</h2>
+                    <div class="certifications-list">
+                        @foreach (var cert in targetAidant.Certifications)
+                        {
+                            <div class="certification-item">
+                                <i class="bi bi-award-fill"></i>
+                                <div>
+                                    <strong>@cert.Name</strong>
+                                    @if (!string.IsNullOrEmpty(cert.IssuingOrganization))
+                                    {
+                                        <p class="cert-org">@cert.IssuingOrganization</p>
+                                    }
+                                    @if (cert.IssueDate.HasValue)
+                                    {
+                                        <p class="cert-date">Émise le @cert.IssueDate.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+
+            <!-- Reliability Heatmap (GitHub-style) -->
+            <section class="profile-section">
+                <h2 class="section-title">Heatmap de fiabilité</h2>
+                <p class="section-subtitle">Consistance et dévouement sur les 6 derniers mois</p>
+                <div class="reliability-heatmap" id="reliabilityHeatmap">
+                    <!-- Heatmap will be generated by JavaScript -->
+                </div>
+                <div class="heatmap-legend">
+                    <span class="legend-item"><span class="legend-box less"></span> Moins actif</span>
+                    <span class="legend-item"><span class="legend-box more"></span> Plus actif</span>
+                </div>
+            </section>
+
+            <!-- Impact Metrics -->
+            <section class="profile-section">
+                <h2 class="section-title">Métriques d'impact</h2>
+                <div class="impact-metrics-grid">
+                    <div class="impact-metric-card">
+                        <div class="metric-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@(targetAidant?.CompletedMissions ?? 0)</div>
+                            <div class="metric-label">Vies impactées</div>
+                        </div>
+                    </div>
+                    <div class="impact-metric-card">
+                        <div class="metric-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@(Math.Floor(targetAidant?.TotalHours ?? 0))h</div>
+                            <div class="metric-label">Heures de bénévolat</div>
+                        </div>
+                    </div>
+                    <div class="impact-metric-card">
+                        <div class="metric-icon">
+                            <i class="bi bi-heart-fill"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@(targetAidant?.ReputationScore.ToString("F1") ?? "0.0")</div>
+                            <div class="metric-label">Note moyenne</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Colonne droite -->
+        <div class="profile-right-column">
+            <!-- Formulaire de commentaire -->
+            @if (!isOwnProfile)
+            {
+                <section class="profile-section comment-form-section">
+                    <h2 class="section-title">Laisser un commentaire</h2>
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
+                    <form method="post" asp-action="AddComment" asp-controller="Aidant">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="targetAidantId" value="@targetAidant?.Id" />
+                        
+                        <div class="form-group">
+                            <label for="rating">Note (optionnelle)</label>
+                            <div class="rating-input">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <input type="radio" name="rating" id="rating@i" value="@i" @(existingComment?.Rating == i ? "checked" : "") />
+                                    <label for="rating@i" class="star-label">
+                                        <i class="bi bi-star@(existingComment?.Rating >= i ? "-fill" : "")"></i>
+                                    </label>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="content">Commentaire</label>
+                            <textarea name="content" id="content" class="form-control" rows="4" required placeholder="Partagez votre expérience avec cet aidant...">@(existingComment?.Content ?? "")</textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit-comment">
+                            @(existingComment != null ? "Modifier le commentaire" : "Publier le commentaire")
+                        </button>
+                        @if (existingComment != null)
+                        {
+                            <form method="post" asp-action="DeleteComment" asp-controller="Aidant" style="display: inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="commentId" value="@existingComment.Id" />
+                                <input type="hidden" name="targetAidantId" value="@targetAidant?.Id" />
+                                <button type="submit" class="btn-delete-comment" onclick="return confirm('Êtes-vous sûr de vouloir supprimer votre commentaire ?');">
+                                    <i class="bi bi-trash"></i> Supprimer
+                                </button>
+                            </form>
+                        }
+                    </form>
+                </section>
+            }
+
+            <!-- Commentaires des autres aidants -->
+            <section class="profile-section">
+                <h2 class="section-title">
+                    Commentaires des aidants
+                    <span class="comment-count">(@comments.Count)</span>
+                </h2>
+                @if (comments.Any())
+                {
+                    <div class="comments-list">
+                        @foreach (var item in comments)
+                        {
+                            var comment = item.Comment as AidantComment;
+                            var authorUser = item.AuthorUser as User;
+                            var authorAidant = item.AuthorAidant as Aidant;
+                            
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="comment-author">
+                                        <div class="comment-avatar">
+                                            @{
+                                                var authorInitial = authorUser?.FirstName?.Substring(0, 1).ToUpper() ?? "A";
+                                            }
+                                            <span>@authorInitial</span>
+                                        </div>
+                                        <div>
+                                            <strong>@authorUser?.FirstName @authorUser?.LastName</strong>
+                                            <span class="comment-date">@comment?.CreatedAt.ToString("dd/MM/yyyy à HH:mm")</span>
+                                        </div>
+                                    </div>
+                                    @if (comment?.Rating.HasValue == true)
+                                    {
+                                        <div class="comment-rating">
+                                            @for (int i = 0; i < 5; i++)
+                                            {
+                                                <i class="bi bi-star-fill @(i < comment.Rating.Value ? "star-filled" : "star-empty")"></i>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                <p class="comment-content">@comment?.Content</p>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Aucun commentaire pour le moment.</p>
+                }
+            </section>
+
+            <!-- Avis des patients -->
+            @if (reviews.Any())
+            {
+                <section class="profile-section">
+                    <h2 class="section-title">Avis des patients</h2>
+                    <div class="reviews-list">
+                        @foreach (var item in reviews.Take(5))
+                        {
+                            var review = item.Review as Review;
+                            var patient = item.Patient as User;
+                            
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <strong>@patient?.FirstName</strong>
+                                    <div class="review-rating">
+                                        @for (int i = 0; i < 5; i++)
+                                        {
+                                            <i class="bi bi-star-fill @(i < review?.Rating ? "star-filled" : "star-empty")"></i>
+                                        }
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(review?.Comment))
+                                {
+                                    <p class="review-content">@review.Comment</p>
+                                }
+                                <span class="review-date">@review?.CreatedAt.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="~/js/aidant-profile.js" asp-append-version="true"></script>
+<script>
+    // Rating stars interaction
+    document.querySelectorAll('.rating-input input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const rating = parseInt(this.value);
+            const labels = document.querySelectorAll('.rating-input .star-label');
+            labels.forEach((label, index) => {
+                const icon = label.querySelector('i');
+                if (index < rating) {
+                    icon.classList.remove('bi-star');
+                    icon.classList.add('bi-star-fill');
+                } else {
+                    icon.classList.remove('bi-star-fill');
+                    icon.classList.add('bi-star');
+                }
+            });
+        });
+    });
+</script>
+}
+

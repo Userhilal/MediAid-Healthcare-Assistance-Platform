@@ -1,0 +1,212 @@
+@{
+    ViewData["Title"] = "Mon Planning";
+    var aidant = ViewBag.Aidant as MediAid.Models.Aidant;
+    var user = ViewBag.User as MediAid.Models.User;
+    var currentDate = ViewBag.CurrentDate as DateTime? ?? DateTime.Today;
+    var startOfWeek = ViewBag.StartOfWeek as DateTime? ?? DateTime.Today;
+    var endOfWeek = ViewBag.EndOfWeek as DateTime? ?? DateTime.Today;
+    var plannings = ViewBag.Plannings as List<MediAid.Models.Planning> ?? new List<MediAid.Models.Planning>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="~/css/planning.css" asp-append-version="true" />
+
+<div class="planning-container">
+    <!-- Header -->
+    <div class="planning-header">
+        <div class="header-left">
+            <h1 class="planning-title">Mon Planning</h1>
+            <p class="planning-subtitle">Gérez vos disponibilités et missions</p>
+        </div>
+        <div class="header-actions">
+            <a href="@Url.Action("Index", "Planning", new { date = startOfWeek.AddDays(-7) })" class="btn-nav">
+                <i class="bi bi-chevron-left"></i> Semaine précédente
+            </a>
+            <button class="btn-nav btn-today" onclick="goToToday()">
+                Aujourd'hui
+            </button>
+            <a href="@Url.Action("Index", "Planning", new { date = startOfWeek.AddDays(7) })" class="btn-nav">
+                Semaine suivante <i class="bi bi-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Week Navigation -->
+    <div class="week-header">
+        <div class="week-info">
+            <span class="week-range">
+                @startOfWeek.ToString("dd MMM") - @endOfWeek.ToString("dd MMM yyyy")
+            </span>
+        </div>
+        <div class="week-actions">
+            <button class="btn-action" onclick="openAddSlotModal()">
+                <i class="bi bi-plus-circle"></i> Ajouter un créneau
+            </button>
+            <button class="btn-action btn-secondary" onclick="openBlockSlotModal()">
+                <i class="bi bi-x-circle"></i> Bloquer un créneau
+            </button>
+            <button class="btn-action btn-sync" onclick="syncMissions()" title="Synchroniser les missions acceptées">
+                <i class="bi bi-arrow-clockwise"></i> Synchroniser
+            </button>
+        </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar-grid">
+        @{
+            var daysOfWeek = new[] { "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche" };
+            var currentDay = startOfWeek;
+        }
+        
+        @for (int dayIndex = 0; dayIndex < 7; dayIndex++)
+        {
+            var dayPlanning = plannings.FirstOrDefault(p => p.Date.Date == currentDay.Date);
+            var isToday = currentDay.Date == DateTime.Today;
+            
+            <div class="calendar-day @(isToday ? "today" : "")">
+                <div class="day-header">
+                    <div class="day-name">@daysOfWeek[dayIndex]</div>
+                    <div class="day-number">@currentDay.Day</div>
+                </div>
+                <div class="day-slots" data-date="@currentDay.ToString("yyyy-MM-dd")">
+                    @if (dayPlanning != null && dayPlanning.TimeSlots.Any())
+                    {
+                        @foreach (var slot in dayPlanning.TimeSlots.OrderBy(s => s.StartTime))
+                        {
+                            var slotId = $"{slot.StartTime:hh\\:mm}-{slot.EndTime:hh\\:mm}-{slot.Type}";
+                            var slotClass = slot.Type switch
+                            {
+                                "Mission" => "slot-mission",
+                                "Blocked" => "slot-blocked",
+                                "Available" => "slot-available",
+                                _ => "slot-default"
+                            };
+                            
+                            <div class="time-slot @slotClass" 
+                                 data-slot-id="@slotId"
+                                 data-start="@slot.StartTime.ToString(@"hh\:mm")"
+                                 data-end="@slot.EndTime.ToString(@"hh\:mm")"
+                                 data-type="@slot.Type"
+                                 data-request-id="@slot.RequestId"
+                                 onclick="openSlotDetails('@slotId', '@currentDay.ToString("yyyy-MM-dd")')">
+                                <div class="slot-time">@slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")</div>
+                                <div class="slot-title">@(slot.Title ?? slot.Type)</div>
+                                @if (!string.IsNullOrEmpty(slot.Description))
+                                {
+                                    <div class="slot-description">@slot.Description</div>
+                                }
+                                @if (slot.Type == "Mission" && !string.IsNullOrEmpty(slot.RequestId))
+                                {
+                                    <div class="slot-action">
+                                        <a href="@Url.Action("Details", "Request", new { id = slot.RequestId })" class="slot-link" onclick="event.stopPropagation();">
+                                            <i class="bi bi-arrow-right"></i> Voir mission
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-day">Aucun créneau</div>
+                    }
+                </div>
+            </div>
+            
+            currentDay = currentDay.AddDays(1);
+        }
+    </div>
+</div>
+
+<!-- Modal: Add Available Slot -->
+<div class="modal" id="addSlotModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Ajouter un créneau disponible</h2>
+            <button class="modal-close" onclick="closeModal('addSlotModal')">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <form id="addSlotForm" onsubmit="addAvailableSlot(event)">
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="slotDate" class="form-input" required />
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Heure de début</label>
+                    <input type="time" id="slotStartTime" class="form-input" required />
+                </div>
+                <div class="form-group">
+                    <label>Heure de fin</label>
+                    <input type="time" id="slotEndTime" class="form-input" required />
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('addSlotModal')">Annuler</button>
+                <button type="submit" class="btn-primary">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Block Slot -->
+<div class="modal" id="blockSlotModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Bloquer un créneau</h2>
+            <button class="modal-close" onclick="closeModal('blockSlotModal')">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <form id="blockSlotForm" onsubmit="blockSlot(event)">
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="blockDate" class="form-input" required />
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Heure de début</label>
+                    <input type="time" id="blockStartTime" class="form-input" required />
+                </div>
+                <div class="form-group">
+                    <label>Heure de fin</label>
+                    <input type="time" id="blockEndTime" class="form-input" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Raison (optionnel)</label>
+                <textarea id="blockReason" class="form-input" rows="3"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('blockSlotModal')">Annuler</button>
+                <button type="submit" class="btn-primary">Bloquer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Slot Details -->
+<div class="modal" id="slotDetailsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="slotDetailsTitle">Détails du créneau</h2>
+            <button class="modal-close" onclick="closeModal('slotDetailsModal')">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <div id="slotDetailsContent">
+            <!-- Content will be loaded dynamically -->
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-danger" id="deleteSlotBtn" onclick="deleteSlot()" style="display: none;">Supprimer</button>
+            <button type="button" class="btn-cancel" onclick="closeModal('slotDetailsModal')">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/planning.js" asp-append-version="true"></script>
+

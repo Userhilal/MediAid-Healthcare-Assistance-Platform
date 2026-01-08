@@ -1,0 +1,2371 @@
+@{
+    ViewData["Title"] = "Accueil";
+    Layout = "_Layout";
+}
+
+<!-- 1️⃣ HERO SECTION (FIRST SCREEN – MOST IMPORTANT) -->
+<section class="hero-section-enhanced" data-aos="fade-in">
+    <!-- Abstract Blob Shapes Background -->
+    <div class="hero-blob-shapes">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    
+    <div class="container">
+        <div class="hero-split-layout">
+            <!-- Left Side: Text & Buttons -->
+            <div class="hero-left">
+                <!-- Trust Badge -->
+                <div class="trust-badge-pill" data-aos="fade-up">
+                    <span class="badge-icon">✨</span>
+                    <span class="badge-text">Trusted by @(ViewBag.TotalUsers > 0 ? ViewBag.TotalUsers.ToString("N0") : "0")+ @(ViewBag.TotalUsers == 1 ? "family" : "families")</span>
+                </div>
+                
+                <h1 class="hero-main-title-enhanced" data-aos="fade-up" data-aos-delay="50">
+                    Connecting Patients with <span class="highlight-trusted">Trusted <span class="gradient-text-human">Human Support</span></span>
+                    <span class="squiggle-underline"></span>
+                </h1>
+                <p class="hero-subtitle-enhanced" data-aos="fade-up" data-aos-delay="100">
+                    A secure platform that connects patients, caregivers, volunteers, and experts to provide real human support when it matters most.
+                </p>
+                
+                @if (User.Identity?.IsAuthenticated != true)
+                {
+                    <div class="hero-cta-group-enhanced" data-aos="fade-up" data-aos-delay="200">
+                        <a asp-controller="Account" asp-action="Register" class="btn-hero-primary-gradient" data-role="patient">
+                            <div class="btn-background-icon">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <div class="btn-avatar-group">
+                                <div class="btn-avatar avatar-1">👤</div>
+                                <div class="btn-avatar avatar-2">👩</div>
+                                <div class="btn-avatar avatar-3">👨</div>
+                            </div>
+                            <i class="bi bi-person-heart"></i>
+                            <span>I am a Patient</span>
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="btn-hero-primary-gradient" data-role="aidant">
+                            <div class="btn-background-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div class="btn-avatar-group">
+                                <div class="btn-avatar avatar-4">👨‍⚕️</div>
+                                <div class="btn-avatar avatar-5">👩‍⚕️</div>
+                                <div class="btn-avatar avatar-6">🤝</div>
+                            </div>
+                            <i class="bi bi-people-fill"></i>
+                            <span>I want to Help</span>
+                        </a>
+                    </div>
+                    <div class="hero-cta-secondary-enhanced" data-aos="fade-up" data-aos-delay="300">
+                        <a asp-controller="Account" asp-action="Login" class="btn-hero-glassmorphic">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span>Login</span>
+                        </a>
+                        <a href="#how-it-works-preview" class="btn-hero-glassmorphic">
+                            <i class="bi bi-info-circle"></i>
+                            <span>Discover How It Works</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Trust Bar with Partner Logos -->
+                    <div class="trust-bar-partners" data-aos="fade-up" data-aos-delay="400">
+                        <div class="trust-bar-label">Trusted by</div>
+                        <div class="trust-logos-grid">
+                            <div class="trust-logo-item">
+                                <i class="bi bi-shield-check"></i>
+                                <span>GDPR</span>
+                            </div>
+                            <div class="trust-logo-item">
+                                <i class="bi bi-lock-fill"></i>
+                                <span>HIPAA</span>
+                            </div>
+                            <div class="trust-logo-item">
+                                <i class="bi bi-hospital"></i>
+                                <span>Medical</span>
+                            </div>
+                            <div class="trust-logo-item">
+                                <i class="bi bi-award-fill"></i>
+                                <span>Certified</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="hero-cta-group-enhanced" data-aos="fade-up" data-aos-delay="200">
+                        <a asp-controller="Dashboard" asp-action="Index" class="btn-hero-primary-gradient">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Go to Dashboard</span>
+                        </a>
+                    </div>
+                }
+            </div>
+            
+            <!-- Right Side: 3D Visual Element -->
+            <div class="hero-right" data-aos="fade-left" data-aos-delay="200">
+                <div class="hero-visual-container parallax-container">
+                    <div class="floating-mockup">
+                        <div class="mockup-card">
+                            <div class="mockup-header">
+                                <div class="mockup-avatar-large">👩‍⚕️</div>
+                                <div class="mockup-info">
+                                    <div class="mockup-name">Dr. Sarah Chen</div>
+                                    <div class="mockup-role">Certified Caregiver</div>
+                                </div>
+                                <div class="mockup-badge-verified">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                            </div>
+                            <div class="mockup-stats">
+                                <div class="mockup-stat">
+                                    <div class="stat-value">@(ViewBag.PatientsHelped ?? 0)</div>
+                                    <div class="stat-label">Helped</div>
+                                </div>
+                                <div class="mockup-stat">
+                                    <div class="stat-value">@(ViewBag.AverageRating > 0 ? ViewBag.AverageRating.ToString("F1") : "0.0")</div>
+                                    <div class="stat-label">Rating</div>
+                                </div>
+                                <div class="mockup-stat">
+                                    <div class="stat-value">@(ViewBag.AvailableAidants ?? 0)</div>
+                                    <div class="stat-label">Available</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-illustration parallax-layer-1">
+                        <div class="illustration-circle circle-1"></div>
+                        <div class="illustration-circle circle-2"></div>
+                    </div>
+                    <!-- 3D Medical Illustration with Glow -->
+                    <div class="medical-illustration-3d">
+                        <div class="glow-effect-pulse"></div>
+                        <div class="medical-icon-heart">
+                            <i class="bi bi-heart-pulse-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Professional Trust Row -->
+    <div class="professional-trust-row" data-aos="fade-up" data-aos-delay="400">
+        <div class="container">
+            <div class="trust-row-content">
+                <div class="trust-live-counter">
+                    <span class="live-indicator"></span>
+                    <span class="live-text">Live: <span class="live-number" data-count="@(ViewBag.AvailableAidants ?? 0)">0</span> Aidants available</span>
+                </div>
+                <div class="trust-security-icons">
+                    <div class="security-icon-item" data-tooltip="Data Encryption">
+                        <i class="bi bi-lock-fill"></i>
+                        <span>Encrypted</span>
+                    </div>
+                    <div class="security-icon-item" data-tooltip="Identity Verified">
+                        <i class="bi bi-shield-check-fill"></i>
+                        <span>Verified</span>
+                    </div>
+                    <div class="security-icon-item" data-tooltip="24/7 Support">
+                        <i class="bi bi-clock-fill"></i>
+                        <span>24/7</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Trust Bar (Social Proof) -->
+    <div class="trust-bar-enhanced" data-aos="fade-up" data-aos-delay="450">
+        <div class="container">
+            <div class="trust-bar-content">
+                <span class="trust-label">Trusted by</span>
+                <div class="trust-logos">
+                    <div class="trust-logo-item">GDPR</div>
+                    <div class="trust-logo-item">HIPAA</div>
+                    <div class="trust-logo-item">ISO 27001</div>
+                    <div class="trust-logo-item">SOC 2</div>
+                </div>
+                <span class="trust-divider">|</span>
+                <span class="trust-label">As seen in</span>
+                <div class="trust-logos">
+                    <div class="trust-logo-item">TechCrunch</div>
+                    <div class="trust-logo-item">HealthTech</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Live Impact Counter -->
+    <div class="impact-counter-section" data-aos="fade-up" data-aos-delay="500">
+        <div class="container">
+            <div class="impact-counter-grid">
+                <div class="impact-counter-item">
+                    <div class="impact-number" data-count="@(ViewBag.TotalAidants ?? 0)">0</div>
+                    <div class="impact-label">+ Active Caregivers</div>
+                </div>
+                <div class="impact-counter-item">
+                    <div class="impact-number" data-count="@(ViewBag.CompletedRequests ?? 0)">0</div>
+                    <div class="impact-label">+ Successful Matches</div>
+                </div>
+                <div class="impact-counter-item">
+                    <div class="impact-icon"><i class="bi bi-shield-check"></i></div>
+                    <div class="impact-label">24/7 Expert Supervision</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How It Works Preview -->
+    <div class="how-it-works-preview" id="how-it-works-preview" data-aos="fade-up" data-aos-delay="600">
+        <div class="container">
+            <div class="how-it-works-preview-grid">
+                <div class="how-it-works-preview-item">
+                    <div class="preview-icon">
+                        <i class="bi bi-file-earmark-plus"></i>
+                    </div>
+                    <h4 class="preview-title">Post</h4>
+                    <p class="preview-description">Tell us what you need</p>
+                </div>
+                <div class="how-it-works-preview-connector">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+                <div class="how-it-works-preview-item">
+                    <div class="preview-icon">
+                        <i class="bi bi-search-heart"></i>
+                    </div>
+                    <h4 class="preview-title">Match</h4>
+                    <p class="preview-description">We find a verified assistant</p>
+                </div>
+                <div class="how-it-works-preview-connector">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+                <div class="how-it-works-preview-item">
+                    <div class="preview-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4 class="preview-title">Support</h4>
+                    <p class="preview-description">Receive care in a secure environment</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2️⃣ PLATFORM IDENTITY SECTION -->
+<section class="platform-identity-section" id="platform-identity">
+    <div class="container">
+        <h2 class="section-title-center" data-aos="fade-up">What is this platform?</h2>
+        <div class="pillars-grid" data-aos="fade-up" data-aos-delay="100">
+            <div class="pillar-card">
+                <div class="pillar-icon">
+                    <i class="bi bi-hospital"></i>
+                </div>
+                <h3 class="pillar-title">Patient-Centered Care</h3>
+                <p class="pillar-description">Every request is designed around the patient's needs, ensuring personalized and compassionate support.</p>
+            </div>
+            
+            <div class="pillar-card">
+                <div class="pillar-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h3 class="pillar-title">Human Support & Solidarity</h3>
+                <p class="pillar-description">Real people helping real people. Building a community of care and mutual support.</p>
+            </div>
+            
+            <div class="pillar-card">
+                <div class="pillar-icon">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <h3 class="pillar-title">Secure & Confidential</h3>
+                <p class="pillar-description">GDPR-compliant with encrypted data, role-based access, and strict privacy protocols.</p>
+            </div>
+            
+            <div class="pillar-card">
+                <div class="pillar-icon">
+                    <i class="bi bi-globe"></i>
+                </div>
+                <h3 class="pillar-title">Community-Based Help</h3>
+                <p class="pillar-description">Local connections, availability-based matching, and community-driven solutions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3️⃣ HOW IT WORKS SECTION -->
+<section class="how-it-works-section" id="how-it-works">
+    <div class="container">
+        <h2 class="section-title-center" data-aos="fade-up">How It Works</h2>
+        <p class="section-subtitle-center" data-aos="fade-up" data-aos-delay="50">Simple steps to get the support you need or start helping others</p>
+        
+        <div class="steps-timeline" data-aos="fade-up" data-aos-delay="100">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon-wrapper">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <h3 class="step-title">Create an Account</h3>
+                <p class="step-description">Choose your role: Patient, Aidant, Expert, or Administrator. Quick and secure registration process.</p>
+            </div>
+            
+            <div class="step-connector">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon-wrapper">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+                <h3 class="step-title">Submit or Find Requests</h3>
+                <p class="step-description">Patients create help requests. Aidants browse and find matching missions based on location and availability.</p>
+            </div>
+            
+            <div class="step-connector">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon-wrapper">
+                    <i class="bi bi-chat-dots-fill"></i>
+                </div>
+                <h3 class="step-title">Connect Securely</h3>
+                <p class="step-description">Built-in messaging system for secure communication. Plan meetings and coordinate support activities.</p>
+            </div>
+            
+            <div class="step-connector">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <div class="step-icon-wrapper">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <h3 class="step-title">Support & Follow-Up</h3>
+                <p class="step-description">Track missions, provide evaluations, and measure impact. Complete transparency and accountability.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4️⃣ ROLES OVERVIEW SECTION -->
+<section class="roles-overview-section">
+    <div class="container">
+        <h2 class="section-title-center" data-aos="fade-up">One Platform — Multiple Roles — One Mission</h2>
+        <p class="section-subtitle-center" data-aos="fade-up" data-aos-delay="50">Discover how each role contributes to our mission of care</p>
+        
+        <div class="roles-grid" data-aos="fade-up" data-aos-delay="100">
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="bi bi-person-heart"></i>
+                </div>
+                <h3 class="role-title">Patient</h3>
+                <ul class="role-benefits">
+                    <li><i class="bi bi-check-circle-fill"></i> Create secure help requests</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Receive qualified proposals</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Track your support history</li>
+                </ul>
+                <a href="#" class="role-learn-more">Learn more <i class="bi bi-arrow-right"></i></a>
+            </div>
+            
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <h3 class="role-title">Aidant / Volunteer</h3>
+                <ul class="role-benefits">
+                    <li><i class="bi bi-check-circle-fill"></i> Browse available missions</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Propose your help</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Build your volunteer profile</li>
+                </ul>
+                <a href="#" class="role-learn-more">Learn more <i class="bi bi-arrow-right"></i></a>
+            </div>
+            
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h3 class="role-title">Expert</h3>
+                <ul class="role-benefits">
+                    <li><i class="bi bi-check-circle-fill"></i> Validate sensitive requests</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Supervise mission quality</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Ensure ethical compliance</li>
+                </ul>
+                <a href="#" class="role-learn-more">Learn more <i class="bi bi-arrow-right"></i></a>
+            </div>
+            
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="bi bi-gear-fill"></i>
+                </div>
+                <h3 class="role-title">Administrator</h3>
+                <ul class="role-benefits">
+                    <li><i class="bi bi-check-circle-fill"></i> Manage platform users</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Monitor system activity</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Ensure platform security</li>
+                </ul>
+                <a href="#" class="role-learn-more">Learn more <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5️⃣ KEY FEATURES HIGHLIGHT -->
+<section class="features-highlight-section">
+    <div class="container">
+        <h2 class="section-title-center" data-aos="fade-up">Why Choose Our Platform?</h2>
+        <p class="section-subtitle-center" data-aos="fade-up" data-aos-delay="50">Built for trust, designed for impact</p>
+        
+        <div class="features-grid" data-aos="fade-up" data-aos-delay="100">
+            <div class="feature-block">
+                <div class="feature-block-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h4 class="feature-block-title">Secure Role-Based Access</h4>
+                <p class="feature-block-text">Each user has appropriate permissions. No unauthorized access, complete data protection.</p>
+            </div>
+            
+            <div class="feature-block">
+                <div class="feature-block-icon">
+                    <i class="bi bi-list-check"></i>
+                </div>
+                <h4 class="feature-block-title">Structured Requests & Missions</h4>
+                <p class="feature-block-text">Clear workflow from request creation to mission completion with full traceability.</p>
+            </div>
+            
+            <div class="feature-block">
+                <div class="feature-block-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <h4 class="feature-block-title">Availability-Based Matching</h4>
+                <p class="feature-block-text">Smart matching system connects patients with nearby available aidants.</p>
+            </div>
+            
+            <div class="feature-block">
+                <div class="feature-block-icon">
+                    <i class="bi bi-chat-left-text-fill"></i>
+                </div>
+                <h4 class="feature-block-title">Integrated Messaging</h4>
+                <p class="feature-block-text">Built-in secure messaging for coordination and communication.</p>
+            </div>
+            
+            <div class="feature-block">
+                <div class="feature-block-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <h4 class="feature-block-title">History & Tracking</h4>
+                <p class="feature-block-text">Complete mission history, evaluations, and impact tracking for transparency.</p>
+            </div>
+            
+            <div class="feature-block">
+                <div class="feature-block-icon">
+                    <i class="bi bi-eye-fill"></i>
+                </div>
+                <h4 class="feature-block-title">Transparency & Accountability</h4>
+                <p class="feature-block-text">Full audit logs, transparent processes, and ethical compliance monitoring.</p>
+            </div>
+            
+            <div class="feature-block">
+                <div class="feature-block-icon">
+                    <i class="bi bi-heart-fill"></i>
+                </div>
+                <h4 class="feature-block-title">Ethical & Human-Centered Design</h4>
+                <p class="feature-block-text">No AI automation. Real human trust, real human care, real human safety.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 6️⃣ TRUST & CREDIBILITY SECTION -->
+<section class="trust-credibility-section">
+    <div class="container">
+        <h2 class="section-title-center" data-aos="fade-up">Security & Ethics</h2>
+        <p class="trust-message" data-aos="fade-up" data-aos-delay="50">Your data and dignity are our priority.</p>
+        
+        <div class="trust-cards-grid" data-aos="fade-up" data-aos-delay="100">
+            <div class="trust-card">
+                <div class="trust-card-icon">
+                    <i class="bi bi-file-earmark-lock-fill"></i>
+                </div>
+                <h4 class="trust-card-title">GDPR-Compliant</h4>
+                <p class="trust-card-text">Full compliance with European data protection regulations. Your privacy is protected.</p>
+            </div>
+            
+            <div class="trust-card">
+                <div class="trust-card-icon">
+                    <i class="bi bi-key-fill"></i>
+                </div>
+                <h4 class="trust-card-title">Role-Based Permissions</h4>
+                <p class="trust-card-text">Strict access control. Users only see and access what they need for their role.</p>
+            </div>
+            
+            <div class="trust-card">
+                <div class="trust-card-icon">
+                    <i class="bi bi-lock-fill"></i>
+                </div>
+                <h4 class="trust-card-title">Encrypted Passwords</h4>
+                <p class="trust-card-text">BCrypt hashing for all passwords. Industry-standard security practices.</p>
+            </div>
+            
+            <div class="trust-card">
+                <div class="trust-card-icon">
+                    <i class="bi bi-shield-check-fill"></i>
+                </div>
+                <h4 class="trust-card-title">Moderation & Reporting</h4>
+                <p class="trust-card-text">Expert supervision, reporting system, and continuous monitoring for safety.</p>
+            </div>
+            
+            <div class="trust-card">
+                <div class="trust-card-icon">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+                <h4 class="trust-card-title">Ethical Charter</h4>
+                <p class="trust-card-text">All users sign an ethical charter committing to respect, dignity, and professional conduct.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7️⃣ STATISTICS / IMPACT SECTION -->
+<section class="statistics-section">
+    <div class="container">
+        <h2 class="section-title-center" data-aos="fade-up">Our Impact</h2>
+        <div class="statistics-grid" data-aos="fade-up" data-aos-delay="100">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="stat-number" data-count="@(ViewBag.TotalUsers ?? 0)">0</div>
+                <div class="stat-label">+ Users</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div class="stat-number" data-count="@(ViewBag.CompletedRequests ?? 0)">0</div>
+                <div class="stat-label">+ Missions Completed</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <div class="stat-number" data-count="@(ViewBag.AverageRating > 0 ? (int)(ViewBag.AverageRating * 20) : 0)">0</div>
+                <div class="stat-label">% Satisfaction</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-clock-fill"></i>
+                </div>
+                <div class="stat-number" data-count="@(ViewBag.TotalVolunteerHours ?? 0)">0</div>
+                <div class="stat-label">+ Volunteer Hours</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 8️⃣ USER TESTIMONIALS -->
+<section class="testimonials-section">
+    <div class="container">
+        <h2 class="section-title-center" data-aos="fade-up">What Our Users Say</h2>
+        <p class="section-subtitle-center" data-aos="fade-up" data-aos-delay="50">Real stories from real people</p>
+        
+        <div class="testimonials-grid" data-aos="fade-up" data-aos-delay="100">
+            <div class="testimonial-card-modern">
+                <div class="testimonial-quote">
+                    <i class="bi bi-quote"></i>
+                </div>
+                <p class="testimonial-text-modern">"This platform helped me feel supported when I needed it most. The aidant was professional, kind, and exactly what I needed."</p>
+                <div class="testimonial-author-modern">
+                    <div class="testimonial-avatar">SM</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">Sophie Martin</div>
+                        <div class="testimonial-role">Patient</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card-modern">
+                <div class="testimonial-quote">
+                    <i class="bi bi-quote"></i>
+                </div>
+                <p class="testimonial-text-modern">"Volunteering has never been so organized and meaningful. I can see the real impact of my help, and the platform makes everything easy."</p>
+                <div class="testimonial-author-modern">
+                    <div class="testimonial-avatar">JD</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">Jean Dubois</div>
+                        <div class="testimonial-role">Aidant</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card-modern">
+                <div class="testimonial-quote">
+                    <i class="bi bi-quote"></i>
+                </div>
+                <p class="testimonial-text-modern">"As an expert, I appreciate the transparency and ethical framework. This platform truly prioritizes patient safety and dignity."</p>
+                <div class="testimonial-author-modern">
+                    <div class="testimonial-avatar">ML</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">Marie Leroy</div>
+                        <div class="testimonial-role">Expert</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 9️⃣ CALL TO ACTION (SECONDARY CTA) -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content" data-aos="fade-up">
+            <h2 class="cta-title">Ready to make a difference or receive support?</h2>
+            <p class="cta-subtitle">Join our community of care and start your journey today</p>
+            <div class="cta-buttons">
+                @if (User.Identity?.IsAuthenticated != true)
+                {
+                    <a asp-controller="Account" asp-action="Register" class="btn-cta-primary">
+                        <i class="bi bi-person-plus-fill"></i>
+                        <span>Create Account</span>
+                    </a>
+                    <a asp-controller="Account" asp-action="Register" class="btn-cta-secondary">
+                        <i class="bi bi-heart-fill"></i>
+                        <span>Join as Volunteer</span>
+                    </a>
+                    <a asp-controller="Request" asp-action="Create" class="btn-cta-secondary">
+                        <i class="bi bi-file-earmark-plus-fill"></i>
+                        <span>Request Help</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn-cta-primary">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Go to Dashboard</span>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* ========================================
+       1️⃣ HERO SECTION - PREMIUM ENHANCED
+       ======================================== */
+    .hero-section-enhanced {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        padding: 8rem 0 4rem;
+        overflow: hidden;
+        /* Warm White Background with Mesh Gradient */
+        background: #FAF9F6;
+        background-image: 
+            radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(13, 148, 136, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
+    }
+
+    /* Ensure content is visible even if AOS doesn't load */
+    [data-aos] {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    /* Abstract Blob Shapes */
+    .hero-blob-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.3;
+        animation: blob-animation 20s infinite;
+    }
+
+    .blob-1 {
+        width: 500px;
+        height: 500px;
+        background: rgba(14, 165, 233, 0.2);
+        top: -200px;
+        right: -100px;
+        animation-delay: 0s;
+    }
+
+    .blob-2 {
+        width: 400px;
+        height: 400px;
+        background: rgba(13, 148, 136, 0.2);
+        bottom: -150px;
+        left: -50px;
+        animation-delay: 7s;
+    }
+
+    .blob-3 {
+        width: 350px;
+        height: 350px;
+        background: rgba(14, 165, 233, 0.15);
+        top: 50%;
+        right: 10%;
+        animation-delay: 14s;
+    }
+
+    @@keyframes blob-animation {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+        }
+        33% {
+            transform: translate(30px, -30px) scale(1.1);
+        }
+        66% {
+            transform: translate(-20px, 20px) scale(0.9);
+        }
+    }
+
+    /* Asymmetric Split Layout 60/40 */
+    .hero-split-layout {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    /* Trust Badge Pill */
+    .trust-badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.25rem;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--color-navy);
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .trust-badge-pill:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+    
+    .badge-icon {
+        font-size: 1rem;
+    }
+    
+    .badge-text {
+        letter-spacing: 0.02em;
+    }
+
+    .hero-left {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-right {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Enhanced Typography */
+    .hero-main-title-enhanced {
+        font-size: 3.75rem;
+        font-weight: 900;
+        color: var(--color-navy);
+        margin-bottom: 2rem;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        position: relative;
+    }
+
+    .highlight-trusted {
+        background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-sky-blue) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        display: inline-block;
+    }
+    
+    /* Gradient Text for "Human Support" */
+    .gradient-text-human {
+        background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 50%, #F59E0B 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 900;
+        animation: gradient-shift 3s ease infinite;
+        background-size: 200% 200%;
+    }
+    
+    @@keyframes gradient-shift {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+    
+    /* Trust Bar with Partner Logos */
+    .trust-bar-partners {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    
+    .trust-bar-label {
+        font-size: 0.875rem;
+        color: #94A3B8;
+        margin-bottom: 1rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .trust-logos-grid {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .trust-logo-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 12px;
+        color: #64748B;
+        font-size: 0.875rem;
+        font-weight: 600;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .trust-logo-item:hover {
+        opacity: 1;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .trust-logo-item i {
+        font-size: 1.25rem;
+        color: var(--color-sky-blue);
+    }
+    
+    /* 3D Medical Illustration with Glow */
+    .medical-illustration-3d {
+        position: absolute;
+        right: -50px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+    }
+    
+    .medical-icon-heart {
+        width: 200px;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 6rem;
+        color: #EF4444;
+        filter: drop-shadow(0 10px 30px rgba(239, 68, 68, 0.3));
+        position: relative;
+        z-index: 2;
+        animation: float-heart 3s ease-in-out infinite;
+    }
+    
+    @@keyframes float-heart {
+        0%, 100% {
+            transform: translateY(0) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-20px) rotate(5deg);
+        }
+    }
+    
+    .glow-effect-pulse {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 1;
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    @@keyframes pulse-glow {
+        0%, 100% {
+            opacity: 0.5;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+            opacity: 0.8;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+    }
+
+    .squiggle-underline {
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: url("data:image/svg+xml,%3Csvg width='400' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,4 Q100,0 200,4 T400,4' stroke='%2314B8A6' stroke-width='3' fill='none'/%3E%3C/svg%3E") repeat-x;
+        opacity: 0.6;
+        transform: translateY(2px);
+    }
+
+    .hero-subtitle-enhanced {
+        font-size: 1.375rem;
+        color: var(--color-gray-700);
+        line-height: 1.9;
+        margin-bottom: 3rem;
+        font-weight: 400;
+        max-width: 600px;
+    }
+
+    /* Enhanced CTA Buttons with Gradients */
+    .hero-cta-group-enhanced {
+        display: flex;
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-hero-primary-gradient {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.125rem 2.5rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-sky-blue) 100%);
+        border: none;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 
+            0 8px 24px rgba(14, 165, 233, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Inner Glow Effect */
+    .btn-hero-primary-gradient::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .btn-hero-primary-gradient:hover::after {
+        opacity: 1;
+    }
+    
+    /* Avatar Group in Buttons */
+    .btn-avatar-group {
+        display: flex;
+        gap: -0.5rem;
+        margin-right: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .btn-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        margin-left: -8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-avatar:first-child {
+        margin-left: 0;
+    }
+    
+    .btn-hero-primary-gradient:hover .btn-avatar {
+        transform: scale(1.1);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-hero-primary-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-hero-primary-gradient:hover::before {
+        left: 100%;
+    }
+
+    .btn-hero-primary-gradient:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(14, 165, 233, 0.4);
+        color: white;
+    }
+
+    .btn-background-icon {
+        position: absolute;
+        font-size: 8rem;
+        opacity: 0.05;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+    }
+
+    .btn-hero-primary-gradient i:not(.btn-background-icon i) {
+        position: relative;
+        z-index: 1;
+        font-size: 1.25rem;
+    }
+
+    .btn-hero-primary-gradient span {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Glassmorphic Secondary Buttons */
+    .hero-cta-secondary-enhanced {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-hero-glassmorphic {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.75rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--color-navy);
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 50px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-hero-glassmorphic:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--color-sky-blue);
+        color: var(--color-sky-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Hero Visual Container with Parallax */
+    .hero-visual-container {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .parallax-container {
+        cursor: none;
+    }
+    
+    .parallax-layer-1 {
+        transition: transform 0.1s ease-out;
+    }
+    
+    /* Floating Mockup Card */
+    .floating-mockup {
+        position: absolute;
+        z-index: 3;
+        transition: transform 0.1s ease-out;
+    }
+    
+    .mockup-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.12),
+            0 0 0 1px rgba(0, 0, 0, 0.05);
+        width: 280px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .mockup-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .mockup-avatar-large {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+    
+    .mockup-info {
+        flex: 1;
+    }
+    
+    .mockup-name {
+        font-weight: 700;
+        color: var(--color-navy);
+        font-size: 1.125rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .mockup-role {
+        font-size: 0.875rem;
+        color: var(--color-gray-600);
+    }
+    
+    .mockup-badge-verified {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-success) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+    }
+    
+    .mockup-stats {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--color-gray-200);
+    }
+    
+    .mockup-stat {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .mockup-stat .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--color-navy);
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+    
+    .mockup-stat .stat-label {
+        font-size: 0.75rem;
+        color: var(--color-gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .hero-illustration {
+        position: relative;
+        width: 400px;
+        height: 400px;
+    }
+
+    .illustration-circle {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(13, 148, 136, 0.1) 100%);
+        border: 2px solid rgba(14, 165, 233, 0.2);
+    }
+
+    .circle-1 {
+        width: 300px;
+        height: 300px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse-circle 3s ease-in-out infinite;
+    }
+
+    .circle-2 {
+        width: 200px;
+        height: 200px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse-circle 3s ease-in-out infinite 0.5s;
+    }
+
+    .illustration-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 8rem;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        z-index: 2;
+    }
+
+    @@keyframes pulse-circle {
+        0%, 100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.5;
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.1);
+            opacity: 0.8;
+        }
+    }
+
+    /* Professional Trust Row */
+    .professional-trust-row {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.75rem 0;
+        margin-top: 4rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .trust-row-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .trust-live-counter {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1rem;
+        color: var(--color-gray-700);
+        font-weight: 500;
+    }
+    
+    .live-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--color-success);
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        animation: pulse-live 2s ease-in-out infinite;
+    }
+    
+    @@keyframes pulse-live {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.7;
+            transform: scale(1.2);
+        }
+    }
+    
+    .live-number {
+        font-weight: 700;
+        color: var(--color-teal);
+    }
+    
+    .trust-security-icons {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+    
+    .security-icon-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .security-icon-item i {
+        font-size: 1.5rem;
+        color: var(--color-sky-blue);
+        transition: all 0.3s ease;
+    }
+    
+    .security-icon-item span {
+        font-size: 0.75rem;
+        color: var(--color-gray-600);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .security-icon-item:hover {
+        transform: translateY(-2px);
+    }
+    
+    .security-icon-item:hover i {
+        color: var(--color-teal);
+        transform: scale(1.1);
+    }
+    
+    /* Trust Bar Enhanced */
+    .trust-bar-enhanced {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.5rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .trust-bar-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .trust-label {
+        font-size: 0.875rem;
+        color: var(--color-gray-600);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .trust-logos {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .trust-logo-item {
+        font-size: 0.875rem;
+        color: var(--color-gray-500);
+        font-weight: 600;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+    }
+
+    .trust-logo-item:hover {
+        opacity: 1;
+        color: var(--color-navy);
+    }
+
+    .trust-divider {
+        color: var(--color-gray-300);
+        font-size: 1.25rem;
+    }
+
+    /* Live Impact Counter */
+    .impact-counter-section {
+        padding: 3rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .impact-counter-grid {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 4rem;
+        flex-wrap: wrap;
+    }
+
+    .impact-counter-item {
+        text-align: center;
+    }
+
+    .impact-number {
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .impact-label {
+        font-size: 1rem;
+        color: var(--color-gray-600);
+        font-weight: 500;
+    }
+
+    .impact-icon {
+        font-size: 3rem;
+        color: var(--color-teal);
+        margin-bottom: 0.5rem;
+    }
+
+    /* How It Works Preview */
+    .how-it-works-preview {
+        padding: 4rem 0;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        position: relative;
+        z-index: 2;
+        margin-top: 2rem;
+    }
+
+    .how-it-works-preview-grid {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .how-it-works-preview-item {
+        flex: 1;
+        min-width: 200px;
+        text-align: center;
+        padding: 2rem 1.5rem;
+        background: white;
+        border-radius: var(--radius-xl);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .how-it-works-preview-item:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .preview-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+        box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+    }
+
+    .preview-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-navy);
+        margin-bottom: 0.5rem;
+    }
+
+    .preview-description {
+        font-size: 1rem;
+        color: var(--color-gray-600);
+        line-height: 1.6;
+    }
+
+    .how-it-works-preview-connector {
+        color: var(--color-sky-blue);
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    /* ========================================
+       2️⃣ PLATFORM IDENTITY SECTION
+       ======================================== */
+    .platform-identity-section {
+        padding: 5rem 0;
+        background: var(--color-white);
+    }
+
+    .section-title-center {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--color-navy);
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .section-subtitle-center {
+        font-size: 1.25rem;
+        color: var(--color-gray-600);
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .pillars-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .pillar-card {
+        text-align: center;
+        padding: 2.5rem 2rem;
+        background: var(--color-white-silk);
+        border-radius: var(--radius-xl);
+        transition: all 0.3s ease;
+        border: 1px solid var(--color-gray-200);
+    }
+
+    .pillar-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        border-color: var(--color-sky-blue);
+    }
+
+    .pillar-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .pillar-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-navy);
+        margin-bottom: 1rem;
+    }
+
+    .pillar-description {
+        color: var(--color-gray-600);
+        line-height: 1.7;
+    }
+
+    /* ========================================
+       3️⃣ HOW IT WORKS SECTION
+       ======================================== */
+    .how-it-works-section {
+        padding: 5rem 0;
+        background: var(--color-white-silk);
+    }
+
+    .steps-timeline {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .step-card {
+        flex: 1;
+        min-width: 220px;
+        max-width: 280px;
+        text-align: center;
+        padding: 2rem 1.5rem;
+        background: white;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-md);
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .step-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .step-number {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 800;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    .step-icon-wrapper {
+        width: 100px;
+        height: 100px;
+        margin: 2rem auto 1.5rem;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: white;
+    }
+
+    .step-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-navy);
+        margin-bottom: 1rem;
+    }
+
+    .step-description {
+        color: var(--color-gray-600);
+        line-height: 1.7;
+    }
+
+    .step-connector {
+        flex: 0 0 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-sky-blue);
+        font-size: 2rem;
+        margin-top: 3rem;
+    }
+
+    /* ========================================
+       4️⃣ ROLES OVERVIEW SECTION
+       ======================================== */
+    .roles-overview-section {
+        padding: 5rem 0;
+        background: var(--color-white);
+    }
+
+    .roles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .role-card {
+        padding: 2.5rem 2rem;
+        background: var(--color-white-silk);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--color-gray-200);
+        transition: all 0.3s ease;
+    }
+
+    .role-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        border-color: var(--color-sky-blue);
+    }
+
+    .role-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .role-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--color-navy);
+        margin-bottom: 1.5rem;
+    }
+
+    .role-benefits {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .role-benefits li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        color: var(--color-gray-700);
+    }
+
+    .role-benefits i {
+        color: var(--color-teal);
+        font-size: 1.125rem;
+    }
+
+    .role-learn-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-sky-blue);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .role-learn-more:hover {
+        color: var(--color-teal);
+        gap: 0.75rem;
+    }
+
+    /* ========================================
+       5️⃣ KEY FEATURES HIGHLIGHT
+       ======================================== */
+    .features-highlight-section {
+        padding: 5rem 0;
+        background: var(--color-white-silk);
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .feature-block {
+        padding: 2rem;
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-gray-200);
+        transition: all 0.3s ease;
+    }
+
+    .feature-block:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--color-sky-blue);
+    }
+
+    .feature-block-icon {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+    }
+
+    .feature-block-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-navy);
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-block-text {
+        color: var(--color-gray-600);
+        line-height: 1.7;
+    }
+
+    /* ========================================
+       6️⃣ TRUST & CREDIBILITY SECTION
+       ======================================== */
+    .trust-credibility-section {
+        padding: 5rem 0;
+        background: var(--color-white);
+    }
+
+    .trust-message {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--color-navy);
+        margin-bottom: 3rem;
+        font-style: italic;
+    }
+
+    .trust-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .trust-card {
+        padding: 2rem;
+        background: var(--color-white-silk);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--color-gray-200);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .trust-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .trust-card-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+    }
+
+    .trust-card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-navy);
+        margin-bottom: 0.75rem;
+    }
+
+    .trust-card-text {
+        color: var(--color-gray-600);
+        line-height: 1.7;
+    }
+
+    /* ========================================
+       7️⃣ STATISTICS SECTION
+       ======================================== */
+    .statistics-section {
+        padding: 5rem 0;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        color: white;
+    }
+
+    .statistics-section .section-title-center {
+        color: white;
+    }
+
+    .statistics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 2.5rem 2rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: var(--radius-xl);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .stat-number {
+        font-size: 4rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1.125rem;
+        font-weight: 500;
+        opacity: 0.9;
+    }
+
+    /* ========================================
+       8️⃣ TESTIMONIALS SECTION
+       ======================================== */
+    .testimonials-section {
+        padding: 5rem 0;
+        background: var(--color-white-silk);
+    }
+
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .testimonial-card-modern {
+        padding: 2.5rem 2rem;
+        background: white;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .testimonial-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .testimonial-quote {
+        font-size: 3rem;
+        color: var(--color-sky-blue);
+        opacity: 0.2;
+        margin-bottom: 1rem;
+    }
+
+    .testimonial-text-modern {
+        font-size: 1.125rem;
+        color: var(--color-gray-700);
+        line-height: 1.8;
+        font-style: italic;
+        margin-bottom: 1.5rem;
+    }
+
+    .testimonial-author-modern {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .testimonial-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .testimonial-name {
+        font-weight: 600;
+        color: var(--color-navy);
+    }
+
+    .testimonial-role {
+        font-size: 0.875rem;
+        color: var(--color-gray-600);
+    }
+
+    /* ========================================
+       9️⃣ CTA SECTION
+       ======================================== */
+    .cta-section {
+        padding: 5rem 0;
+        background: var(--color-navy-dark);
+        color: white;
+    }
+
+    .cta-content {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .cta-subtitle {
+        font-size: 1.25rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2.5rem;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-cta-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+        border: none;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cta-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(14, 165, 233, 0.4);
+        color: white;
+    }
+
+    .btn-cta-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cta-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* ========================================
+       RESPONSIVE DESIGN
+       ======================================== */
+    @@media (max-width: 768px) {
+        .hero-main-title {
+            font-size: 2.25rem;
+        }
+
+        .hero-subtitle-large {
+            font-size: 1.125rem;
+        }
+
+        .section-title-center {
+            font-size: 2rem;
+        }
+
+        .steps-timeline {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .step-connector {
+            transform: rotate(90deg);
+            margin: 0;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+        }
+    }
+</style>
+
+<script>
+    // Counter animation for statistics
+    function animateCounter(element, target, duration = 2000) {
+        const start = 0;
+        const increment = target / (duration / 16);
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = target % 1 === 0 ? Math.floor(target) : target.toFixed(0);
+                if (target >= 100) {
+                    element.textContent += '+';
+                } else {
+                    element.textContent += '%';
+                }
+                clearInterval(timer);
+            } else {
+                element.textContent = current % 1 === 0 ? Math.floor(current) : current.toFixed(0);
+                if (target >= 100) {
+                    element.textContent += '+';
+                } else {
+                    element.textContent += '%';
+                }
+            }
+        }, 16);
+    }
+
+    // Trigger counter animation when in viewport
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                entry.target.classList.add('counted');
+                const target = parseFloat(entry.target.getAttribute('data-count'));
+                animateCounter(entry.target, target);
+            }
+        });
+    }, observerOptions);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Statistics counters
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(counter => {
+            observer.observe(counter);
+        });
+        
+        // Impact counters
+        const impactCounters = document.querySelectorAll('.impact-number');
+        impactCounters.forEach(counter => {
+            observer.observe(counter);
+        });
+        
+        // Live counter
+        const liveCounter = document.querySelector('.live-number');
+        if (liveCounter) {
+            observer.observe(liveCounter);
+        }
+        
+        // Parallax Hover Effect
+        const parallaxContainer = document.querySelector('.parallax-container');
+        if (parallaxContainer) {
+            parallaxContainer.addEventListener('mousemove', function(e) {
+                const rect = parallaxContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const moveX = (x - centerX) / 20;
+                const moveY = (y - centerY) / 20;
+                
+                // Move mockup
+                const mockup = parallaxContainer.querySelector('.floating-mockup');
+                if (mockup) {
+                    mockup.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                }
+                
+                // Move background layers at different speeds
+                const layer1 = parallaxContainer.querySelector('.parallax-layer-1');
+                if (layer1) {
+                    layer1.style.transform = `translate(${moveX * 0.3}px, ${moveY * 0.3}px)`;
+                }
+                
+                // Move blobs
+                const blobs = document.querySelectorAll('.blob');
+                blobs.forEach((blob, index) => {
+                    const speed = (index + 1) * 0.1;
+                    blob.style.transform = `translate(${moveX * speed}px, ${moveY * speed}px)`;
+                });
+            });
+            
+            parallaxContainer.addEventListener('mouseleave', function() {
+                const mockup = parallaxContainer.querySelector('.floating-mockup');
+                const layer1 = parallaxContainer.querySelector('.parallax-layer-1');
+                const blobs = document.querySelectorAll('.blob');
+                
+                if (mockup) mockup.style.transform = 'translate(0, 0)';
+                if (layer1) layer1.style.transform = 'translate(0, 0)';
+                blobs.forEach(blob => blob.style.transform = 'translate(0, 0)');
+            });
+        }
+        
+        // Scroll Reveal Animations
+        const revealElements = document.querySelectorAll('[data-aos]');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        revealElements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            revealObserver.observe(el);
+        });
+    });
+</script>
+
+<style>
+    /* Warm White Background for all sections */
+    .platform-identity-section,
+    .how-it-works-section,
+    .roles-overview-section,
+    .features-highlight-section,
+    .trust-credibility-section,
+    .testimonials-section {
+        background: #FAF9F6 !important;
+    }
+    
+    /* Soft Shadows for Cards */
+    .pillar-card,
+    .role-card,
+    .feature-block,
+    .trust-card,
+    .testimonial-card-modern {
+        box-shadow: 
+            0 4px 20px rgba(0, 0, 0, 0.06),
+            0 0 0 1px rgba(0, 0, 0, 0.02);
+    }
+    
+    .pillar-card:hover,
+    .role-card:hover,
+    .feature-block:hover,
+    .trust-card:hover,
+    .testimonial-card-modern:hover {
+        box-shadow: 
+            0 12px 40px rgba(0, 0, 0, 0.1),
+            0 0 0 1px rgba(14, 165, 233, 0.1);
+    }
+    
+    /* Responsive Design for Enhanced Hero */
+    @@media (max-width: 1024px) {
+        .hero-split-layout {
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+        
+        .hero-right {
+            order: -1;
+            height: 300px;
+        }
+        
+        .hero-visual-container {
+            height: 300px;
+        }
+        
+        .hero-illustration {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .mockup-card {
+            width: 240px;
+        }
+        
+        .trust-row-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .hero-main-title-enhanced {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle-enhanced {
+            font-size: 1.125rem;
+            line-height: 1.7;
+        }
+        
+        .btn-hero-primary-gradient {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+        
+        .impact-counter-grid {
+            gap: 2rem;
+        }
+        
+        .impact-number {
+            font-size: 2.5rem;
+        }
+        
+        .how-it-works-preview-grid {
+            flex-direction: column;
+        }
+        
+        .how-it-works-preview-connector {
+            transform: rotate(90deg);
+        }
+        
+        .trust-bar-content {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .trust-divider {
+            display: none;
+        }
+    }
+</style>

@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Créer une proposition";
+    var request = ViewBag.Request as MediAid.Models.Request;
+}
+
+@if (request == null)
+{
+    <div class="card-modern neumorphic-card">
+        <div class="alert-modern alert-danger-modern">
+            <i class="bi bi-exclamation-triangle-fill"></i> Demande introuvable.
+        </div>
+        <a href="@Url.Action("Index")" class="btn-secondary-modern">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+    </div>
+}
+else
+{
+    <div class="page-header-modern">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-hand-thumbs-up"></i> Créer une proposition
+            </h1>
+            <p class="page-subtitle">Proposez votre aide pour cette demande</p>
+        </div>
+        <a href="@Url.Action("Index")" class="btn-secondary-modern">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    <div class="proposal-create-layout">
+        <div class="card-modern neumorphic-card">
+            <div class="card-header-modern">
+                <h2 class="card-title-modern">
+                    <i class="bi bi-info-circle"></i> Détails de la demande
+                </h2>
+            </div>
+            <div class="card-body-modern">
+                <h3 style="color: var(--color-navy); margin-bottom: var(--spacing-md);">@request.Title</h3>
+                <p style="color: var(--color-gray-600); line-height: 1.7; margin-bottom: var(--spacing-lg);">@request.Description</p>
+                <div class="request-meta-modern">
+                    <span class="badge-modern badge-primary">
+                        <i class="bi bi-tag"></i> @request.Category
+                    </span>
+                    <span class="badge-modern urgency-@request.Urgency.ToLower()">
+                        <i class="bi bi-exclamation-circle"></i> @request.Urgency
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-modern neumorphic-card">
+            <div class="card-header-modern">
+                <h2 class="card-title-modern">
+                    <i class="bi bi-chat-text"></i> Votre proposition
+                </h2>
+            </div>
+            <div class="card-body-modern">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="requestId" value="@request.Id" />
+
+                    <div class="form-group-modern">
+                        <label for="message" class="form-label-modern">
+                            <i class="bi bi-chat-left-text"></i> Message (optionnel)
+                        </label>
+                        <textarea name="message" id="message" class="form-control-modern" rows="5" placeholder="Ajoutez un message personnel pour expliquer comment vous pouvez aider..."></textarea>
+                        <small class="form-hint">Ce message sera visible par le patient</small>
+                    </div>
+
+                    <div class="form-group-modern">
+                        <label for="estimatedArrivalTime" class="form-label-modern">
+                            <i class="bi bi-clock"></i> Heure d'arrivée estimée (optionnel)
+                        </label>
+                        <input type="datetime-local" name="estimatedArrivalTime" id="estimatedArrivalTime" class="form-control-modern" />
+                        <small class="form-hint">Quand pensez-vous pouvoir intervenir ?</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-success-modern">
+                            <i class="bi bi-check-circle"></i> Envoyer la proposition
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn-secondary-modern">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .proposal-create-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+
+    .request-meta-modern {
+        display: flex;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+    }
+
+    .urgency-low { background: #D1FAE5; color: #059669; }
+    .urgency-normal { background: #DBEAFE; color: #1E40AF; }
+    .urgency-high { background: #FEF3C7; color: #92400E; }
+    .urgency-critical { background: #FEE2E2; color: #991B1B; }
+</style>

@@ -1,0 +1,314 @@
+@{
+    ViewData["Title"] = "Carte des localisations";
+    var aidants = ViewBag.Aidants as List<object> ?? new List<object>();
+    var requests = ViewBag.Requests as List<object> ?? new List<object>();
+}
+
+<link rel="stylesheet" href="~/css/map-professional.css" asp-append-version="true" />
+
+<div class="map-page-container">
+    <div class="map-header-professional">
+        <h1 class="map-page-title">
+            <i class="bi bi-map"></i> Carte des localisations
+        </h1>
+        <p class="map-page-subtitle">Visualisez les aidants et demandes sur la carte</p>
+    </div>
+
+    <div class="map-card-professional">
+        <div class="map-card-header-professional">
+            <h2 class="map-card-title-professional">
+                <i class="bi bi-geo-alt-fill"></i> Carte interactive
+            </h2>
+            <div class="map-controls-professional">
+                <button type="button" class="btn-map-control" onclick="getCurrentLocation(event)">
+                    <i class="bi bi-crosshair"></i> Ma position
+                </button>
+                <button type="button" class="btn-map-control" onclick="showAllMarkers()">
+                    <i class="bi bi-arrows-angle-contract"></i> Tout afficher
+                </button>
+            </div>
+        </div>
+        
+        <div class="map-stats-professional">
+            <div class="stat-badge-map text-success">
+                <i class="bi bi-person-check"></i>
+                <span><strong>Aidants disponibles:</strong> @aidants.Count</span>
+            </div>
+            <div class="stat-badge-map text-danger">
+                <i class="bi bi-inbox"></i>
+                <span><strong>Demandes actives:</strong> @requests.Count</span>
+            </div>
+        </div>
+
+        <div class="map-filters-professional">
+            <div class="map-filter-item">
+                <label class="map-filter-switch">
+                    <input type="checkbox" id="showAidants" checked onchange="toggleAidants()">
+                    <span class="map-filter-slider"></span>
+                </label>
+                <label for="showAidants">
+                    <i class="bi bi-person-check"></i> Afficher les aidants
+                </label>
+            </div>
+            <div class="map-filter-item">
+                <label class="map-filter-switch">
+                    <input type="checkbox" id="showRequests" checked onchange="toggleRequests()">
+                    <span class="map-filter-slider"></span>
+                </label>
+                <label for="showRequests">
+                    <i class="bi bi-inbox"></i> Afficher les demandes
+                </label>
+            </div>
+        </div>
+        
+        <div class="map-container-professional">
+            <div id="map"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map;
+        var aidantMarkers = [];
+        var requestMarkers = [];
+        var aidantsData = @Html.Raw(Json.Serialize(aidants));
+        var requestsData = @Html.Raw(Json.Serialize(requests));
+
+        function initMap() {
+            // Try to get user location first, fallback to Paris
+            let defaultLat = 48.8566;
+            let defaultLon = 2.3522;
+            let defaultZoom = 10;
+
+            // Try to get cached location or use IP-based location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        defaultLat = position.coords.latitude;
+                        defaultLon = position.coords.longitude;
+                        defaultZoom = 13;
+                        initializeMapView(defaultLat, defaultLon, defaultZoom);
+                    },
+                    function() {
+                        // Fallback to default location
+                        initializeMapView(defaultLat, defaultLon, defaultZoom);
+                    },
+                    {
+                        enableHighAccuracy: false,
+                        timeout: 15000,
+                        maximumAge: 300000 // 5 minutes cache
+                    }
+                );
+            } else {
+                initializeMapView(defaultLat, defaultLon, defaultZoom);
+            }
+        }
+
+        function initializeMapView(lat, lon, zoom) {
+            if (map) {
+                map.setView([lat, lon], zoom);
+                return;
+            }
+
+            map = L.map('map').setView([lat, lon], zoom);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Add markers after map is ready
+            addMarkersToMap();
+        }
+
+        function addMarkersToMap() {
+            if (!map) {
+                setTimeout(addMarkersToMap, 100);
+                return;
+            }
+
+            // Create custom icons
+            const aidantIcon = L.divIcon({
+                className: 'custom-marker-aidant',
+                html: '<div class="marker-aidant"><i class="bi bi-person-check-fill"></i></div>',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+
+            const requestIcon = L.divIcon({
+                className: 'custom-marker-request',
+                html: '<div class="marker-request"><i class="bi bi-inbox-fill"></i></div>',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+
+            // Add aidants
+            aidantsData.forEach(aidant => {
+                if (aidant.latitude && aidant.longitude) {
+                    const marker = L.marker([aidant.latitude, aidant.longitude], { icon: aidantIcon })
+                        .bindPopup(`
+                            <div class="map-popup-content">
+                                <strong>${aidant.firstName} ${aidant.lastName}</strong><br>
+                                <span class="popup-bio">${aidant.bio || 'Aidant disponible'}</span><br>
+                                <span class="popup-meta"><i class="bi bi-geo-alt"></i> Rayon: ${aidant.interventionRadius} km</span>
+                                ${aidant.reputationScore ? `<span class="popup-meta"><i class="bi bi-star-fill"></i> ${aidant.reputationScore.toFixed(1)}</span>` : ''}
+                            </div>
+                        `)
+                        .addTo(map);
+                    aidantMarkers.push(marker);
+                }
+            });
+
+            // Add requests
+            requestsData.forEach(request => {
+                if (request.latitude && request.longitude) {
+                    const marker = L.marker([request.latitude, request.longitude], { icon: requestIcon })
+                        .bindPopup(`
+                            <div class="map-popup-content">
+                                <strong>${request.title}</strong><br>
+                                <span class="popup-category">${request.category}</span><br>
+                                <span class="popup-urgency urgency-${request.urgency?.toLowerCase()}">
+                                    <i class="bi bi-${request.urgency === 'Critical' ? 'exclamation-triangle-fill' : request.urgency === 'High' ? 'exclamation-circle-fill' : 'info-circle-fill'}"></i>
+                                    ${request.urgency}
+                                </span>
+                                ${request.address ? `<span class="popup-meta"><i class="bi bi-geo-alt"></i> ${request.address}</span>` : ''}
+                            </div>
+                        `)
+                        .addTo(map);
+                    requestMarkers.push(marker);
+                }
+            });
+
+            if (aidantMarkers.length > 0 || requestMarkers.length > 0) {
+                showAllMarkers();
+            }
+        }
+
+        function getCurrentLocation(event) {
+            console.log('getCurrentLocation called');
+            
+            if (!navigator.geolocation) {
+                alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+                return;
+            }
+
+            const button = event?.target || document.querySelector('button[onclick*="getCurrentLocation"]');
+            const originalText = button?.innerHTML || '';
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="bi bi-hourglass-split"></i> Localisation...';
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('Position obtained:', position.coords);
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    if (!map) {
+                        console.error('Map is not initialized');
+                        alert('La carte n\'est pas encore initialisée. Veuillez patienter quelques instants.');
+                        if (button) {
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        }
+                        return;
+                    }
+                    
+                    map.setView([lat, lon], 13);
+                    const userMarker = L.marker([lat, lon], {
+                        icon: L.icon({
+                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                        })
+                    }).addTo(map);
+                    userMarker.bindPopup('<strong>Votre position</strong>').openPopup();
+                    
+                    if (button) {
+                        button.innerHTML = '<i class="bi bi-check-circle"></i> Position obtenue !';
+                        setTimeout(() => {
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        }, 2000);
+                    }
+                },
+                function(error) {
+                    console.error('Geolocation error:', error);
+                    let errorMessage = 'Impossible d\'obtenir votre position. ';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Vous avez refusé l\'accès à votre localisation.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Votre position n\'a pas pu être déterminée.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'La demande de localisation a expiré après 30 secondes. Cela peut être dû à:\n- Une connexion GPS/WiFi faible\n- Des paramètres de confidentialité du navigateur\n\nConseil: Vous pouvez cliquer directement sur la carte pour définir votre position manuellement.';
+                            break;
+                        default:
+                            errorMessage += 'Une erreur inconnue s\'est produite.';
+                            break;
+                    }
+                    
+                    alert(errorMessage);
+                    
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                    }
+                },
+                {
+                    enableHighAccuracy: false,
+                    timeout: 30000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        window.getCurrentLocation = getCurrentLocation;
+
+        function showAllMarkers() {
+            const allMarkers = [...aidantMarkers, ...requestMarkers];
+            if (allMarkers.length === 0) return;
+
+            const group = new L.featureGroup(allMarkers);
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+
+        function toggleAidants() {
+            const show = document.getElementById('showAidants').checked;
+            aidantMarkers.forEach(marker => {
+                if (show) {
+                    map.addLayer(marker);
+                } else {
+                    map.removeLayer(marker);
+                }
+            });
+        }
+
+        function toggleRequests() {
+            const show = document.getElementById('showRequests').checked;
+            requestMarkers.forEach(marker => {
+                if (show) {
+                    map.addLayer(marker);
+                } else {
+                    map.removeLayer(marker);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+        });
+    </script>
+}

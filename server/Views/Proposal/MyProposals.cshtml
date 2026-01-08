@@ -1,0 +1,965 @@
+@{
+    ViewData["Title"] = "Command Center";
+    var enrichedProposals = ViewBag.EnrichedProposals as List<dynamic> ?? new List<dynamic>();
+    var nextActiveMission = ViewBag.NextActiveMission as dynamic;
+    var acceptedMissions = ViewBag.AcceptedMissions as List<dynamic> ?? new List<dynamic>();
+    var stats = ViewBag.Stats as dynamic;
+    var aidant = ViewBag.Aidant as MediAid.Models.Aidant;
+    var user = ViewBag.User as MediAid.Models.User;
+    var unreadMessagesCount = ViewBag.UnreadMessagesCount as int? ?? 0;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="~/css/mission-completion.css" asp-append-version="true" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="~/js/mission-completion.js" asp-append-version="true"></script>
+
+<div class="command-center">
+    <!-- Floating Header with Summary -->
+    <div class="command-header-glass">
+        <div class="header-summary">
+            @if (nextActiveMission != null)
+            {
+                var mission = nextActiveMission;
+                var request = mission.Request as MediAid.Models.Request;
+                var timeUntil = request?.RequestedDate?.Subtract(DateTime.Now);
+                <div class="next-mission-summary">
+                    <span class="summary-label">Prochaine mission</span>
+                    <span class="summary-value">
+                        @if (timeUntil.HasValue && timeUntil.Value.TotalHours > 0)
+                        {
+                            <text>Dans @((int)timeUntil.Value.TotalHours)h</text>
+                        }
+                        else if (timeUntil.HasValue && timeUntil.Value.TotalMinutes > 0)
+                        {
+                            <text>Dans @((int)timeUntil.Value.TotalMinutes)min</text>
+                        }
+                        else
+                        {
+                            <text>Maintenant</text>
+                        }
+                    </span>
+                </div>
+            }
+            @if (unreadMessagesCount > 0)
+            {
+                <div class="messages-summary">
+                    <a href="@Url.Action("Conversations", "Chat")" class="messages-link">
+                        <span class="summary-label">Messages</span>
+                        <span class="summary-value unread-badge">@unreadMessagesCount non lu(s)</span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="command-grid">
+        <!-- Left Column: Mission Management -->
+        <div class="command-main">
+            @if (nextActiveMission != null)
+            {
+                var mission = nextActiveMission;
+                var proposal = mission.Proposal as MediAid.Models.Proposal;
+                var request = mission.Request as MediAid.Models.Request;
+                var patientUser = mission.PatientUser as MediAid.Models.User;
+                var distance = mission.Distance as double?;
+                
+                <!-- Active Mission Card -->
+                <div class="mission-card-active">
+                    <div class="mission-card-header">
+                        <h2 class="mission-title">Mission Active</h2>
+                        <span class="mission-status-badge status-@(request?.Status?.ToLower() ?? "")">
+                            @(request?.Status == "Assigned" ? "Assignée" : request?.Status == "InProgress" ? "En cours" : request?.Status ?? "")
+                        </span>
+                    </div>
+                    
+                    <div class="mission-details">
+                        <div class="mission-info-row">
+                            <div class="mission-info-item">
+                                <span class="info-label">Patient</span>
+                                <span class="info-value">@(patientUser != null ? $"{patientUser.FirstName} {patientUser.LastName}" : "N/A")</span>
+                            </div>
+                            <div class="mission-info-item">
+                                <span class="info-label">Type</span>
+                                <span class="info-value">@(request?.Category ?? "N/A")</span>
+                            </div>
+                            @if (distance.HasValue)
+                            {
+                                <div class="mission-info-item">
+                                    <span class="info-label">Distance</span>
+                                    <span class="info-value">@distance.Value.ToString("F1") km</span>
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="mission-description">
+                            <strong>@(request?.Title ?? "Mission")</strong>
+                            <p>@(request?.Description ?? "")</p>
+                        </div>
+                        
+                        <!-- Mission Timeline -->
+                        <div class="mission-timeline">
+                            <div class="timeline-step @(request?.Status == "Assigned" || request?.Status == "InProgress" || request?.Status == "Completed" ? "completed" : "")">
+                                <div class="step-icon">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="step-label">Assignée</div>
+                            </div>
+                            <div class="timeline-connector @(request?.Status == "InProgress" || request?.Status == "Completed" ? "completed" : "")"></div>
+                            <div class="timeline-step @(request?.Status == "InProgress" || request?.Status == "Completed" ? "completed" : "")">
+                                <div class="step-icon">
+                                    <i class="bi bi-geo-alt"></i>
+                                </div>
+                                <div class="step-label">En transit</div>
+                            </div>
+                            <div class="timeline-connector @(request?.Status == "InProgress" || request?.Status == "Completed" ? "completed" : "")"></div>
+                            <div class="timeline-step @(request?.Status == "InProgress" || request?.Status == "Completed" ? "completed" : "")">
+                                <div class="step-icon">
+                                    <i class="bi bi-activity"></i>
+                                </div>
+                                <div class="step-label">Active</div>
+                            </div>
+                            <div class="timeline-connector @(request?.Status == "Completed" ? "completed" : "")"></div>
+                            <div class="timeline-step @(request?.Status == "Completed" ? "completed" : "")">
+                                <div class="step-icon">
+                                    <i class="bi bi-check2-all"></i>
+                                </div>
+                                <div class="step-label">Terminée</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Mission Actions -->
+                        <div class="mission-actions-grid">
+                            @if (request?.Status == "Assigned")
+                            {
+                                <button class="btn-command-primary" onclick="updateStatus('@request?.Id', 'InProgress')">
+                                    <i class="bi bi-play-circle-fill"></i> Démarrer la mission
+                                </button>
+                            }
+                            else if (request?.Status == "InProgress")
+                            {
+                                <button class="btn-command-primary" onclick="completeMissionWithProof('@request?.Id')">
+                                    <i class="bi bi-check-circle-fill"></i> Compléter avec preuve
+                                </button>
+                                <button class="btn-command-secondary gps-checkin-btn" onclick="checkInWithGPS('@request?.Id')">
+                                    <i class="bi bi-geo-alt"></i> Check-in GPS
+                                </button>
+                                <button class="btn-command-secondary safety-incident-btn" onclick="reportSafetyIncident('@request?.Id')" title="Signaler un incident de sécurité">
+                                    <i class="bi bi-exclamation-triangle"></i> Incident
+                                </button>
+                            }
+                            <button class="btn-command-secondary" onclick="startRoute('@request?.Id')">
+                                <i class="bi bi-geo-alt-fill"></i> Itinéraire
+                            </button>
+                            <a href="@Url.Action("Index", "Chat", new { requestId = request?.Id })" class="btn-command-secondary">
+                                <i class="bi bi-chat-dots"></i> Chat
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            <!-- Missions Feed -->
+            <div class="missions-feed-card">
+                <div class="feed-header">
+                    <h3>Missions</h3>
+                    <div class="feed-filters">
+                        <select id="statusFilter" class="filter-select">
+                            <option value="all">Tous</option>
+                            <option value="Accepted">Acceptées</option>
+                            <option value="InProgress">En cours</option>
+                            <option value="Completed">Terminées</option>
+                            <option value="Pending">En attente</option>
+                        </select>
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="all">Toutes catégories</option>
+                            <option value="Medication">Médicaments</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Shopping">Courses</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="missions-list" id="missionsList">
+                    @foreach (var mission in enrichedProposals.OrderByDescending(m => ((dynamic)m).Proposal.CreatedAt))
+                    {
+                        var m = mission;
+                        var prop = m.Proposal as MediAid.Models.Proposal;
+                        var req = m.Request as MediAid.Models.Request;
+                        var patUser = m.PatientUser as MediAid.Models.User;
+                        var dist = m.Distance as double?;
+                        
+                        <div class="mission-item" data-status="@prop.Status" data-category="@req?.Category">
+                            <div class="mission-item-header">
+                                <div class="mission-item-title">
+                                    <strong>@(req?.Title ?? "Mission")</strong>
+                                    <span class="mission-badge status-@(prop.Status?.ToLower() ?? "")">
+                                        @(prop.Status == "Accepted" ? "Acceptée" : 
+                                          prop.Status == "Pending" ? "En attente" : 
+                                          prop.Status == "Rejected" ? "Refusée" : 
+                                          prop.Status == "Cancelled" ? "Annulée" : prop.Status)
+                                    </span>
+                                </div>
+                                <div class="mission-item-meta">
+                                    @if (dist.HasValue)
+                                    {
+                                        <span><i class="bi bi-geo-alt"></i> @dist.Value.ToString("F1") km</span>
+                                    }
+                                    @if (req?.RequestedDate.HasValue == true)
+                                    {
+                                        <span><i class="bi bi-clock"></i> @req.RequestedDate.Value.ToString("dd/MM HH:mm")</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="mission-item-actions">
+                                @if (prop.Status == "Accepted" && (req?.Status == "Assigned" || req?.Status == "InProgress"))
+                                {
+                                    <a href="@Url.Action("Index", "Chat", new { requestId = req?.Id })" class="btn-mission-action">
+                                        <i class="bi bi-chat"></i> Chat
+                                    </a>
+                                    <button class="btn-mission-action" onclick="startRoute('@req?.Id')">
+                                        <i class="bi bi-navigation"></i> Itinéraire
+                                    </button>
+                                }
+                                <a href="@Url.Action("Details", "Request", new { id = req?.Id })" class="btn-mission-action">
+                                    <i class="bi bi-eye"></i> Détails
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Sidebar: Analytics -->
+        <div class="command-sidebar">
+            <!-- Performance Chart -->
+            <div class="analytics-card">
+                <h3 class="analytics-title">Performance</h3>
+                <div class="performance-metric">
+                    <div class="metric-label">Heures cumulées</div>
+                    <div class="metric-value">@((ViewBag.RealTotalHours as double? ?? aidant?.TotalHours ?? 0.0).ToString("F1"))h</div>
+                    <canvas class="sparkline-chart" id="hoursChart" width="200" height="40"></canvas>
+                </div>
+                <div class="performance-metric">
+                    <div class="metric-label">Score de réputation</div>
+                    <div class="metric-value">@((ViewBag.RealReputationScore as double? ?? aidant?.ReputationScore ?? 0.0).ToString("F1"))/5.0</div>
+                </div>
+                <div class="performance-metric">
+                    <div class="metric-label">Vies touchées</div>
+                    <div class="metric-value">@(ViewBag.UniquePatientsCount as int? ?? 0)</div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="analytics-card">
+                <h3 class="analytics-title">Statistiques</h3>
+                <div class="stats-grid-mini">
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">@(stats?.AcceptedCount ?? 0)</div>
+                        <div class="stat-mini-label">Acceptées</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">@(stats?.InProgressCount ?? 0)</div>
+                        <div class="stat-mini-label">En cours</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">@(stats?.CompletedCount ?? 0)</div>
+                        <div class="stat-mini-label">Terminées</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calendar Widget -->
+            <div class="analytics-card">
+                <h3 class="analytics-title">Calendrier</h3>
+                <div id="calendarWidget" class="calendar-widget"></div>
+            </div>
+            
+            <!-- Reports & Certifications -->
+            <div class="analytics-card">
+                <h3 class="analytics-title">Rapports & Certifications</h3>
+                <button class="btn-report" onclick="generateReport()">
+                    <i class="bi bi-file-earmark-pdf"></i> Générer rapport mensuel
+                </button>
+                <div class="certifications-list">
+                    @{
+                        var realBadges = ViewBag.RealBadges as List<string> ?? aidant?.Badges ?? new List<string>();
+                    }
+                    @if (realBadges.Any())
+                    {
+                        @foreach (var badge in realBadges)
+                        {
+                            <div class="certification-badge">
+                                <i class="bi bi-award-fill"></i> @badge
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p style="font-size: 0.875rem; color: #94A3B8; margin: 0;">Aucun badge pour le moment</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals are now handled by mission-completion.js -->
+
+<script>
+    // Filter missions
+    document.getElementById('statusFilter')?.addEventListener('change', filterMissions);
+    document.getElementById('categoryFilter')?.addEventListener('change', filterMissions);
+    
+    function filterMissions() {
+        const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+        const categoryFilter = document.getElementById('categoryFilter')?.value || 'all';
+        const missions = document.querySelectorAll('.mission-item');
+        
+        missions.forEach(mission => {
+            const status = mission.dataset.status;
+            const category = mission.dataset.category;
+            
+            const statusMatch = statusFilter === 'all' || status === statusFilter;
+            const categoryMatch = categoryFilter === 'all' || category === categoryFilter;
+            
+            mission.style.display = (statusMatch && categoryMatch) ? 'block' : 'none';
+        });
+    }
+    
+    // Start Route
+    function startRoute(requestId) {
+        if (requestId) {
+            window.location.href = `@Url.Action("Index", "Map")?requestId=${requestId}`;
+        }
+    }
+    
+    // Check-in GPS - uses the new MissionController
+    // Function is now in mission-completion.js
+    
+    // Update Request Status
+    function updateStatus(requestId, newStatus) {
+        if (!confirm('Êtes-vous sûr de vouloir changer le statut de cette mission ?')) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('requestId', requestId);
+        formData.append('newStatus', newStatus);
+        formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]')?.value || '');
+
+        fetch('@Url.Action("UpdateRequestStatus", "Proposal")', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload(); // Recharger la page pour mettre à jour l'affichage
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue lors de la mise à jour du statut');
+        });
+    }
+
+    // Upload Proof - now uses completeMissionWithProof from mission-completion.js
+    
+    // Generate Report
+    function generateReport() {
+        window.location.href = '@Url.Action("GenerateReport", "Proposal")';
+    }
+    
+    // Sparkline Chart with REAL data
+    function drawSparkline() {
+        const canvas = document.getElementById('hoursChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            // Get REAL weekly hours data from server
+            const weeklyHoursData = @Html.Raw(Json.Serialize(ViewBag.WeeklyHours as List<double> ?? new List<double>()));
+            const data = weeklyHoursData.length > 0 ? weeklyHoursData : [0, 0, 0, 0, 0, 0, 0];
+            const width = canvas.width = 200;
+            const height = canvas.height = 40;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw background line
+            ctx.strokeStyle = '#E2E8F0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+            
+            // Draw data line
+            if (data.length > 0 && Math.max(...data) > 0) {
+                ctx.strokeStyle = '#0EA5E9';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                data.forEach((value, index) => {
+                    const x = (index / (data.length - 1)) * width;
+                    const y = height - (value / Math.max(...data, 1)) * height;
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                ctx.stroke();
+                
+                // Draw points
+                ctx.fillStyle = '#0EA5E9';
+                data.forEach((value, index) => {
+                    const x = (index / (data.length - 1)) * width;
+                    const y = height - (value / Math.max(...data, 1)) * height;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+            }
+        }
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        drawSparkline();
+    });
+</script>
+
+<style>
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: #F8FAFC;
+        margin: 0;
+        padding: 0;
+    }
+
+    .command-center {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    /* Floating Glass Header */
+    .command-header-glass {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 1.25rem 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-summary {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .next-mission-summary, .messages-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .summary-label {
+        font-size: 0.75rem;
+        color: #64748B;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .summary-value {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1A365D;
+    }
+
+    .messages-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .unread-badge {
+        color: #0EA5E9;
+    }
+
+    /* Main Grid */
+    .command-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    /* Mission Card Active */
+    .mission-card-active {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .mission-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .mission-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1A365D;
+        margin: 0;
+    }
+
+    .mission-status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .status-assigned { background: #DBEAFE; color: #1E40AF; }
+    .status-inprogress { background: #FEF3C7; color: #92400E; }
+    .status-completed { background: #D1FAE5; color: #065F46; }
+
+    .mission-info-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .mission-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: #64748B;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .info-value {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1A365D;
+    }
+
+    .mission-description {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #F8FAFC;
+        border-radius: 8px;
+    }
+
+    .mission-description strong {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #1A365D;
+    }
+
+    .mission-description p {
+        margin: 0;
+        color: #64748B;
+        line-height: 1.6;
+    }
+
+    /* Mission Timeline */
+    .mission-timeline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #F8FAFC;
+        border-radius: 12px;
+    }
+
+    .timeline-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+    }
+
+    .step-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #E2E8F0;
+        color: #94A3B8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-step.completed .step-icon {
+        background: #0EA5E9;
+        color: white;
+    }
+
+    .step-label {
+        font-size: 0.8125rem;
+        color: #64748B;
+        font-weight: 500;
+    }
+
+    .timeline-connector {
+        flex: 1;
+        height: 2px;
+        background: #E2E8F0;
+        margin: 0 0.5rem;
+    }
+
+    .timeline-connector.completed {
+        background: #0EA5E9;
+    }
+
+    /* Mission Actions */
+    .mission-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .btn-command-primary, .btn-command-secondary {
+        padding: 0.875rem 1.5rem;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-command-primary {
+        background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-command-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+        color: white;
+    }
+
+    .btn-command-secondary {
+        background: white;
+        border: 1px solid #E2E8F0;
+        color: #475569;
+    }
+
+    .btn-command-secondary:hover {
+        background: #F1F5F9;
+        border-color: #0EA5E9;
+        color: #0EA5E9;
+    }
+
+    /* Missions Feed */
+    .missions-feed-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .feed-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .feed-header h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1A365D;
+        margin: 0;
+    }
+
+    .feed-filters {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .filter-select {
+        padding: 0.5rem 1rem;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        background: white;
+        color: #475569;
+    }
+
+    .missions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .mission-item {
+        padding: 1.25rem;
+        background: #F8FAFC;
+        border-radius: 12px;
+        border: 1px solid #E2E8F0;
+        transition: all 0.2s ease;
+    }
+
+    .mission-item:hover {
+        background: #F1F5F9;
+        border-color: #0EA5E9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .mission-item-header {
+        margin-bottom: 1rem;
+    }
+
+    .mission-item-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .mission-item-title strong {
+        color: #1A365D;
+        font-size: 1rem;
+    }
+
+    .mission-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .mission-item-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: #64748B;
+    }
+
+    .mission-item-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-mission-action {
+        padding: 0.5rem 1rem;
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #475569;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-mission-action:hover {
+        background: #F1F5F9;
+        border-color: #0EA5E9;
+        color: #0EA5E9;
+    }
+
+    /* Sidebar */
+    .command-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .analytics-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .analytics-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1A365D;
+        margin: 0 0 1rem 0;
+    }
+
+    .performance-metric {
+        margin-bottom: 1.5rem;
+    }
+
+    .metric-label {
+        font-size: 0.75rem;
+        color: #64748B;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #1A365D;
+        margin-bottom: 0.75rem;
+    }
+
+    .sparkline-chart {
+        height: 40px;
+        width: 100%;
+    }
+
+    .stats-grid-mini {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-mini {
+        text-align: center;
+        padding: 1rem;
+        background: #F8FAFC;
+        border-radius: 8px;
+    }
+
+    .stat-mini-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0EA5E9;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-mini-label {
+        font-size: 0.75rem;
+        color: #64748B;
+        text-transform: uppercase;
+    }
+
+    .calendar-widget {
+        min-height: 200px;
+        background: #F8FAFC;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .btn-report {
+        width: 100%;
+        padding: 0.875rem;
+        background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .certifications-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .certification-badge {
+        padding: 0.75rem;
+        background: #FEF3C7;
+        border-radius: 8px;
+        color: #92400E;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Safety Incident Button */
+    .safety-incident-btn {
+        background: #EF4444 !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    .safety-incident-btn:hover {
+        background: #DC2626 !important;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    /* GPS Check-in Button */
+    .gps-checkin-btn {
+        background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%) !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    .gps-checkin-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        color: white !important;
+    }
+
+    /* Responsive */
+    @@media (max-width: 1024px) {
+        .command-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .mission-actions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

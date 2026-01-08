@@ -1,0 +1,460 @@
+@model MediAid.DTOs.PatientProfileDto
+@{
+    ViewData["Title"] = "Mon Profil";
+}
+
+<link rel="stylesheet" href="~/css/profile-professional.css" asp-append-version="true" />
+
+<div class="profile-page-container">
+    <div class="profile-header-professional">
+        <div class="profile-title-section">
+            <h1 class="profile-page-title">
+                <i class="bi bi-person-circle"></i> Mon Profil
+            </h1>
+            <p class="profile-page-subtitle">Gérez vos informations personnelles et préférences</p>
+        </div>
+        <a href="@Url.Action("Dashboard", "Patient")" class="btn-back-dashboard">
+            <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+        </a>
+    </div>
+
+    <div class="profile-layout-modern">
+    <div class="profile-main-section">
+        <div class="card-modern neumorphic-card">
+            <div class="card-header-modern">
+                <h2 class="card-title-modern">
+                    <i class="bi bi-person-badge"></i> Informations personnelles
+                </h2>
+            </div>
+            <div class="card-body-modern">
+                <form asp-action="Profile" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert-modern alert-danger-modern mb-4"></div>
+
+                    <div class="form-grid-modern">
+                        <div class="form-group-modern">
+                            <label asp-for="FirstName" class="form-label-modern">
+                                <i class="bi bi-person"></i> Prénom
+                            </label>
+                            <input asp-for="FirstName" class="form-control-modern" required />
+                            <span asp-validation-for="FirstName" class="field-validation"></span>
+                        </div>
+
+                        <div class="form-group-modern">
+                            <label asp-for="LastName" class="form-label-modern">
+                                <i class="bi bi-person-badge"></i> Nom
+                            </label>
+                            <input asp-for="LastName" class="form-control-modern" required />
+                            <span asp-validation-for="LastName" class="field-validation"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-modern">
+                        <div class="form-group-modern">
+                            <label asp-for="PhoneNumber" class="form-label-modern">
+                                <i class="bi bi-telephone"></i> Téléphone
+                            </label>
+                            <input asp-for="PhoneNumber" class="form-control-modern" type="tel" />
+                            <span asp-validation-for="PhoneNumber" class="field-validation"></span>
+                        </div>
+
+                        <div class="form-group-modern">
+                            <label asp-for="DateOfBirth" class="form-label-modern">
+                                <i class="bi bi-calendar"></i> Date de naissance
+                            </label>
+                            <input asp-for="DateOfBirth" class="form-control-modern" type="date" />
+                            <span asp-validation-for="DateOfBirth" class="field-validation"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-modern">
+                        <div class="form-group-modern">
+                            <label asp-for="City" class="form-label-modern">
+                                <i class="bi bi-building"></i> Ville
+                            </label>
+                            <input asp-for="City" class="form-control-modern" />
+                            <span asp-validation-for="City" class="field-validation"></span>
+                        </div>
+
+                        <div class="form-group-modern">
+                            <label asp-for="PostalCode" class="form-label-modern">
+                                <i class="bi bi-mailbox"></i> Code postal
+                            </label>
+                            <input asp-for="PostalCode" class="form-control-modern" />
+                            <span asp-validation-for="PostalCode" class="field-validation"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-geo-alt"></i> Localisation approximative
+                        </label>
+                        <div id="map" style="height: 400px; border-radius: var(--radius-md); border: 1px solid var(--color-gray-200); margin-bottom: var(--spacing-md);"></div>
+                        <small class="form-hint">Cliquez sur la carte pour définir votre position approximative</small>
+                        <div class="form-grid-modern" style="margin-top: var(--spacing-md);">
+                            <div class="form-group-modern">
+                                <label asp-for="Latitude" class="form-label-modern">Latitude</label>
+                                <input asp-for="Latitude" id="latitudeInput" class="form-control-modern" type="number" step="any" readonly />
+                                <span asp-validation-for="Latitude" class="field-validation"></span>
+                            </div>
+                            <div class="form-group-modern">
+                                <label asp-for="Longitude" class="form-label-modern">Longitude</label>
+                                <input asp-for="Longitude" id="longitudeInput" class="form-control-modern" type="number" step="any" readonly />
+                                <span asp-validation-for="Longitude" class="field-validation"></span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-secondary-modern" onclick="getCurrentLocation(event)">
+                            <i class="bi bi-geo-alt-fill"></i> Utiliser ma position actuelle
+                        </button>
+                    </div>
+
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-telephone-forward"></i> Contact d'urgence
+                        </label>
+                        <div class="form-grid-modern">
+                            <div class="form-group-modern">
+                                <input asp-for="EmergencyContact!.Name" class="form-control-modern" placeholder="Nom" />
+                            </div>
+                            <div class="form-group-modern">
+                                <input asp-for="EmergencyContact!.PhoneNumber" class="form-control-modern" placeholder="Téléphone" />
+                            </div>
+                            <div class="form-group-modern">
+                                <input asp-for="EmergencyContact!.Relationship" class="form-control-modern" placeholder="Relation" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-heart-pulse"></i> Conditions médicales
+                        </label>
+                        <input type="text" id="medicalConditionsInput" class="form-control-modern" value="@string.Join(", ", Model.MedicalConditions)" placeholder="Séparées par des virgules" />
+                        <input type="hidden" asp-for="MedicalConditions" id="medicalConditionsHidden" />
+                        <small class="form-hint">Exemple : Diabète, Hypertension, Asthme</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="@Url.Action("Dashboard", "Patient")" class="btn-secondary-modern">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn-primary-modern">
+                            <i class="bi bi-save"></i> Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Gestion du compte -->
+        <div class="card-modern neumorphic-card">
+            <div class="card-header-modern">
+                <h2 class="card-title-modern">
+                    <i class="bi bi-gear"></i> Gestion du compte
+                </h2>
+            </div>
+            <div class="card-body-modern">
+                <div class="account-actions-grid">
+                    <a href="@Url.Action("ChangePassword", "Account")" class="account-action-item">
+                        <div class="action-icon-wrapper">
+                            <i class="bi bi-key"></i>
+                        </div>
+                        <div>
+                            <strong>Changer le mot de passe</strong>
+                            <p>Mettez à jour votre mot de passe</p>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+
+                    <a href="@Url.Action("ChangeEmail", "Account")" class="account-action-item">
+                        <div class="action-icon-wrapper">
+                            <i class="bi bi-envelope"></i>
+                        </div>
+                        <div>
+                            <strong>Changer l'email</strong>
+                            <p>Modifiez votre adresse email</p>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+
+                    <a href="@Url.Action("LogoutAll", "Account")" class="account-action-item">
+                        <div class="action-icon-wrapper">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </div>
+                        <div>
+                            <strong>Déconnexion globale</strong>
+                            <p>Se déconnecter de tous les appareils</p>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+
+                    <a href="@Url.Action("DeleteAccount", "Account")" class="account-action-item" style="border-color: var(--color-danger);">
+                        <div class="action-icon-wrapper" style="background: linear-gradient(135deg, #FEE2E2 0%, #FEE2E2 100%);">
+                            <i class="bi bi-trash" style="color: var(--color-danger);"></i>
+                        </div>
+                        <div>
+                            <strong style="color: var(--color-danger);">Supprimer mon compte</strong>
+                            <p style="color: var(--color-gray-600);">Action irréversible</p>
+                        </div>
+                        <i class="bi bi-chevron-right" style="color: var(--color-danger);"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Convertir les conditions médicales en tableau
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const input = document.getElementById('medicalConditionsInput');
+            const hidden = document.getElementById('medicalConditionsHidden');
+            const conditions = input.value.split(',').map(c => c.trim()).filter(c => c.length > 0);
+            hidden.value = JSON.stringify(conditions);
+        });
+
+        // Map initialization
+        var map;
+        var marker;
+        var initialLat = @(Model.Latitude ?? 48.8566);
+        var initialLon = @(Model.Longitude ?? 2.3522);
+
+        function initMap() {
+            map = L.map('map').setView([initialLat, initialLon], initialLat === 48.8566 ? 10 : 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            map.on('click', function(e) {
+                updateMarker(e.latlng.lat, e.latlng.lng);
+            });
+
+            if (initialLat !== 48.8566 || initialLon !== 2.3522) {
+                updateMarker(initialLat, initialLon);
+            }
+        }
+
+        function updateMarker(lat, lon) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            marker = L.marker([lat, lon]).addTo(map);
+            document.getElementById('latitudeInput').value = lat.toFixed(6);
+            document.getElementById('longitudeInput').value = lon.toFixed(6);
+        }
+
+        function getCurrentLocation(event) {
+            console.log('getCurrentLocation called');
+            
+            if (!navigator.geolocation) {
+                alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+                return;
+            }
+
+            // Afficher un message de chargement
+            const button = event?.target || document.querySelector('button[onclick*="getCurrentLocation"]');
+            const originalText = button ? button.innerHTML : '';
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="bi bi-hourglass-split"></i> Localisation en cours...';
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('Position obtained:', position.coords);
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    if (!map) {
+                        console.error('Map is not initialized');
+                        alert('La carte n\'est pas encore initialisée. Veuillez patienter quelques instants.');
+                        if (button) {
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        }
+                        return;
+                    }
+                    
+                    map.setView([lat, lon], 13);
+                    updateMarker(lat, lon);
+                    
+                    // Message de succès
+                    if (button) {
+                        button.innerHTML = '<i class="bi bi-check-circle"></i> Position obtenue !';
+                        setTimeout(() => {
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        }, 2000);
+                    }
+                },
+                function(error) {
+                    console.error('Geolocation error:', error);
+                    let errorMessage = 'Impossible d\'obtenir votre position. ';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Vous avez refusé l\'accès à votre localisation. Veuillez autoriser la géolocalisation dans les paramètres de votre navigateur.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Votre position n\'a pas pu être déterminée.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'La demande de localisation a expiré. Veuillez vérifier votre connexion GPS/WiFi et réessayer. Vous pouvez également cliquer directement sur la carte pour définir votre position.';
+                            break;
+                        default:
+                            errorMessage += 'Une erreur inconnue s\'est produite.';
+                            break;
+                    }
+                    
+                    alert(errorMessage);
+                    
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                    }
+                },
+                {
+                    enableHighAccuracy: false,
+                    timeout: 30000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        // Rendre la fonction accessible globalement
+        window.getCurrentLocation = getCurrentLocation;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+        });
+    </script>
+    <style>
+        .profile-layout-modern {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-xl);
+        }
+
+        .profile-main-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .form-grid-modern {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .form-group-modern {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-hint {
+            display: block;
+            margin-top: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-500);
+        }
+
+        .form-actions {
+            margin-top: var(--spacing-xl);
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .field-validation {
+            display: block;
+            color: var(--color-danger);
+            font-size: var(--font-size-sm);
+            margin-top: var(--spacing-xs);
+        }
+
+        .checkbox-modern {
+            padding: var(--spacing-md);
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-gray-200);
+        }
+
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: var(--spacing-sm);
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .account-actions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .account-action-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-gray-200);
+            text-decoration: none;
+            color: var(--color-navy);
+            transition: all 0.2s ease;
+        }
+
+        .account-action-item:hover {
+            background: var(--color-white);
+            border-color: var(--color-sky-blue);
+            transform: translateX(4px);
+        }
+
+        .account-action-item strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .account-action-item p {
+            margin: 0;
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+        }
+
+        .action-icon-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .account-action-item i.bi-chevron-right {
+            margin-left: auto;
+            font-size: 1.25rem;
+            color: var(--color-gray-400);
+        }
+
+        .account-action-item:hover i.bi-chevron-right {
+            color: var(--color-sky-blue);
+        }
+    </style>
+}

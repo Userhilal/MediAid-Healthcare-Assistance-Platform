@@ -1,0 +1,878 @@
+@model MediAid.DTOs.CreateReviewDto
+@using MediAid.Services
+@{
+    ViewData["Title"] = "Évaluations de l'aidant";
+    var aidant = ViewBag.Aidant as MediAid.Models.Aidant;
+    var aidantUser = ViewBag.AidantUser as MediAid.Models.User;
+    var reviews = ViewBag.Reviews as List<dynamic> ?? new List<dynamic>();
+    var averageRating = ViewBag.AverageRating as double? ?? 0.0;
+    var totalReviews = ViewBag.TotalReviews as int? ?? 0;
+    var reviewableRequests = ViewBag.ReviewableRequests as List<MediAid.Models.Request> ?? new List<MediAid.Models.Request>();
+    var currentUserId = ViewBag.CurrentUserId as string;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<div class="review-page-container">
+    <!-- Header Section -->
+    <div class="review-page-header">
+        <div class="header-content">
+            <a href="@Url.Action("Dashboard", "Patient")" class="btn-back-modern">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+            <h1 class="page-title-modern">
+                <i class="bi bi-star-fill"></i> Évaluations & Commentaires
+            </h1>
+        </div>
+    </div>
+
+    @if (aidant != null && aidantUser != null)
+    {
+        <div class="review-content-grid">
+            <!-- Left Column: Aidant Profile & Review Form -->
+            <div class="review-left-column">
+                <!-- Aidant Profile Card -->
+                <div class="profile-card-modern">
+                    <div class="profile-header-gradient">
+                        <div class="profile-avatar-container">
+                            <div class="profile-avatar-large">
+                                @{
+                                    var aidantInitial = aidantUser.FirstName?.Substring(0, 1).ToUpper() ?? "A";
+                                }
+                                <span>@aidantInitial</span>
+                            </div>
+                            @if (aidant.IsVerified)
+                            {
+                                <div class="verified-badge-floating">
+                                    <i class="bi bi-shield-check-fill"></i>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="profile-body-modern">
+                        <h2 class="aidant-name-modern">@aidantUser.FirstName @aidantUser.LastName</h2>
+                        
+                        @if (aidant.IsVerified)
+                        {
+                            <div class="verified-badge-inline">
+                                <i class="bi bi-shield-check-fill"></i> Aidant Vérifié
+                            </div>
+                        }
+
+                        <!-- Rating Display -->
+                        <div class="rating-display-modern">
+                            <div class="rating-stars-large">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    <i class="bi bi-star-fill @(i < Math.Floor(averageRating) ? "star-filled" : (i < averageRating ? "star-half" : "star-empty"))"></i>
+                                }
+                            </div>
+                            <div class="rating-info">
+                                <span class="rating-value-modern">@averageRating.ToString("F1")</span>
+                                <span class="rating-count-modern">(@totalReviews évaluation@(totalReviews > 1 ? "s" : ""))</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="aidant-stats-modern">
+                            <div class="stat-card-mini">
+                                <i class="bi bi-trophy-fill"></i>
+                                <div>
+                                    <div class="stat-value-mini">@aidant.CompletedMissions</div>
+                                    <div class="stat-label-mini">Missions complétées</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Form Card -->
+                @if (!string.IsNullOrEmpty(currentUserId) && reviewableRequests.Any())
+                {
+                    <div class="review-form-card-modern">
+                        <div class="card-header-modern">
+                            <h3 class="card-title-modern">
+                                <i class="bi bi-pencil-square"></i> Ajouter une évaluation
+                            </h3>
+                        </div>
+                        <div class="card-body-modern">
+                            <form asp-action="CreateFromAidantPage" method="post" class="review-form-modern">
+                                @Html.AntiForgeryToken()
+                                
+                                <input type="hidden" asp-for="AidantId" value="@aidant.Id" />
+                                
+                                <!-- Request Selection -->
+                                <div class="form-group-modern">
+                                    <label class="form-label-modern">
+                                        <i class="bi bi-clipboard-check"></i> Mission à évaluer
+                                    </label>
+                                    <select asp-for="RequestId" class="form-select-modern" required>
+                                        <option value="">Sélectionner une mission...</option>
+                                        @foreach (var req in reviewableRequests)
+                                        {
+                                            <option value="@req.Id">@req.Title - @req.CreatedAt.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("fr-FR"))</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="RequestId" class="text-danger"></span>
+                                </div>
+
+                                <!-- Rating -->
+                                <div class="form-group-modern">
+                                    <label class="form-label-modern">
+                                        <i class="bi bi-star"></i> Note
+                                    </label>
+                                    <div class="rating-input-container">
+                                        <div class="star-rating-input" id="starRating">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="bi bi-star-fill star-input" data-rating="@i"></i>
+                                            }
+                                        </div>
+                                        <input type="hidden" asp-for="Rating" id="ratingValue" value="0" required />
+                                        <span class="rating-text" id="ratingText">Sélectionnez une note</span>
+                                    </div>
+                                    <span asp-validation-for="Rating" class="text-danger"></span>
+                                </div>
+
+                                <!-- Comment -->
+                                <div class="form-group-modern">
+                                    <label class="form-label-modern">
+                                        <i class="bi bi-chat-left-text"></i> Commentaire (optionnel)
+                                    </label>
+                                    <textarea asp-for="Comment" class="form-textarea-modern" rows="4" placeholder="Partagez votre expérience avec cet aidant..."></textarea>
+                                    <span asp-validation-for="Comment" class="text-danger"></span>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <button type="submit" class="btn-submit-review">
+                                    <i class="bi bi-check-circle"></i> Publier l'évaluation
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(currentUserId) && !reviewableRequests.Any())
+                {
+                    <div class="info-card-modern">
+                        <i class="bi bi-info-circle"></i>
+                        <p>Vous n'avez pas de missions complétées avec cet aidant à évaluer pour le moment.</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Right Column: Reviews List -->
+            <div class="review-right-column">
+                <div class="reviews-card-modern">
+                    <div class="card-header-modern">
+                        <h3 class="card-title-modern">
+                            <i class="bi bi-chat-left-text"></i> Toutes les évaluations
+                            <span class="reviews-count-badge">@totalReviews</span>
+                        </h3>
+                    </div>
+                    <div class="card-body-modern">
+                        @if (reviews.Any())
+                        {
+                            <div class="reviews-list-modern">
+                                @foreach (var reviewItem in reviews)
+                                {
+                                    var review = reviewItem.Review as MediAid.Models.Review;
+                                    var patientName = reviewItem.PatientName as string ?? "Patient anonyme";
+                                    
+                                    <div class="review-item-modern">
+                                        <div class="review-item-header">
+                                            <div class="review-patient-info">
+                                                <div class="review-patient-avatar">
+                                                    @{
+                                                        var patientInitial = patientName.Substring(0, 1).ToUpper();
+                                                    }
+                                                    <span>@patientInitial</span>
+                                                </div>
+                                                <div>
+                                                    <div class="review-patient-name">@patientName</div>
+                                                    <div class="review-date-modern">
+                                                        <i class="bi bi-calendar3"></i> @review.CreatedAt.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("fr-FR"))
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="review-rating-display">
+                                                @for (int i = 0; i < 5; i++)
+                                                {
+                                                    <i class="bi bi-star-fill @(i < review.Rating ? "star-filled" : "star-empty")"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                        
+                                        @if (!string.IsNullOrEmpty(review.Comment))
+                                        {
+                                            <div class="review-comment-modern">
+                                                <p>@review.Comment</p>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state-modern">
+                                <div class="empty-icon-large">
+                                    <i class="bi bi-star"></i>
+                                </div>
+                                <h3>Aucune évaluation</h3>
+                                <p>Cet aidant n'a pas encore reçu d'évaluations.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="error-card-modern">
+            <i class="bi bi-exclamation-triangle"></i>
+            <h3>Aidant introuvable</h3>
+            <p>L'aidant demandé n'existe pas.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Star rating interaction
+        const stars = document.querySelectorAll('.star-input');
+        const ratingValue = document.getElementById('ratingValue');
+        const ratingText = document.getElementById('ratingText');
+
+        const ratingTexts = {
+            0: 'Sélectionnez une note',
+            1: 'Très insatisfait',
+            2: 'Insatisfait',
+            3: 'Neutre',
+            4: 'Satisfait',
+            5: 'Très satisfait'
+        };
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                ratingValue.value = rating;
+                ratingText.textContent = ratingTexts[rating];
+                
+                stars.forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.add('star-selected');
+                        s.classList.remove('star-empty');
+                    } else {
+                        s.classList.remove('star-selected');
+                        s.classList.add('star-empty');
+                    }
+                });
+            });
+
+            star.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                stars.forEach((s, index) => {
+                    if (index < rating) {
+                        s.style.opacity = '1';
+                    } else {
+                        s.style.opacity = '0.3';
+                    }
+                });
+            });
+        });
+
+        document.getElementById('starRating').addEventListener('mouseleave', function() {
+            const currentRating = parseInt(ratingValue.value);
+            stars.forEach((s, index) => {
+                if (index < currentRating) {
+                    s.style.opacity = '1';
+                } else {
+                    s.style.opacity = '0.3';
+                }
+            });
+        });
+    </script>
+
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #F8FAFC !important;
+        }
+
+        .review-page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .review-page-header {
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .btn-back-modern {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #ffffff;
+            color: #1A365D;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-back-modern:hover {
+            transform: translateX(-4px);
+            border-color: #0EA5E9;
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+        }
+
+        .page-title-modern {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1A365D;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-title-modern i {
+            color: #0EA5E9;
+        }
+
+        /* Grid Layout */
+        .review-content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+        }
+
+        /* Profile Card */
+        .profile-card-modern {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.08),
+                0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .profile-header-gradient {
+            background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);
+            padding: 2.5rem 2rem 3rem;
+            position: relative;
+        }
+
+        .profile-avatar-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0EA5E9;
+            font-weight: 800;
+            font-size: 2.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border: 4px solid #ffffff;
+        }
+
+        .verified-badge-floating {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #10B981;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            border: 3px solid #ffffff;
+        }
+
+        .profile-body-modern {
+            padding: 2rem;
+        }
+
+        .aidant-name-modern {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #1A365D;
+            margin: 0 0 1rem 0;
+        }
+
+        .verified-badge-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+            color: #059669;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .rating-display-modern {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #F1F5F9;
+        }
+
+        .rating-stars-large {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .rating-stars-large .bi-star-fill {
+            font-size: 2rem;
+            color: #F59E0B;
+        }
+
+        .rating-stars-large .bi-star-fill.star-empty {
+            color: #E2E8F0;
+        }
+
+        .rating-info {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+        }
+
+        .rating-value-modern {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1A365D;
+        }
+
+        .rating-count-modern {
+            font-size: 1rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        .aidant-stats-modern {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .stat-card-mini {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #F8FAFC;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .stat-card-mini i {
+            font-size: 1.5rem;
+            color: #F59E0B;
+        }
+
+        .stat-value-mini {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1A365D;
+        }
+
+        .stat-label-mini {
+            font-size: 0.875rem;
+            color: #64748B;
+        }
+
+        /* Review Form Card */
+        .review-form-card-modern {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.08),
+                0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .card-header-modern {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .card-title-modern {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1A365D;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title-modern i {
+            color: #0EA5E9;
+        }
+
+        .reviews-count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            padding: 0 0.5rem;
+            background: #0EA5E9;
+            color: white;
+            border-radius: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .card-body-modern {
+            padding: 2rem;
+        }
+
+        /* Form Styles */
+        .review-form-modern {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group-modern {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .form-label-modern {
+            font-weight: 600;
+            color: #1A365D;
+            font-size: 0.9375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label-modern i {
+            color: #0EA5E9;
+        }
+
+        .form-select-modern,
+        .form-textarea-modern {
+            padding: 0.875rem 1rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        .form-select-modern:focus,
+        .form-textarea-modern:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .form-textarea-modern {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Star Rating Input */
+        .rating-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .star-rating-input {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .star-input {
+            font-size: 2rem;
+            color: #E2E8F0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .star-input.star-selected {
+            color: #F59E0B;
+        }
+
+        .star-input:hover {
+            transform: scale(1.1);
+        }
+
+        .rating-text {
+            font-size: 0.875rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        .btn-submit-review {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-submit-review:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+
+        /* Info Card */
+        .info-card-modern {
+            background: #F0F9FF;
+            border: 2px solid #BAE6FD;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            color: #0369A1;
+        }
+
+        .info-card-modern i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-card-modern p {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Reviews Card */
+        .reviews-card-modern {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.08),
+                0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .reviews-list-modern {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .review-item-modern {
+            padding: 1.5rem;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .review-item-modern:hover {
+            border-color: #0EA5E9;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .review-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .review-patient-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .review-patient-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .review-patient-name {
+            font-weight: 700;
+            color: #1A365D;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .review-date-modern {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748B;
+            font-size: 0.875rem;
+        }
+
+        .review-rating-display {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .review-rating-display .bi-star-fill {
+            font-size: 1.125rem;
+            color: #F59E0B;
+        }
+
+        .review-rating-display .bi-star-fill.star-empty {
+            color: #E2E8F0;
+        }
+
+        .review-comment-modern {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .review-comment-modern p {
+            color: #475569;
+            line-height: 1.7;
+            margin: 0;
+            font-size: 0.9375rem;
+        }
+
+        /* Empty State */
+        .empty-state-modern {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #94A3B8;
+        }
+
+        .empty-icon-large {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-modern h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #64748B;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-modern p {
+            color: #94A3B8;
+            font-size: 1rem;
+        }
+
+        /* Error Card */
+        .error-card-modern {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .error-card-modern i {
+            font-size: 5rem;
+            color: #EF4444;
+            margin-bottom: 1.5rem;
+        }
+
+        .error-card-modern h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1A365D;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-card-modern p {
+            color: #64748B;
+        }
+
+        /* Responsive */
+        @@media (max-width: 1024px) {
+            .review-content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .review-page-container {
+                padding: 1rem;
+            }
+
+            .page-title-modern {
+                font-size: 1.5rem;
+            }
+
+            .profile-header-gradient {
+                padding: 2rem 1.5rem 2.5rem;
+            }
+
+            .profile-avatar-large {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .card-body-modern {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+}

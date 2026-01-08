@@ -1,0 +1,329 @@
+@{
+    ViewData["Title"] = "Messages";
+    var conversations = ViewBag.Conversations as List<dynamic> ?? new List<dynamic>();
+    var currentUserId = ViewBag.CurrentUserId as string ?? "";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="~/css/chat-modern.css" asp-append-version="true" />
+
+<div class="whatsapp-messenger">
+    <!-- Conversations List Sidebar -->
+    <div class="conversations-sidebar">
+        <div class="sidebar-header">
+            <div class="header-content">
+                <h2>Messages</h2>
+            </div>
+        </div>
+        
+        <div class="conversations-list" id="conversationsList">
+            @if (conversations.Any())
+            {
+                @foreach (dynamic conv in conversations)
+                {
+                    <a href="@Url.Action("Index", "Chat", new { requestId = conv.requestId })" class="conversation-item @(conv.unreadCount > 0 ? "unread" : "")">
+                        <div class="conversation-avatar">
+                            @{
+                                var initial = conv.otherUserName?.Substring(0, 1).ToUpper() ?? "U";
+                            }
+                            <span>@initial</span>
+                        </div>
+                        <div class="conversation-content">
+                            <div class="conversation-header">
+                                <div class="conversation-name">@conv.otherUserName</div>
+                                <div class="conversation-time">@FormatTime(conv.lastMessageTime)</div>
+                            </div>
+                            <div class="conversation-preview">
+                                <span class="preview-text">@conv.lastMessage</span>
+                                @if (conv.unreadCount > 0)
+                                {
+                                    <span class="unread-badge">@conv.unreadCount</span>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                }
+            }
+            else
+            {
+                <div class="empty-conversations">
+                    <i class="bi bi-chat-dots"></i>
+                    <p>Aucune conversation</p>
+                </div>
+            }
+        </div>
+    </div>
+    
+    <!-- Empty Chat View -->
+    <div class="empty-chat-view">
+        <div class="empty-chat-content">
+            <i class="bi bi-chat-left-text"></i>
+            <h3>Sélectionnez une conversation</h3>
+            <p>Choisissez une conversation pour commencer à discuter</p>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string FormatTime(DateTime? time)
+    {
+        if (time == null) return "";
+        var now = DateTime.Now;
+        var messageTime = time.Value;
+        
+        if (messageTime.Date == now.Date)
+        {
+            return messageTime.ToString("HH:mm");
+        }
+        else if (messageTime.Date == now.Date.AddDays(-1))
+        {
+            return "Hier";
+        }
+        else if (messageTime.Date > now.Date.AddDays(-7))
+        {
+            return messageTime.ToString("dddd", new System.Globalization.CultureInfo("fr-FR"));
+        }
+        else
+        {
+            return messageTime.ToString("dd/MM/yyyy");
+        }
+    }
+}
+
+<style>
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: #F8FAFC;
+        background-image: 
+            radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(20, 184, 166, 0.05) 0%, transparent 50%);
+    }
+
+    .whatsapp-messenger {
+        display: flex;
+        height: 100vh;
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        border-radius: 0;
+    }
+
+    /* Conversations Sidebar */
+    .conversations-sidebar {
+        width: 400px;
+        border-right: 1px solid #E9EDEF;
+        display: flex;
+        flex-direction: column;
+        background: white;
+    }
+
+    .sidebar-header {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-content h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #111B21;
+    }
+
+    .conversations-list {
+        flex: 1;
+        overflow-y: auto;
+        background: white;
+    }
+
+    .conversation-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #E9EDEF;
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.2s ease;
+        cursor: pointer;
+    }
+
+    .conversation-item:hover {
+        background: #F5F6F6;
+    }
+
+    .conversation-item.unread {
+        background: #F0F2F5;
+        font-weight: 500;
+    }
+
+    .conversation-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+    }
+
+    .conversation-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .conversation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.25rem;
+    }
+
+    .conversation-name {
+        font-weight: 600;
+        color: #111B21;
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .conversation-time {
+        font-size: 0.75rem;
+        color: #667781;
+        white-space: nowrap;
+        margin-left: 0.5rem;
+    }
+
+    .conversation-preview {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .preview-text {
+        font-size: 0.875rem;
+        color: #667781;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+    }
+
+    .unread-badge {
+        background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.125rem 0.5rem;
+        border-radius: 10px;
+        min-width: 20px;
+        text-align: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    }
+
+    .empty-conversations {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: #667781;
+        text-align: center;
+    }
+
+    .empty-conversations i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* Empty Chat View */
+    .empty-chat-view {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #F8FAFC;
+        background-image: 
+            radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(20, 184, 166, 0.05) 0%, transparent 50%);
+    }
+
+    .empty-chat-content {
+        text-align: center;
+        color: #667781;
+    }
+
+    .empty-chat-content i {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+
+    .empty-chat-content h3 {
+        margin: 0 0 0.5rem 0;
+        color: #111B21;
+        font-size: 1.5rem;
+    }
+
+    .empty-chat-content p {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    /* Scrollbar */
+    .conversations-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .conversations-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .conversations-list::-webkit-scrollbar-thumb {
+        background: #CBD5E0;
+        border-radius: 3px;
+    }
+
+    .conversations-list::-webkit-scrollbar-thumb:hover {
+        background: #94A3B8;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .conversations-sidebar {
+            width: 100%;
+        }
+        
+        .empty-chat-view {
+            display: none;
+        }
+    }
+</style>
+
+

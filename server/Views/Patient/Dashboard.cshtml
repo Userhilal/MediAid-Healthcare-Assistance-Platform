@@ -1,0 +1,743 @@
+@model MediAid.Services.PatientDashboardStats
+@{
+    ViewData["Title"] = "Tableau de bord Patient";
+    var user = ViewBag.User as MediAid.Models.User;
+    var patient = ViewBag.Patient as MediAid.Models.Patient;
+    var activeRequests = ViewBag.ActiveRequests as List<MediAid.Models.Request> ?? new List<MediAid.Models.Request>();
+    var conversations = ViewBag.Conversations as List<dynamic> ?? new List<dynamic>();
+    var requestsToday = ViewBag.RequestsToday as List<MediAid.Models.Request> ?? new List<MediAid.Models.Request>();
+    var requestsTomorrow = ViewBag.RequestsTomorrow as List<MediAid.Models.Request> ?? new List<MediAid.Models.Request>();
+    var requestsThisWeek = ViewBag.RequestsThisWeek as List<MediAid.Models.Request> ?? new List<MediAid.Models.Request>();
+    var requestHistory = ViewBag.RequestHistory as List<dynamic> ?? new List<dynamic>();
+    var pendingFeedbackRequests = ViewBag.PendingFeedbackRequests as List<MediAid.Models.Request> ?? new List<MediAid.Models.Request>();
+    var assignedAidant = ViewBag.AssignedAidant as MediAid.Models.Aidant;
+    var assignedAidantUser = ViewBag.AssignedAidantUser as MediAid.Models.User;
+    var totalUnreadMessages = ViewBag.TotalUnreadMessages as int? ?? 0;
+    
+    // Determine global status
+    string globalStatusText = "Aucun besoin actif";
+    string globalStatusClass = "status-none";
+    string globalStatusIcon = "bi-check-circle-fill";
+    
+    if (activeRequests.Any(r => r.Status == "InProgress"))
+    {
+        globalStatusText = "Aide en cours";
+        globalStatusClass = "status-progress";
+        globalStatusIcon = "bi-activity";
+    }
+    else if (activeRequests.Any(r => r.Status == "Assigned"))
+    {
+        globalStatusText = "Aide planifiée";
+        globalStatusClass = "status-planned";
+        globalStatusIcon = "bi-calendar-check";
+    }
+    else if (activeRequests.Any(r => r.Status == "Open"))
+    {
+        globalStatusText = "En attente d'aide";
+        globalStatusClass = "status-waiting";
+        globalStatusIcon = "bi-clock-history";
+    }
+    
+    // Get current time for greeting
+    var hour = DateTime.Now.Hour;
+    string greeting = hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
+    var currentTime = DateTime.Now.ToString("HH:mm");
+    var currentDate = DateTime.Now.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"));
+    
+    // Trusted contacts
+    var trustedContacts = new List<dynamic>();
+    if (patient?.TrustedContacts != null && patient.TrustedContacts.Any())
+    {
+        foreach (var contact in patient.TrustedContacts)
+        {
+            trustedContacts.Add(new { Name = contact.Name, Relationship = contact.Relationship, Phone = contact.PhoneNumber });
+        }
+    }
+    // Also include emergency contact if it exists
+    if (patient?.EmergencyContact != null)
+    {
+        trustedContacts.Add(new { Name = patient.EmergencyContact.Name, Relationship = patient.EmergencyContact.Relationship, Phone = patient.EmergencyContact.PhoneNumber });
+    }
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="~/css/patient-dashboard.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/patient-tracking.css" asp-append-version="true" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="~/js/patient-tracking.js" asp-append-version="true"></script>
+
+<div class="patient-dashboard" id="patientDashboard" data-accessibility-mode="@(patient?.AnonymousMode == true ? "enabled" : "disabled")">
+    
+    <!-- 1️⃣ HEADER PRINCIPAL — ÉTAT DU PATIENT (CRUCIAL) -->
+    <header class="dashboard-header-main">
+        <div class="header-greeting-section">
+            <h1 class="greeting-message">
+                @greeting, <span class="patient-firstname">@(user?.FirstName ?? "Patient")</span>
+            </h1>
+            <div class="header-time-date">
+                <span class="current-time">@currentTime</span>
+                <span class="current-date">@currentDate</span>
+    </div>
+            <p class="reassuring-message">
+                <i class="bi bi-heart-fill"></i> Nous sommes là pour vous accompagner.
+            </p>
+</div>
+
+        @if (globalStatusText != "Aide planifiée")
+        {
+            <div class="header-status-section">
+                <div class="global-status-badge @globalStatusClass">
+                    <div class="status-indicator-dot"></div>
+                    <i class="bi @globalStatusIcon"></i>
+                    <span class="status-text">@globalStatusText</span>
+    </div>
+            </div>
+        }
+    </header>
+
+    <!-- 2️⃣ BOUTONS D'ACTIONS ESSENTIELLES (TRÈS VISIBLES) -->
+    <section class="essential-actions-section" id="essentialActions">
+        <div class="action-cards-grid">
+            <a href="@Url.Action("CreateWizard", "Request")" class="action-card action-primary" data-action="request-help">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-plus-circle-fill"></i>
+            </div>
+                <h3 class="action-title">Demander de l'aide</h3>
+                <p class="action-subtitle">Créez une nouvelle demande</p>
+            </a>
+            
+            <a href="@Url.Action("Index", "Request")" class="action-card action-secondary" data-action="my-requests">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-file-text-fill"></i>
+                    </div>
+                <h3 class="action-title">Mes demandes</h3>
+                <p class="action-subtitle">@activeRequests.Count active(s)</p>
+            </a>
+            
+            <a href="@Url.Action("Conversations", "Chat")" class="action-card action-secondary" data-action="messages">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    @if (totalUnreadMessages > 0)
+                    {
+                        <span class="unread-badge">@totalUnreadMessages</span>
+                    }
+                </div>
+                <h3 class="action-title">Messages</h3>
+                <p class="action-subtitle">@totalUnreadMessages non lu(s)</p>
+            </a>
+            
+            <a href="#planning" class="action-card action-secondary" data-action="planning">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
+                <h3 class="action-title">Mon planning</h3>
+                <p class="action-subtitle">@requestsThisWeek.Count cette semaine</p>
+            </a>
+            
+            <a href="@Url.Action("Profile", "Patient")" class="action-card action-secondary" data-action="profile">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <h3 class="action-title">Mon profil</h3>
+                <p class="action-subtitle">Gérer mes informations</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <div class="dashboard-main-grid">
+        <!-- Left Column -->
+        <div class="dashboard-left-column">
+            
+            <!-- 3️⃣ MODULE "DEMANDER DE L'AIDE" (INTELLIGENT SANS IA) -->
+            <section class="request-help-module" id="requestHelp">
+                <div class="module-header">
+                    <h2 class="module-title">De quoi avez-vous besoin ?</h2>
+                    <p class="module-subtitle">Choisissez rapidement votre type d'aide</p>
+    </div>
+                <div class="quick-choice-grid">
+                    <a href="@Url.Action("CreateWizard", "Request")?category=Médicaments" class="quick-choice-card" data-category="medication">
+                        <div class="choice-icon"><i class="bi bi-capsule-pill"></i></div>
+                        <span class="choice-label">Médicaments</span>
+                    </a>
+                    <a href="@Url.Action("CreateWizard", "Request")?category=Transport" class="quick-choice-card" data-category="transport">
+                        <div class="choice-icon"><i class="bi bi-car-front"></i></div>
+                        <span class="choice-label">Transport</span>
+                    </a>
+                    <a href="@Url.Action("CreateWizard", "Request")?category=Accompagnement" class="quick-choice-card" data-category="companionship">
+                        <div class="choice-icon"><i class="bi bi-person-heart"></i></div>
+                        <span class="choice-label">Accompagnement</span>
+                    </a>
+                    <a href="@Url.Action("CreateWizard", "Request")?category=Aide à domicile" class="quick-choice-card" data-category="home-care">
+                        <div class="choice-icon"><i class="bi bi-house-heart"></i></div>
+                        <span class="choice-label">Aide à domicile</span>
+                    </a>
+                    <a href="@Url.Action("CreateWizard", "Request")?category=Post-hospitalisation" class="quick-choice-card" data-category="post-hospital">
+                        <div class="choice-icon"><i class="bi bi-hospital"></i></div>
+                        <span class="choice-label">Post-hospitalisation</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 4️⃣ DEMANDES ACTIVES — VUE TRÈS CLAIRE -->
+            <section class="active-requests-section" id="myRequests">
+                <div class="module-header">
+                    <h2 class="module-title">Mes demandes en cours</h2>
+                    @if (activeRequests.Any())
+                    {
+                        <span class="request-count-badge">@activeRequests.Count</span>
+                    }
+                    </div>
+                
+                @if (activeRequests.Any())
+                {
+                    <div class="requests-list">
+                        @foreach (var request in activeRequests)
+                        {
+                            var statusProgress = request.Status switch
+                            {
+                                "Open" => 25,
+                                "Assigned" => 50,
+                                "InProgress" => 75,
+                                "Completed" => 100,
+                                _ => 0
+                            };
+                            
+                            <div class="request-card">
+                                <div class="request-card-header">
+                                    <h3 class="request-title">@request.Title</h3>
+                                    <span class="category-badge category-@request.Category.ToLower().Replace(" ", "-")">@request.Category</span>
+                        </div>
+                        
+                                <div class="request-urgency-badge urgency-@request.Urgency.ToLower()">
+                                    <i class="bi bi-@(request.Urgency == "Critical" ? "exclamation-triangle-fill" : request.Urgency == "High" ? "exclamation-circle-fill" : "info-circle-fill")"></i>
+                                    <span>@request.Urgency</span>
+                                    </div>
+                                
+                                <!-- Timeline rassurante -->
+                                <div class="request-timeline">
+                                    <div class="timeline-track">
+                                        <div class="timeline-progress" style="width: @statusProgress%"></div>
+                                </div>
+                                    <div class="timeline-steps">
+                                        <div class="timeline-step @(statusProgress >= 25 ? "completed" : "")">
+                                            <i class="bi bi-@(statusProgress >= 25 ? "check-circle-fill" : "circle")"></i>
+                                            <span>Créée</span>
+                            </div>
+                                        <div class="timeline-step @(statusProgress >= 50 ? "completed" : "")">
+                                            <i class="bi bi-@(statusProgress >= 50 ? "check-circle-fill" : "circle")"></i>
+                                            <span>Acceptée</span>
+                                        </div>
+                                        <div class="timeline-step @(statusProgress >= 75 ? "completed" : "")">
+                                            <i class="bi bi-@(statusProgress >= 75 ? "check-circle-fill" : "circle")"></i>
+                                            <span>En cours</span>
+                                        </div>
+                                        <div class="timeline-step @(statusProgress >= 100 ? "completed" : "")">
+                                            <i class="bi bi-@(statusProgress >= 100 ? "check-circle-fill" : "circle")"></i>
+                                            <span>Terminée</span>
+                                        </div>
+                            </div>
+                        </div>
+                        
+                                @if (request.RequestedDate.HasValue)
+                                {
+                                    <div class="request-scheduled-date">
+                                        <i class="bi bi-calendar"></i>
+                                        <span>Date souhaitée : @request.RequestedDate.Value.ToString("dd/MM/yyyy à HH:mm")</span>
+                                    </div>
+                                }
+                                
+                                <div class="request-card-actions">
+                                    <a href="@Url.Action("Details", "Request", new { id = request.Id })" class="btn-action btn-view">
+                                        <i class="bi bi-eye-fill"></i> Voir détails
+                                    </a>
+                                    @if (request.Status == "Open")
+                                    {
+                                        <a href="@Url.Action("Edit", "Request", new { id = request.Id })" class="btn-action btn-edit">
+                                            <i class="bi bi-pencil-fill"></i> Modifier
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(request.AssignedAidantId))
+                                    {
+                                        <a href="@Url.Action("Index", "Chat", new { requestId = request.Id })" class="btn-action btn-chat">
+                                            <i class="bi bi-chat-dots-fill"></i> Ouvrir le chat
+                                        </a>
+                                    }
+                                    @if (request.Status != "Completed" && request.Status != "InProgress")
+                                    {
+                                        <button class="btn-action btn-cancel" onclick="cancelRequest('@request.Id')">
+                                            <i class="bi bi-x-circle-fill"></i> Annuler
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        <p>Aucune demande active pour le moment</p>
+                        <a href="@Url.Action("CreateWizard", "Request")" class="btn-create-request">Créer une demande</a>
+                    </div>
+                }
+            </section>
+
+            <!-- 5️⃣ SECTION "QUI VA M'AIDER ?" (CONFIANCE) -->
+                        @if (assignedAidant != null && assignedAidantUser != null)
+                        {
+                <section class="aidant-info-section" id="whoWillHelp">
+                    <div class="module-header">
+                        <h2 class="module-title">Qui va m'aider ?</h2>
+                        @if (assignedAidant.IsVerified == true)
+                        {
+                            <span class="verified-badge-header">
+                                <i class="bi bi-shield-check-fill"></i> Vérifié
+                            </span>
+                        }
+                    </div>
+                    <div class="aidant-card-trust">
+                        <div class="aidant-avatar-section">
+                            <div class="aidant-avatar">
+                                        @{
+                                            var aidantInitial = assignedAidantUser.FirstName?.Substring(0, 1).ToUpper() ?? "A";
+                                        }
+                                        <span>@aidantInitial</span>
+                                    </div>
+                            @if (assignedAidant.IsVerified == true)
+                            {
+                                <div class="verified-badge-large">
+                                    <i class="bi bi-shield-check-fill"></i>
+                                </div>
+                            }
+                                </div>
+                        <div class="aidant-details">
+                            <h3 class="aidant-name">@assignedAidantUser.FirstName @assignedAidantUser.LastName</h3>
+                            <div class="aidant-rating">
+                                        @for (int i = 0; i < 5; i++)
+                                        {
+                                    <i class="bi bi-star-fill @(i < Math.Floor(assignedAidant.ReputationScore) ? "star-filled" : "star-empty")"></i>
+                                        }
+                                        <span class="rating-value">@assignedAidant.ReputationScore.ToString("F1")</span>
+                                    </div>
+                            <div class="aidant-missions-count">
+                                        <i class="bi bi-trophy-fill"></i>
+                                <span>@assignedAidant.CompletedMissions mission(s) réalisée(s)</span>
+                                    </div>
+                            @if (!string.IsNullOrEmpty(assignedAidant.Bio))
+                            {
+                                <p class="aidant-bio">@assignedAidant.Bio</p>
+                            }
+                            else
+                            {
+                                <p class="aidant-bio">Aidant expérimenté et dévoué à votre service.</p>
+                            }
+                            
+                            @{
+                                var aidantRecentReviews = ViewBag.AidantRecentReviews as List<MediAid.Models.Review> ?? new List<MediAid.Models.Review>();
+                                if (aidantRecentReviews.Any())
+                                {
+                                    <div class="aidant-reviews-preview">
+                                        <h4 class="reviews-preview-title">
+                                            <i class="bi bi-chat-left-text"></i> Commentaires récents
+                                        </h4>
+                                        <div class="reviews-preview-list">
+                                            @foreach (var review in aidantRecentReviews)
+                                            {
+                                                <div class="review-preview-item">
+                                                    <div class="review-preview-rating">
+                                                        @for (int i = 0; i < 5; i++)
+                                                        {
+                                                            <i class="bi bi-star-fill @(i < review.Rating ? "star-filled" : "star-empty")"></i>
+                                                        }
+                                                    </div>
+                                                    @if (!string.IsNullOrEmpty(review.Comment))
+                                                    {
+                                                        <p class="review-preview-comment">"@review.Comment"</p>
+                                                    }
+                                                    <span class="review-preview-date">@review.CreatedAt.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("fr-FR"))</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            
+                            <div class="aidant-actions">
+                                <a href="@Url.Action("ByAidant", "Review", new { aidantId = assignedAidant.Id })" class="btn-view-reviews">
+                                    <i class="bi bi-star"></i> Voir toutes les évaluations
+                                </a>
+                                @{
+                                    var completedRequestForReview = ViewBag.CompletedRequestForReview as MediAid.Models.Request;
+                                    if (completedRequestForReview != null)
+                                    {
+                                        <a href="@Url.Action("Create", "Review", new { requestId = completedRequestForReview.Id })" class="btn-evaluate">
+                                            <i class="bi bi-star-fill"></i> Évaluer cette mission
+                                        </a>
+                                    }
+                                }
+                            </div>
+                            
+                            @{
+                                var activeRequestWithAidant = activeRequests.FirstOrDefault(r => r.Status == "InProgress" && r.AssignedAidantId == assignedAidant.Id);
+                            }
+                            @if (activeRequestWithAidant != null)
+                            {
+                                <div class="aidant-tracking-actions">
+                                    <button class="btn-tracking" onclick="initAidantTracking('@activeRequestWithAidant.Id')">
+                                        <i class="bi bi-geo-alt-fill"></i> Suivre en temps réel
+                                    </button>
+                                    @if (activeRequestWithAidant.VerificationCode != null)
+                                    {
+                                        <button class="btn-verify" onclick="verifyMissionWithCode('@activeRequestWithAidant.Id')">
+                                            <i class="bi bi-shield-check"></i> Vérifier la mission
+                                        </button>
+                                    }
+                                </div>
+                            }
+                            </div>
+                                </div>
+                </section>
+            }
+            
+            <!-- Emergency Hub Section -->
+            @if (patient?.EmergencyContact != null)
+            {
+                <section class="emergency-hub-section" id="emergencyHub">
+                    <div class="module-header">
+                        <h2 class="module-title">Hub d'urgence</h2>
+                        <span class="emergency-badge">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Urgence
+                                        </span>
+                                    </div>
+                    <div class="emergency-hub-card">
+                        <div class="emergency-contact-info">
+                            <h3>Contact d'urgence</h3>
+                            <p><strong>@patient.EmergencyContact.Name</strong></p>
+                            <p>@patient.EmergencyContact.Relationship</p>
+                            <p><i class="bi bi-telephone"></i> @patient.EmergencyContact.PhoneNumber</p>
+                                </div>
+                        @if (activeRequests.Any(r => r.Status == "InProgress" || r.Status == "Assigned"))
+                        {
+                            var activeReq = activeRequests.FirstOrDefault(r => r.Status == "InProgress" || r.Status == "Assigned");
+                            <button class="emergency-hub-btn" onclick="contactPrimaryCaretaker('@activeReq?.Id')">
+                                <i class="bi bi-telephone-fill"></i> Contacter et partager le statut
+                            </button>
+                        }
+                            </div>
+                </section>
+            }
+
+            <!-- 7️⃣ PLANNING & RAPPELS (TRÈS UTILE) -->
+            <section class="planning-section" id="planning">
+                <div class="module-header">
+                    <h2 class="module-title">Mon planning</h2>
+                                </div>
+                
+                <div class="planning-tabs">
+                    <button class="planning-tab active" data-tab="today">
+                        Aujourd'hui <span class="tab-count">@requestsToday.Count</span>
+                    </button>
+                    <button class="planning-tab" data-tab="tomorrow">
+                        Demain <span class="tab-count">@requestsTomorrow.Count</span>
+                    </button>
+                    <button class="planning-tab" data-tab="week">
+                        Cette semaine <span class="tab-count">@requestsThisWeek.Count</span>
+                    </button>
+                                </div>
+                
+                <div class="planning-content">
+                    <div class="planning-tab-content active" id="planning-today">
+                        @if (requestsToday.Any())
+                        {
+                            @foreach (var req in requestsToday)
+                            {
+                                <div class="planning-item">
+                                    <div class="planning-item-time">
+                                        @if (req.RequestedDate.HasValue)
+                                        {
+                                            <span class="time">@req.RequestedDate.Value.ToString("HH:mm")</span>
+                                        }
+                                </div>
+                                    <div class="planning-item-content">
+                                        <h4 class="planning-item-title">@req.Title</h4>
+                                        <p class="planning-item-type">@req.Category</p>
+                                        @if (!string.IsNullOrEmpty(req.AssignedAidantId) && assignedAidantUser != null)
+                                        {
+                                            <p class="planning-item-aidant">
+                                                <i class="bi bi-person-fill"></i> @assignedAidantUser.FirstName
+                                            </p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(req.Address))
+                                        {
+                                            <p class="planning-item-location">
+                                                <i class="bi bi-geo-alt-fill"></i> @req.Address
+                                            </p>
+                                        }
+                        </div>
+                    </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="empty-state-small">
+                                <p>Aucune aide planifiée aujourd'hui</p>
+                </div>
+            }
+                    </div>
+                    
+                    <div class="planning-tab-content" id="planning-tomorrow">
+                        @if (requestsTomorrow.Any())
+                        {
+                            @foreach (var req in requestsTomorrow)
+                            {
+                                <div class="planning-item">
+                                    <div class="planning-item-time">
+                                        @if (req.RequestedDate.HasValue)
+                                        {
+                                            <span class="time">@req.RequestedDate.Value.ToString("HH:mm")</span>
+                                        }
+                </div>
+                                    <div class="planning-item-content">
+                                        <h4 class="planning-item-title">@req.Title</h4>
+                                        <p class="planning-item-type">@req.Category</p>
+                            </div>
+                            </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="empty-state-small">
+                                <p>Aucune aide planifiée demain</p>
+                        </div>
+            }
+                            </div>
+                    
+                    <div class="planning-tab-content" id="planning-week">
+                        @if (requestsThisWeek.Any())
+                        {
+                            @foreach (var req in requestsThisWeek)
+                            {
+                                <div class="planning-item">
+                                    <div class="planning-item-time">
+                                        @if (req.RequestedDate.HasValue)
+                                        {
+                                            <span class="time">@req.RequestedDate.Value.ToString("dd/MM HH:mm")</span>
+                                        }
+                            </div>
+                                    <div class="planning-item-content">
+                                        <h4 class="planning-item-title">@req.Title</h4>
+                                        <p class="planning-item-type">@req.Category</p>
+                        </div>
+                            </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="empty-state-small">
+                                <p>Aucune aide planifiée cette semaine</p>
+                            </div>
+                        }
+                        </div>
+                    </div>
+            </section>
+
+                        </div>
+        
+        <!-- Right Column -->
+        <div class="dashboard-right-column">
+            
+            <!-- 🔟 ÉVALUATION SIMPLE & BIENVEILLANTE -->
+            @if (pendingFeedbackRequests.Any())
+            {
+                <section class="evaluation-section" id="evaluation">
+                    <div class="module-header">
+                        <h2 class="module-title">Votre avis compte</h2>
+                </div>
+                    <div class="evaluation-items">
+                        @foreach (var req in pendingFeedbackRequests.Take(2))
+                        {
+                            <div class="evaluation-card">
+                                <p class="evaluation-question">Comment s'est passée l'aide pour :</p>
+                                <h4 class="evaluation-request-title">@req.Title</h4>
+                                <div class="rating-stars-input" data-request-id="@req.Id">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <button class="star-btn" data-rating="@i">
+                                            <i class="bi bi-star"></i>
+                                        </button>
+                                    }
+                                    </div>
+                                <textarea class="evaluation-comment" placeholder="Commentaire (facultatif)" rows="3"></textarea>
+                                <div class="evaluation-actions">
+                                    <button class="btn-thank" onclick="submitEvaluation('@req.Id')">
+                                        <i class="bi bi-heart-fill"></i> Remercier
+                                    </button>
+                                    </div>
+                                </div>
+                            }
+                                </div>
+                </section>
+            }
+
+            <!-- 1️⃣1️⃣ NOTES PERSONNELLES (TRÈS HUMAIN) -->
+            <section class="personal-notes-section" id="personalNotes">
+                <div class="module-header">
+                    <h2 class="module-title">Mon carnet</h2>
+                    <button class="btn-add-note" onclick="openNoteEditor()">
+                        <i class="bi bi-plus-circle"></i>
+                    </button>
+                            </div>
+                <div class="notes-list" id="notesList">
+                    <div class="note-item">
+                        <div class="note-content">
+                            <p>Votre carnet personnel pour vos notes privées</p>
+                    </div>
+                        <div class="note-actions">
+                            <button class="btn-note-edit" onclick="editNote('')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                </div>
+            </div>
+                </div>
+                <div class="notes-editor" id="notesEditor" style="display: none;">
+                    <textarea class="notes-textarea" id="notesTextarea" placeholder="Écrivez vos notes ici..."></textarea>
+                    <div class="notes-editor-actions">
+                        <button class="btn-save-note" onclick="saveNote()">Enregistrer</button>
+                        <button class="btn-cancel-note" onclick="cancelNote()">Annuler</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 1️⃣2️⃣ CONTACTS DE CONFIANCE -->
+            <section class="trusted-contacts-section" id="trustedContacts">
+                <div class="module-header">
+                    <h2 class="module-title">Contacts de confiance</h2>
+                    <button class="btn-add-contact" onclick="openAddContactModal()">
+                        <i class="bi bi-plus-circle"></i>
+                    </button>
+                </div>
+                @if (trustedContacts.Any())
+                {
+                    <div class="contacts-list">
+                        @foreach (var contact in trustedContacts)
+                        {
+                            <div class="contact-item">
+                                <div class="contact-avatar">
+                                    <i class="bi bi-person-fill"></i>
+                            </div>
+                                <div class="contact-info">
+                                    <h4 class="contact-name">@contact.Name</h4>
+                                    <p class="contact-relation">@contact.Relationship</p>
+                                    <p class="contact-phone">@contact.Phone</p>
+                                </div>
+                                <div class="contact-actions">
+                                    <button class="btn-contact-call" onclick="callContact('@contact.Phone')" title="Appeler">
+                                        <i class="bi bi-telephone-fill"></i>
+                                    </button>
+                                    <button class="btn-contact-remove" onclick="removeContact('@contact.Name', '@contact.Phone')" title="Supprimer">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                        </div>
+                    }
+                else
+                {
+                    <div class="empty-state-small">
+                        <p>Aucun contact de confiance</p>
+                        <button class="btn-add-first-contact" onclick="openAddContactModal()">
+                            Ajouter un contact
+                        </button>
+                    </div>
+                }
+            </section>
+
+            <!-- 1️⃣4️⃣ AIDE & GUIDES SIMPLIFIÉS -->
+            <section class="help-guides-section" id="helpGuides">
+                <div class="module-header">
+                    <h2 class="module-title">Aide rapide</h2>
+    </div>
+                <div class="help-links">
+                    <a href="#helpRequest" class="help-link" onclick="showHelpModal('request')">
+                        <i class="bi bi-question-circle-fill"></i>
+                        <span>Comment demander de l'aide</span>
+                    </a>
+                    <a href="#helpNoResponse" class="help-link" onclick="showHelpModal('noResponse')">
+                        <i class="bi bi-question-circle-fill"></i>
+                        <span>Que faire si personne ne répond</span>
+                    </a>
+                    <a href="#helpCancel" class="help-link" onclick="showHelpModal('cancel')">
+                        <i class="bi bi-question-circle-fill"></i>
+                        <span>Annuler une demande</span>
+                    </a>
+                    <a href="#helpSafety" class="help-link" onclick="showHelpModal('safety')">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Sécurité & respect</span>
+                    </a>
+</div>
+            </section>
+
+            <!-- 1️⃣5️⃣ ACCESSIBILITÉ (POINT FORT) -->
+            <section class="accessibility-section" id="accessibility">
+                <div class="module-header">
+                    <h2 class="module-title">Accessibilité</h2>
+                        </div>
+                <div class="accessibility-controls">
+                    <div class="accessibility-item">
+                        <label class="accessibility-label">
+                            <i class="bi bi-text-size"></i>
+                            <span>Agrandir le texte</span>
+                        </label>
+                        <div class="font-size-controls">
+                            <button class="btn-font-size" data-size="small" onclick="changeFontSize('small')">A</button>
+                            <button class="btn-font-size active" data-size="medium" onclick="changeFontSize('medium')">A</button>
+                            <button class="btn-font-size" data-size="large" onclick="changeFontSize('large')">A</button>
+                            <button class="btn-font-size" data-size="xlarge" onclick="changeFontSize('xlarge')">A</button>
+                        </div>
+                    </div>
+                    <div class="accessibility-item">
+                        <label class="accessibility-label">
+                            <i class="bi bi-contrast"></i>
+                            <span>Contraste élevé</span>
+                        </label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="highContrast">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="accessibility-item">
+                        <label class="accessibility-label">
+                            <i class="bi bi-mouse"></i>
+                            <span>Boutons larges</span>
+                        </label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="largeButtons">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modals -->
+<div class="help-modal" id="helpModal" style="display: none;">
+    <div class="help-modal-content">
+        <button class="help-modal-close" onclick="closeHelpModal()">
+            <i class="bi bi-x"></i>
+        </button>
+        <div class="help-modal-body" id="helpModalBody"></div>
+    </div>
+</div>
+
+<!-- Include CSS and JavaScript -->
+@section Scripts {
+<script src="~/js/patient-dashboard.js" asp-append-version="true"></script>
+}

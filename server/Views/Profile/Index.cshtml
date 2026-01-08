@@ -1,0 +1,329 @@
+@model MediAid.Models.User
+@{
+    ViewData["Title"] = "Mon Profil";
+    var aidant = ViewBag.Aidant as MediAid.Models.Aidant;
+    var user = ViewBag.User as MediAid.Models.User ?? Model;
+}
+
+<link rel="stylesheet" href="~/css/profile-professional.css" asp-append-version="true" />
+
+<div class="profile-page-container">
+    <div class="profile-header-professional">
+        <div class="profile-title-section">
+            <h1 class="profile-page-title">
+                <i class="bi bi-person-circle"></i> Mon Profil
+            </h1>
+            <p class="profile-page-subtitle">Gérez vos informations personnelles et préférences</p>
+        </div>
+        <a href="@Url.Action("Index", "Dashboard")" class="btn-back-dashboard">
+            <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+        </a>
+    </div>
+
+    <!-- Three Cards Layout -->
+    <div class="profile-cards-grid">
+        <!-- Left Card: Editable Personal Information -->
+        <div class="profile-card neumorphic-card">
+            <div class="card-header-modern">
+                <h2 class="card-title-modern">
+                    <i class="bi bi-person-badge"></i> Informations personnelles
+                </h2>
+            </div>
+            <div class="card-body-modern">
+            
+            <!-- Profile Photo Section -->
+            <div class="profile-photo-section-modern">
+                <div class="profile-photo-wrapper-modern">
+                    @if (!string.IsNullOrEmpty(aidant?.ProfilePhoto))
+                    {
+                        <img src="@aidant.ProfilePhoto" alt="Photo de profil" class="profile-photo-modern" id="profilePhotoPreview" />
+                    }
+                    else
+                    {
+                        <div class="profile-photo-placeholder-modern">
+                            <i class="bi bi-person"></i>
+                        </div>
+                    }
+                </div>
+                <div class="profile-photo-actions-modern">
+                    <button type="button" class="btn-secondary-modern" onclick="document.getElementById('photoInput').click()">
+                        <i class="bi bi-camera"></i> Changer photo
+                    </button>
+                    <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)" />
+                    @if (aidant?.IsVerified == true)
+                    {
+                        <div class="verified-badge-modern">
+                            <i class="bi bi-check-circle-fill"></i> Vérifié
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Editable Fields -->
+            <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data" id="profileForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="profilePhoto" id="profilePhotoInput" value="@(aidant?.ProfilePhoto ?? "")" />
+                
+                <div class="form-grid-modern">
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-person"></i> Prénom
+                        </label>
+                        <input type="text" name="firstName" class="form-control-modern" value="@user.FirstName" required />
+                    </div>
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-envelope"></i> Email
+                        </label>
+                        <input type="email" name="email" class="form-control-modern" value="@user.Email" required />
+                    </div>
+                </div>
+
+                <div class="form-grid-modern">
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-shield-check"></i> Rôle
+                        </label>
+                        <input type="text" class="form-control-modern" value="@user.Role" readonly />
+                    </div>
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-file-text"></i> Bio
+                        </label>
+                        <input type="text" name="bio" class="form-control-modern" value="@(aidant?.Bio ?? "")" placeholder="Description de votre aide" />
+                    </div>
+                </div>
+
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <i class="bi bi-star"></i> Compétences
+                    </label>
+                    <input type="text" name="skills" class="form-control-modern" value="@(aidant != null && aidant.Skills != null ? string.Join(", ", aidant.Skills) : "")" placeholder="Séparées par des virgules" />
+                    <small class="form-hint">Exemple : Soins médicaux, Accompagnement, Transport</small>
+                </div>
+
+                <button type="submit" class="btn-primary-modern">
+                    <i class="bi bi-check-circle"></i> Enregistrer les modifications
+                </button>
+            </form>
+            </div>
+        </div>
+
+        <!-- Middle Card: Non-editable General Information -->
+        <div class="profile-card neumorphic-card">
+            <div class="card-header-modern">
+                <h2 class="card-title-modern">
+                    <i class="bi bi-info-circle"></i> Informations générales
+                </h2>
+                <p class="card-subtitle">Ces informations ne peuvent pas être modifiées</p>
+            </div>
+            <div class="card-body-modern">
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <i class="bi bi-person-badge"></i> Nom
+                    </label>
+                    <input type="text" class="form-control-modern" value="@user.LastName" readonly />
+                </div>
+
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <i class="bi bi-envelope"></i> Email
+                    </label>
+                    <input type="email" class="form-control-modern" value="@user.Email" readonly />
+                </div>
+
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <i class="bi bi-shield-check"></i> Rôle
+                    </label>
+                    <input type="text" class="form-control-modern" value="@user.Role" readonly />
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Card: Location and Intervention Radius -->
+        <div class="profile-card neumorphic-card">
+            <div class="card-header-modern">
+                <h2 class="card-title-modern">
+                    <i class="bi bi-geo-alt-fill"></i> Localisation et rayon d'intervention
+                </h2>
+            </div>
+            <div class="card-body-modern">
+            
+            <!-- Map -->
+            <div id="map" class="location-map"></div>
+            
+            <!-- Radius Slider -->
+            <div class="radius-control">
+                <div class="radius-display">
+                    <span id="radiusValue">@(aidant?.InterventionRadius ?? 10)</span>
+                    <span class="radius-unit">km</span>
+                </div>
+                <input type="range" id="radiusSlider" min="1" max="50" step="1" 
+                       value="@(aidant?.InterventionRadius ?? 10)" 
+                       class="radius-slider" oninput="updateRadius(this.value)" />
+                <button type="button" class="btn-radius-plus" onclick="increaseRadius()">
+                    <i class="bi bi-plus"></i>
+                </button>
+            </div>
+
+            <!-- Coordinates -->
+            <form asp-action="UpdateLocation" method="post" id="locationForm">
+                @Html.AntiForgeryToken()
+                <div class="form-grid-modern">
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">Latitude</label>
+                        <input type="number" step="any" name="latitude" id="latitudeInput" 
+                               class="form-control-modern" value="@(aidant?.Location?.Coordinates != null && aidant.Location.Coordinates.Length >= 2 ? aidant.Location.Coordinates[1].ToString("F6") : "0,000000")" readonly />
+                    </div>
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">Longitude</label>
+                        <input type="number" step="any" name="longitude" id="longitudeInput" 
+                               class="form-control-modern" value="@(aidant?.Location?.Coordinates != null && aidant.Location.Coordinates.Length >= 2 ? aidant.Location.Coordinates[0].ToString("F6") : "0,000000")" readonly />
+                    </div>
+                </div>
+
+                <input type="hidden" name="radius" id="radiusInput" value="@(aidant?.InterventionRadius ?? 10)" />
+
+                <div class="form-group-modern">
+                    <button type="button" class="btn-secondary-modern" onclick="getCurrentLocation()">
+                        <i class="bi bi-geo-alt-fill"></i> Utiliser ma position actuelle
+                    </button>
+                </div>
+
+                <button type="submit" class="btn-primary-modern">
+                    <i class="bi bi-geo-alt"></i> Mettre à jour la localisation
+                </button>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map;
+        var marker;
+        var circle;
+        var currentRadius = @(aidant?.InterventionRadius ?? 10);
+        
+        @if (aidant?.Location != null && aidant.Location.Coordinates.Length >= 2)
+        {
+            <text>
+            var initialLat = @aidant.Location.Coordinates[1];
+            var initialLon = @aidant.Location.Coordinates[0];
+            </text>
+        }
+        else
+        {
+            <text>
+            var initialLat = 48.8566;
+            var initialLon = 2.3522;
+            </text>
+        }
+
+        function initMap() {
+            map = L.map('map').setView([initialLat, initialLon], initialLat === 48.8566 ? 10 : 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            if (initialLat !== 48.8566 || initialLon !== 2.3522) {
+                updateMarker(initialLat, initialLon);
+                updateCircle(initialLat, initialLon, currentRadius);
+            }
+
+            map.on('click', function(e) {
+                updateMarker(e.latlng.lat, e.latlng.lng);
+                updateCircle(e.latlng.lat, e.latlng.lng, currentRadius);
+            });
+        }
+
+        function updateMarker(lat, lon) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            marker = L.marker([lat, lon]).addTo(map);
+            document.getElementById('latitudeInput').value = lat.toFixed(6);
+            document.getElementById('longitudeInput').value = lon.toFixed(6);
+        }
+
+        function updateCircle(lat, lon, radiusKm) {
+            if (circle) {
+                map.removeLayer(circle);
+            }
+            // Convert km to meters for Leaflet
+            var radiusMeters = radiusKm * 1000;
+            circle = L.circle([lat, lon], {
+                radius: radiusMeters,
+                color: '#0EA5E9',
+                fillColor: '#0EA5E9',
+                fillOpacity: 0.2
+            }).addTo(map);
+        }
+
+        function updateRadius(value) {
+            currentRadius = parseInt(value);
+            document.getElementById('radiusValue').textContent = currentRadius;
+            document.getElementById('radiusInput').value = currentRadius;
+            
+            if (marker) {
+                var lat = marker.getLatLng().lat;
+                var lon = marker.getLatLng().lng;
+                updateCircle(lat, lon, currentRadius);
+            }
+        }
+
+        function increaseRadius() {
+            var slider = document.getElementById('radiusSlider');
+            var newValue = Math.min(parseInt(slider.value) + 1, 50);
+            slider.value = newValue;
+            updateRadius(newValue);
+        }
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    map.setView([lat, lon], 13);
+                    updateMarker(lat, lon);
+                    updateCircle(lat, lon, currentRadius);
+                }, function(error) {
+                    alert('Impossible d\'obtenir votre position. Veuillez sélectionner votre position sur la carte.');
+                });
+            } else {
+                alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+            }
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('profilePhotoPreview');
+                    if (preview) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    } else {
+                        const placeholder = document.querySelector('.profile-photo-placeholder');
+                        if (placeholder) {
+                            placeholder.innerHTML = `<img src="${e.target.result}" alt="Photo de profil" class="profile-photo" id="profilePhotoPreview" />`;
+                        }
+                    }
+                    document.getElementById('profilePhotoInput').value = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+        });
+    </script>
+}

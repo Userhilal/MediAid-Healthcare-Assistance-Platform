@@ -1,0 +1,199 @@
+@model List<MediAid.Models.Request>
+@using System.Linq
+@{
+    ViewData["Title"] = "Mes demandes";
+    
+    var activeRequests = Model?.Where(r => r.Status == "Open" || r.Status == "Assigned").ToList() ?? new List<MediAid.Models.Request>();
+    var inProgressRequests = Model?.Where(r => r.Status == "InProgress").ToList() ?? new List<MediAid.Models.Request>();
+    var completedRequests = Model?.Where(r => r.Status == "Completed").ToList() ?? new List<MediAid.Models.Request>();
+    var cancelledRequests = Model?.Where(r => r.Status == "Cancelled").ToList() ?? new List<MediAid.Models.Request>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="~/css/requests-professional.css" asp-append-version="true" />
+
+<div class="requests-page-professional">
+    <!-- Header Section -->
+    <div class="requests-header-professional">
+        <div class="header-content">
+            <div class="title-section">
+                <h1 class="page-title-professional">
+                    <i class="bi bi-list-ul"></i> Mes demandes
+                </h1>
+                <p class="page-subtitle-professional">Gérez toutes vos demandes d'aide en un seul endroit</p>
+            </div>
+            <a href="@Url.Action("Create", "Request")" class="btn-new-request-professional">
+                <i class="bi bi-plus-circle-fill"></i>
+                <span>Nouvelle demande</span>
+            </a>
+        </div>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state-professional">
+            <div class="empty-icon">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <h2>Aucune demande</h2>
+            <p>Créez votre première demande pour commencer à recevoir de l'aide.</p>
+            <a href="@Url.Action("Create", "Request")" class="btn-primary-professional">
+                <i class="bi bi-plus-circle"></i> Créer une demande
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Stats Cards -->
+        <div class="stats-grid-professional">
+            <div class="stat-card-professional stat-active">
+                <div class="stat-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">@activeRequests.Count</div>
+                    <div class="stat-label">En attente</div>
+                </div>
+            </div>
+            <div class="stat-card-professional stat-progress">
+                <div class="stat-icon">
+                    <i class="bi bi-activity"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">@inProgressRequests.Count</div>
+                    <div class="stat-label">En cours</div>
+                </div>
+            </div>
+            <div class="stat-card-professional stat-completed">
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">@completedRequests.Count</div>
+                    <div class="stat-label">Terminées</div>
+                </div>
+            </div>
+            <div class="stat-card-professional stat-cancelled">
+                <div class="stat-icon">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">@cancelledRequests.Count</div>
+                    <div class="stat-label">Annulées</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requests Grid -->
+        <div class="requests-grid-professional">
+            @foreach (var request in Model.OrderByDescending(r => r.CreatedAt))
+            {
+                <div class="request-card-professional" data-status="@request.Status.ToLower()">
+                    <div class="card-header-professional">
+                        <div class="card-title-section">
+                            <h3 class="card-title">@request.Title</h3>
+                            <span class="status-badge-professional status-@request.Status.ToLower()">
+                                @switch (request.Status)
+                                {
+                                    case "Open":
+                                        <text>Ouverte</text>
+                                        break;
+                                    case "Assigned":
+                                        <text>Assignée</text>
+                                        break;
+                                    case "InProgress":
+                                        <text>En cours</text>
+                                        break;
+                                    case "Completed":
+                                        <text>Terminée</text>
+                                        break;
+                                    case "Cancelled":
+                                        <text>Annulée</text>
+                                        break;
+                                    default:
+                                        <text>@request.Status</text>
+                                        break;
+                                }
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body-professional">
+                        <div class="card-meta-professional">
+                            <span class="category-badge-professional">
+                                <i class="bi bi-tag"></i> @request.Category
+                            </span>
+                            <span class="urgency-badge-professional urgency-@request.Urgency.ToLower()">
+                                <i class="bi bi-@(request.Urgency == "Critical" ? "exclamation-triangle-fill" : request.Urgency == "High" ? "exclamation-circle-fill" : "info-circle-fill")"></i>
+                                @switch (request.Urgency)
+                                {
+                                    case "Critical":
+                                        <text>Critique</text>
+                                        break;
+                                    case "High":
+                                        <text>Élevée</text>
+                                        break;
+                                    case "Normal":
+                                        <text>Normale</text>
+                                        break;
+                                    case "Low":
+                                        <text>Faible</text>
+                                        break;
+                                    default:
+                                        <text>@request.Urgency</text>
+                                        break;
+                                }
+                            </span>
+                        </div>
+                        
+                        <div class="card-info-professional">
+                            <div class="info-item">
+                                <i class="bi bi-calendar3"></i>
+                                <span>@request.CreatedAt.ToString("dd MMM yyyy à HH:mm", new System.Globalization.CultureInfo("fr-FR"))</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(request.Address))
+                            {
+                                <div class="info-item">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <span>@request.Address, @request.City</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions-professional">
+                        <a href="@Url.Action("Details", "Request", new { id = request.Id })" class="btn-action-professional btn-details">
+                            <i class="bi bi-eye"></i>
+                            <span>Détails</span>
+                        </a>
+                        
+                        @if (request.Status == "Open" || request.Status == "Assigned")
+                        {
+                            <form method="post" action="@Url.Action("Cancel", "Request", new { id = request.Id })" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette demande ?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-action-professional btn-cancel">
+                                    <i class="bi bi-x-circle"></i>
+                                    <span>Annuler</span>
+                                </button>
+                            </form>
+                        }
+                        
+                        @if (request.Status == "Cancelled" || request.Status == "Completed")
+                        {
+                            <form method="post" action="@Url.Action("Delete", "Request", new { id = request.Id })" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette demande ? Cette action est irréversible.');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-action-professional btn-delete">
+                                    <i class="bi bi-trash"></i>
+                                    <span>Supprimer</span>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+

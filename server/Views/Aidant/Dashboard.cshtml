@@ -1,0 +1,735 @@
+@using MediAid.Models
+@{
+    ViewData["Title"] = "Tableau de bord Aidant";
+    dynamic stats = ViewBag.Stats;
+    var aidant = ViewBag.Aidant as Aidant;
+    var user = ViewBag.User as User;
+    var upcomingMissions = ViewBag.UpcomingMissions as List<object>;
+    var recentNotifications = ViewBag.RecentNotifications as List<Notification>;
+    var availableRequests = ViewBag.AvailableRequests as List<Request> ?? new List<Request>();
+    var myProposals = ViewBag.MyProposals as List<object> ?? new List<object>();
+    var activeMissions = ViewBag.ActiveMissions as List<object> ?? new List<object>();
+    var recentHistory = ViewBag.RecentHistory as List<object> ?? new List<object>();
+    int totalUnreadMessages = ViewBag.TotalUnreadMessages ?? 0;
+    int uniquePatientsHelped = ViewBag.UniquePatientsHelped ?? 0;
+    var allReviews = ViewBag.AllReviews as List<Review> ?? new List<Review>();
+    
+    string statusClass = aidant?.AvailabilityStatus switch
+    {
+        "Available" => "status-available",
+        "Busy" => "status-busy",
+        "Unavailable" => "status-unavailable",
+        _ => "status-available"
+    };
+    
+    string statusText = aidant?.AvailabilityStatus switch
+    {
+        "Available" => "Disponible",
+        "Busy" => "Occupé",
+        "Unavailable" => "Indisponible",
+        _ => "Disponible"
+    };
+    
+    var hour = DateTime.Now.Hour;
+    string greeting = hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
+    var currentTime = DateTime.Now.ToString("HH:mm");
+    var currentDate = DateTime.Now.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"));
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="~/css/patient-dashboard.css" asp-append-version="true" />
+
+<div class="patient-dashboard">
+    <!-- Header Principal -->
+    <header class="dashboard-header-main">
+        <div class="header-greeting-section">
+            <h1 class="greeting-message">
+                @greeting, <span class="patient-firstname">@(user?.FirstName ?? "Aidant")</span>
+            </h1>
+            <div class="header-time-date">
+                <span class="current-time">@currentTime</span>
+                <span class="current-date">@currentDate</span>
+                </div>
+            <p class="reassuring-message">
+                <i class="bi bi-heart-fill"></i> Votre tableau de bord bénévole
+            </p>
+        </div>
+    </header>
+
+    <!-- Actions Essentielles -->
+    <section class="essential-actions-section">
+        <div class="action-cards-grid">
+            <a href="#demandes-disponibles" class="action-card action-primary">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h3 class="action-title">Demandes disponibles</h3>
+                <p class="action-subtitle">@(stats?.AvailableRequests ?? 0) demande(s)</p>
+            </a>
+            
+            <a href="@Url.Action("MyProposals", "Proposal")" class="action-card action-secondary">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-clipboard-check"></i>
+        </div>
+                <h3 class="action-title">Mes missions</h3>
+                <p class="action-subtitle">@(stats?.InProgressMissions ?? 0) en cours</p>
+            </a>
+            
+            <a href="@Url.Action("Conversations", "Chat")" class="action-card action-secondary">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-chat-dots"></i>
+                @if (totalUnreadMessages > 0)
+                {
+                        <span class="unread-badge">@totalUnreadMessages</span>
+                }
+        </div>
+                <h3 class="action-title">Messages</h3>
+                <p class="action-subtitle">@totalUnreadMessages non lu(s)</p>
+            </a>
+            
+            <a href="@Url.Action("Index", "Planning")" class="action-card action-secondary">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-calendar-check"></i>
+        </div>
+                <h3 class="action-title">Mon planning</h3>
+                <p class="action-subtitle">Voir le planning</p>
+            </a>
+            
+            <a href="@Url.Action("Profile", "Aidant")" class="action-card action-secondary">
+                <div class="action-icon-wrapper">
+                    <i class="bi bi-person-circle"></i>
+            </div>
+                <h3 class="action-title">Mon profil</h3>
+                <p class="action-subtitle">Gérer mes informations</p>
+        </a>
+    </div>
+    </section>
+    
+    <!-- Main Content Grid -->
+    <div class="dashboard-main-grid">
+        <!-- Left Column -->
+        <div class="dashboard-left-column">
+            
+            <!-- Demandes Disponibles -->
+            <section id="demandes-disponibles" class="active-requests-section">
+                <div class="module-header">
+                    <div>
+                        <h2 class="module-title">Demandes près de moi</h2>
+                        <p class="module-subtitle">Proposez votre aide aux personnes dans le besoin</p>
+                    </div>
+                    <div class="section-filters">
+                        <select id="filterCategory" class="filter-select">
+                            <option value="">Toutes catégories</option>
+                            <option value="Medication">Médicaments</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Shopping">Courses</option>
+                            <option value="Companionship">Compagnie</option>
+                            <option value="Medical">Soin médical</option>
+                        </select>
+                        <select id="filterUrgency" class="filter-select">
+                            <option value="">Toutes urgences</option>
+                            <option value="Low">Faible</option>
+                            <option value="Normal">Normale</option>
+                            <option value="High">Élevée</option>
+                            <option value="Critical">Critique</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="requests-list" id="requestsList">
+                    @if (availableRequests.Any())
+                    {
+                        @foreach (var request in availableRequests)
+                        {
+                            var distance = 0.0;
+                            if (aidant?.Location != null && request.Location != null &&
+                                aidant.Location.Coordinates.Length >= 2 && request.Location.Coordinates.Length >= 2)
+                            {
+                                distance = CalculateDistance(
+                                    aidant.Location.Coordinates[1], aidant.Location.Coordinates[0],
+                                    request.Location.Coordinates[1], request.Location.Coordinates[0]
+                                );
+                            }
+                            
+                            <div class="request-card @(request.Urgency == "Critical" || request.Urgency == "High" ? "urgent" : "")" 
+                                 data-category="@request.Category" data-urgency="@request.Urgency">
+                                <div class="request-card-header">
+                                    <h3 class="request-title">@request.Title</h3>
+                                    <span class="category-badge">@request.Category</span>
+                                            </div>
+                                
+                                <div class="request-urgency-badge urgency-@request.Urgency.ToLower()">
+                                    <i class="bi bi-@(request.Urgency == "Critical" ? "exclamation-triangle-fill" : request.Urgency == "High" ? "exclamation-circle-fill" : "info-circle-fill")"></i>
+                                    <span>@request.Urgency</span>
+                                            </div>
+                                
+                                <div class="request-meta-info">
+                                    @if (distance > 0)
+                                        {
+                                        <div class="meta-item">
+                                            <i class="bi bi-geo-alt"></i>
+                                            <span>@distance.ToString("F1") km</span>
+                                            </div>
+                                        }
+                                    @if (request.RequestedDate.HasValue)
+                                        {
+                                        <div class="meta-item">
+                                            <i class="bi bi-calendar"></i>
+                                            <span>@request.RequestedDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                            </div>
+                                        }
+                                    </div>
+                                
+                                <div class="request-card-actions">
+                                    <a href="@Url.Action("Create", "Proposal", new { requestId = request.Id })" class="btn-action btn-view">
+                                        <i class="bi bi-hand-thumbs-up"></i> Proposer mon aide
+                                    </a>
+                                    <a href="@Url.Action("Details", "Request", new { id = request.Id })" class="btn-action btn-edit">
+                                        <i class="bi bi-eye"></i> Voir détails
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <p>Aucune demande disponible pour le moment</p>
+                        </div>
+                    }
+                </div>
+            </section>
+            
+            <!-- Mes Propositions -->
+            <section class="active-requests-section">
+                <div class="module-header">
+                    <h2 class="module-title">Mes propositions envoyées</h2>
+                    @if (myProposals.Any())
+                    {
+                        <span class="request-count-badge">@myProposals.Count</span>
+                    }
+                </div>
+                
+                <div class="requests-list">
+                    @if (myProposals.Any())
+                    {
+                        @foreach (dynamic proposal in myProposals)
+                        {
+                            var prop = proposal.Proposal as Proposal;
+                            var req = proposal.Request as Request;
+                            var patient = proposal.Patient as User;
+                            
+                            <div class="request-card">
+                                <div class="request-card-header">
+                                    <h3 class="request-title">@req?.Title</h3>
+                                    <span class="category-badge status-@prop?.Status.ToLower()">@prop?.Status</span>
+                                </div>
+                                
+                                @if (!string.IsNullOrEmpty(prop?.Message))
+                                {
+                                    <p class="request-description">@prop.Message</p>
+                                }
+                                
+                                <div class="request-card-actions">
+                                    @if (prop?.Status == "Pending")
+                                    {
+                                        <a href="@Url.Action("Create", "Proposal", new { requestId = req?.Id })" class="btn-action btn-edit">
+                                            <i class="bi bi-pencil"></i> Modifier
+                                        </a>
+                                    }
+                                    <a href="@Url.Action("Details", "Request", new { id = req?.Id })" class="btn-action btn-view">
+                                        <i class="bi bi-eye"></i> Voir demande
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-send"></i>
+                            <p>Aucune proposition envoyée</p>
+                        </div>
+                    }
+                </div>
+            </section>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="dashboard-right-column">
+            
+            <!-- Missions Actives -->
+            <section class="active-requests-section">
+                <div class="module-header">
+                    <h2 class="module-title">Missions actives</h2>
+                    @if (activeMissions.Any())
+                    {
+                        <span class="request-count-badge">@activeMissions.Count</span>
+                    }
+                </div>
+                
+                <div class="requests-list">
+                    @if (activeMissions.Any())
+                    {
+                        @foreach (dynamic mission in activeMissions)
+                        {
+                            var prop = mission.Proposal as Proposal;
+                            var req = mission.Request as Request;
+                            var patient = mission.Patient as User;
+                            
+                            <div class="request-card">
+                                <div class="request-card-header">
+                                    <div class="patient-avatar-small">
+                                            @{
+                                                var patientInitial = patient?.FirstName?.Substring(0, 1).ToUpper() ?? "P";
+                                            }
+                                            <span>@patientInitial</span>
+                                        </div>
+                                    <div class="request-info">
+                                        <h3 class="request-title">@req?.Title</h3>
+                                        <p class="patient-name">@patient?.FirstName @patient?.LastName</p>
+                                        </div>
+                                    </div>
+                                
+                                <div class="request-status-badge">
+                                        <span class="status-badge status-@req?.Status.ToLower()">@req?.Status</span>
+                                    </div>
+                                
+                                <div class="request-card-actions">
+                                        @if (req?.Status == "Assigned")
+                                        {
+                                        <a href="@Url.Action("MyProposals", "Proposal")" class="btn-action btn-view">
+                                                <i class="bi bi-play-circle"></i> Démarrer
+                                            </a>
+                                        }
+                                        else if (req?.Status == "InProgress")
+                                        {
+                                        <a href="@Url.Action("MyProposals", "Proposal")" class="btn-action btn-view">
+                                                <i class="bi bi-check-circle"></i> Terminer
+                                            </a>
+                                        }
+                                    <a href="@Url.Action("Index", "Chat", new { requestId = req?.Id })" class="btn-action btn-chat">
+                                        <i class="bi bi-chat-dots"></i> Chat
+                                        </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-clipboard-check"></i>
+                            <p>Aucune mission active</p>
+                        </div>
+                    }
+                </div>
+            </section>
+            
+            <!-- Statistiques -->
+            <section class="active-requests-section">
+                <div class="module-header">
+                    <h2 class="module-title">Statistiques</h2>
+                </div>
+                
+                <div class="stats-grid-mini">
+                    <div class="stat-item-mini">
+                        <div class="stat-icon-mini" style="background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);">
+                            <i class="bi bi-check-circle"></i>
+                                </div>
+                        <div class="stat-content-mini">
+                            <div class="stat-value-mini">@(stats?.CompletedMissions ?? 0)</div>
+                            <div class="stat-label-mini">Missions complétées</div>
+                                </div>
+                        </div>
+                    
+                    <div class="stat-item-mini">
+                        <div class="stat-icon-mini" style="background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);">
+                            <i class="bi bi-star-fill"></i>
+                </div>
+                        <div class="stat-content-mini">
+                            <div class="stat-value-mini">@((stats?.ReputationScore ?? 0.0).ToString("F1"))</div>
+                            <div class="stat-label-mini">Score de fiabilité</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item-mini">
+                        <div class="stat-icon-mini" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+                            <i class="bi bi-people"></i>
+                    </div>
+                        <div class="stat-content-mini">
+                            <div class="stat-value-mini">@uniquePatientsHelped</div>
+                            <div class="stat-label-mini">Vies aidées</div>
+                                        </div>
+                                            </div>
+                    
+                    <div class="stat-item-mini">
+                        <div class="stat-icon-mini" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);">
+                            <i class="bi bi-chat-left-text"></i>
+                                        </div>
+                        <div class="stat-content-mini">
+                            <div class="stat-value-mini">@allReviews.Count</div>
+                            <div class="stat-label-mini">Avis reçus</div>
+                                    </div>
+                    </div>
+                    </div>
+                </section>
+            
+            <!-- Historique Récent -->
+            <section class="active-requests-section">
+                <div class="module-header">
+                    <h2 class="module-title">Historique récent</h2>
+                </div>
+                
+                <div class="history-list-mini">
+                    @if (recentHistory.Any())
+                    {
+                        @foreach (dynamic history in recentHistory)
+                        {
+                            var req = history.Request as Request;
+                            var patient = history.Patient as User;
+                            var review = history.Review as Review;
+                            var completedAt = (DateTime)history.CompletedAt;
+                            
+                            <div class="history-item-mini">
+                                <div class="history-icon-mini">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div class="history-content-mini">
+                                    <div class="history-title-mini">@req?.Title</div>
+                                    <div class="history-meta-mini">
+                                        <span>@patient?.FirstName</span>
+                                        <span>@completedAt.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    @if (review != null)
+                                    {
+                                        <div class="history-rating-mini">
+                                            @for (int i = 0; i < 5; i++)
+                                            {
+                                                <i class="bi bi-star-fill @(i < review.Rating ? "star-filled" : "star-empty")"></i>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-clock-history"></i>
+                            <p>Aucun historique</p>
+                        </div>
+                    }
+                </div>
+            </section>
+                </div>
+    </div>
+</div>
+
+@functions {
+    private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double R = 6371;
+        var dLat = ToRadians(lat2 - lat1);
+        var dLon = ToRadians(lon2 - lon1);
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        return R * c;
+    }
+
+    private double ToRadians(double degrees)
+    {
+        return degrees * Math.PI / 180.0;
+    }
+}
+
+@section Scripts {
+<script>
+    // Filtres de demandes
+    document.getElementById('filterCategory')?.addEventListener('change', filterRequests);
+    document.getElementById('filterUrgency')?.addEventListener('change', filterRequests);
+    
+    function filterRequests() {
+        const category = document.getElementById('filterCategory')?.value || '';
+        const urgency = document.getElementById('filterUrgency')?.value || '';
+            const cards = document.querySelectorAll('.request-card');
+        
+        cards.forEach(card => {
+            const cardCategory = card.getAttribute('data-category') || '';
+            const cardUrgency = card.getAttribute('data-urgency') || '';
+            
+            const matchCategory = !category || cardCategory === category;
+            const matchUrgency = !urgency || cardUrgency === urgency;
+            
+            card.style.display = (matchCategory && matchUrgency) ? 'block' : 'none';
+        });
+    }
+</script>
+
+<style>
+        .request-card.urgent {
+            border-left-color: #EF4444;
+            background: #FEF2F2;
+        }
+        
+        .request-meta-info {
+        display: flex;
+        gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .meta-item i {
+            color: var(--color-primary);
+        }
+        
+        .request-description {
+            color: var(--color-text-secondary);
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+        
+        .patient-avatar-small {
+        width: 48px;
+        height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+            font-size: 1.125rem;
+        flex-shrink: 0;
+    }
+
+        .request-info {
+        flex: 1;
+    }
+
+        .patient-name {
+        font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            margin: 0.25rem 0 0 0;
+        }
+        
+        .request-status-badge {
+            margin: 1rem 0;
+        }
+        
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        }
+        
+        .status-assigned {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+        
+        .status-inprogress {
+        background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .status-completed {
+            background: #D1FAE5;
+            color: #065F46;
+    }
+
+    .status-pending {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    .status-accepted {
+        background: #D1FAE5;
+            color: #059669;
+        }
+        
+        .stats-grid-mini {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        }
+        
+        .stat-item-mini {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+            padding: 1rem;
+            background: var(--color-bg-light);
+            border-radius: var(--border-radius);
+    }
+
+        .stat-icon-mini {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+            font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+        .stat-content-mini {
+        flex: 1;
+    }
+
+        .stat-value-mini {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--color-text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+        .stat-label-mini {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+        
+        .history-list-mini {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+        .history-item-mini {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+            background: var(--color-bg-light);
+            border-radius: var(--border-radius);
+    }
+
+        .history-icon-mini {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #D1FAE5;
+        border-radius: 10px;
+        color: #059669;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+        .history-content-mini {
+        flex: 1;
+    }
+
+        .history-title-mini {
+        font-weight: 600;
+            color: var(--color-text-primary);
+        margin-bottom: 0.25rem;
+            font-size: 0.9375rem;
+    }
+
+        .history-meta-mini {
+        display: flex;
+        gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+        .history-rating-mini {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+        .history-rating-mini .star-filled {
+        color: #FBBF24;
+    }
+
+        .history-rating-mini .star-empty {
+        color: #E5E7EB;
+    }
+
+        .section-filters {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        background: white;
+            cursor: pointer;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        
+        .global-status-badge.status-available {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .global-status-badge.status-available .status-indicator-dot {
+            background: #10B981;
+        }
+        
+        .global-status-badge.status-busy {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .global-status-badge.status-busy .status-indicator-dot {
+            background: #F59E0B;
+        }
+        
+        .global-status-badge.status-unavailable {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        .global-status-badge.status-unavailable .status-indicator-dot {
+            background: #EF4444;
+        }
+        
+        @@media (max-width: 1024px) {
+            .dashboard-main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid-mini {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .section-filters {
+                flex-direction: column;
+            }
+
+            .stats-grid-mini {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}

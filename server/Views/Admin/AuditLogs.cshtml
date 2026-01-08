@@ -1,0 +1,68 @@
+@model List<MediAid.Models.AuditLog>
+@{
+    ViewData["Title"] = "Logs d'audit";
+}
+
+<div class="page-header-modern">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-journal-text"></i> Logs d'audit
+        </h1>
+        <p class="page-subtitle">Traçabilité complète des actions sur la plateforme</p>
+    </div>
+</div>
+
+<div class="card-modern neumorphic-card">
+    <div class="card-header-modern">
+        <h2 class="card-title-modern">
+            <i class="bi bi-list-ul"></i> Historique des actions
+        </h2>
+        <span class="badge-modern badge-primary">@Model.Count log(s)</span>
+    </div>
+    <div class="card-body-modern">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-state-modern text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 4rem; color: var(--color-gray-400); margin-bottom: 1rem;"></i>
+                <h3>Aucun log d'audit</h3>
+                <p class="text-gray-600">Aucune action enregistrée pour le moment.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Date et heure</th>
+                            <th>Utilisateur</th>
+                            <th>Action</th>
+                            <th>Type d'entité</th>
+                            <th>Adresse IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td>@log.CreatedAt.ToString("dd MMM yyyy à HH:mm:ss")</td>
+                                <td>
+                                    <code style="background: var(--color-gray-100); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem;">
+                                        @(log.UserId?.Substring(0, 8) ?? "N/A")
+                                    </code>
+                                </td>
+                                <td>
+                                    <span class="badge-modern badge-info">@log.Action</span>
+                                </td>
+                                <td>@log.EntityType</td>
+                                <td>
+                                    <small style="color: var(--color-gray-600);">@log.IpAddress</small>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

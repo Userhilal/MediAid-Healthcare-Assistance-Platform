@@ -1,0 +1,719 @@
+@model MediAid.Models.Request
+@using MediAid.Services
+@{
+    ViewData["Title"] = "Détails de la demande";
+    var proposals = ViewBag.Proposals as List<MediAid.Models.Proposal> ?? new List<MediAid.Models.Proposal>();
+    var recommendations = ViewBag.Recommendations as List<ProposalRecommendation> ?? new List<ProposalRecommendation>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<div class="request-details-page">
+    <!-- Back Button -->
+    <div class="back-button-container">
+        <a href="@Url.Action("Index", "Request")" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+
+    <div class="request-details-grid">
+        <!-- Left Column: Request Details -->
+        <div class="request-details-column">
+            <div class="request-card neumorphic-card">
+                <!-- Header with Title -->
+                <div class="request-header" style="background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);">
+                    <h1 class="request-title-main">@Model.Title</h1>
+                </div>
+
+                <div class="request-body">
+                    <!-- Description -->
+                    <div class="detail-section">
+                        <h3 class="section-label">
+                            <i class="bi bi-file-text"></i> Description
+                        </h3>
+                        <p class="section-content">@Model.Description</p>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="bi bi-tag"></i> Catégorie
+                            </div>
+                            <span class="category-badge">@Model.Category</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="bi bi-exclamation-triangle"></i> Urgence
+                            </div>
+                            <span class="urgency-badge urgency-@Model.Urgency.ToLower()">
+                                @Model.Urgency
+                            </span>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="bi bi-info-circle"></i> Statut
+                            </div>
+                            <span class="status-badge status-@Model.Status.ToLower()">
+                                @Model.Status
+                            </span>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="bi bi-calendar-event"></i> Date souhaitée
+                            </div>
+                            <div class="detail-value">
+                                @if (Model.RequestedDate.HasValue)
+                                {
+                                    @Model.RequestedDate.Value.ToString("dd MMM yyyy à HH:mm")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Non spécifiée</span>
+                                }
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Address))
+                        {
+                            <div class="detail-item">
+                                <div class="detail-label">
+                                    <i class="bi bi-geo-alt"></i> Adresse
+                                </div>
+                                <div class="detail-value">@Model.Address, @Model.City @Model.PostalCode</div>
+                            </div>
+                        }
+
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="bi bi-clock"></i> Créée le
+                            </div>
+                            <div class="detail-value">@Model.CreatedAt.ToString("dd MMM yyyy à HH:mm")</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    @if (Model.Status == "Open" || Model.Status == "Assigned")
+                    {
+                        <div class="action-buttons">
+                            <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn-cancel-request" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette demande ?');">
+                                    <i class="bi bi-x-circle"></i> Annuler la demande
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Proposals -->
+        <div class="proposals-column">
+            <div class="proposals-card neumorphic-card">
+                <div class="proposals-header" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+                    <h2 class="proposals-title">
+                        <i class="bi bi-people"></i> Propositions (@proposals.Count)
+                    </h2>
+                </div>
+
+                <div class="proposals-body">
+                    @if (!recommendations.Any() && !proposals.Any())
+                    {
+                        <div class="empty-proposals">
+                            <i class="bi bi-inbox"></i>
+                            <p>Aucune proposition pour le moment.</p>
+                            <span class="empty-hint">Les aidants verront votre demande et pourront proposer leur aide.</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Recommendations -->
+                        @if (recommendations.Any())
+                        {
+                            @foreach (var rec in recommendations)
+                            {
+                                <div class="proposal-item recommendation-item">
+                                    <div class="proposal-header">
+                                        <div class="proposal-badge recommendation-badge">
+                                            <i class="bi bi-star-fill"></i> Recommandé
+                                        </div>
+                                    </div>
+                                    
+                                    @if (rec.Aidant != null && rec.AidantUser != null)
+                                    {
+                                        <div class="aidant-profile">
+                                            <div class="aidant-avatar-small">
+                                                @{
+                                                    var aidantInitial = !string.IsNullOrEmpty(rec.AidantUser.FirstName) 
+                                                        ? rec.AidantUser.FirstName.Substring(0, 1).ToUpper() 
+                                                        : "A";
+                                                }
+                                                <span>@aidantInitial</span>
+                                            </div>
+                                            <div class="aidant-info">
+                                                <div class="aidant-name">
+                                                    @if (!string.IsNullOrEmpty(rec.AidantUser.FirstName))
+                                                    {
+                                                        @rec.AidantUser.FirstName @rec.AidantUser.LastName
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>Aidant</text>
+                                                    }
+                                                </div>
+                                                @if (rec.Aidant.ReputationScore > 0)
+                                                {
+                                                    <div class="aidant-rating-small">
+                                                        <i class="bi bi-star-fill"></i> @rec.Aidant.ReputationScore.ToString("F1")/5.0
+                                                    </div>
+                                                }
+                                                <div class="aidant-stats">
+                                                    <i class="bi bi-check-circle"></i> @rec.Aidant.CompletedMissions missions complétées
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (rec.Proposal != null)
+                                    {
+                                        <div class="proposal-details">
+                                            <div class="proposal-status">
+                                                <span class="status-badge status-@rec.Proposal.Status.ToLower()">
+                                                    @rec.Proposal.Status
+                                                </span>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(rec.Proposal.Message))
+                                            {
+                                                <p class="proposal-message">@rec.Proposal.Message</p>
+                                            }
+                                            @if (rec.Proposal.EstimatedArrivalTime.HasValue)
+                                            {
+                                                <div class="proposal-time">
+                                                    <i class="bi bi-clock"></i> Arrivée estimée: @rec.Proposal.EstimatedArrivalTime.Value.ToString("dd MMM yyyy à HH:mm")
+                                                </div>
+                                            }
+                                            @if (rec.Proposal.Status == "Pending")
+                                            {
+                                                <form asp-action="AcceptProposal" asp-controller="Request" asp-route-proposalId="@rec.Proposal.Id" method="post" class="d-inline">
+                                                    <button type="submit" class="btn-accept-proposal">
+                                                        <i class="bi bi-check-circle"></i> Accepter
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+
+                        <!-- Regular Proposals -->
+                        @if (proposals.Any())
+                        {
+                            @foreach (var proposal in proposals.Where(p => !recommendations.Any(r => r.Proposal?.Id == p.Id)))
+                            {
+                                <div class="proposal-item">
+                                    <div class="proposal-status">
+                                        <span class="status-badge status-@proposal.Status.ToLower()">
+                                            @proposal.Status
+                                        </span>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(proposal.Message))
+                                    {
+                                        <p class="proposal-message">@proposal.Message</p>
+                                    }
+                                    @if (proposal.EstimatedArrivalTime.HasValue)
+                                    {
+                                        <div class="proposal-time">
+                                            <i class="bi bi-clock"></i> Arrivée estimée: @proposal.EstimatedArrivalTime.Value.ToString("dd MMM yyyy à HH:mm")
+                                        </div>
+                                    }
+                                    @if (proposal.Status == "Pending")
+                                    {
+                                        <form asp-action="AcceptProposal" asp-controller="Request" asp-route-proposalId="@proposal.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn-accept-proposal">
+                                                <i class="bi bi-check-circle"></i> Accepter
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #F8FAFC !important;
+        }
+
+        .request-details-page {
+            padding: 2rem 0;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Back Button */
+        .back-button-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: #ffffff;
+            color: #1A365D;
+            border: 2px solid #E2E8F0;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            letter-spacing: 0.01em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.05),
+                0 2px 4px rgba(0, 0, 0, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-back::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-back:hover::before {
+            left: 100%;
+        }
+
+        .btn-back i {
+            font-size: 1.125rem;
+            color: #0EA5E9;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-back:hover {
+            transform: translateX(-4px);
+            border-color: #0EA5E9;
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            box-shadow: 
+                0 8px 20px rgba(14, 165, 233, 0.15),
+                0 4px 8px rgba(0, 0, 0, 0.05);
+            color: #0C4A6E;
+        }
+
+        .btn-back:hover i {
+            transform: translateX(-3px);
+            color: #0284C7;
+        }
+
+        .btn-back:active {
+            transform: translateX(-2px);
+            box-shadow: 
+                0 4px 12px rgba(14, 165, 233, 0.1),
+                0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Grid Layout */
+        .request-details-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Neumorphic Card */
+        .neumorphic-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.08),
+                -8px -8px 16px rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+        }
+
+        .neumorphic-card:hover {
+            box-shadow: 
+                12px 12px 24px rgba(0, 0, 0, 0.1),
+                -12px -12px 24px rgba(255, 255, 255, 0.9);
+        }
+
+        /* Request Card */
+        .request-header {
+            padding: 2rem;
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .request-title-main {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0;
+            color: white;
+            letter-spacing: -0.02em;
+        }
+
+        .request-body {
+            padding: 2rem;
+        }
+
+        /* Detail Sections */
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1A365D;
+            margin-bottom: 1rem;
+        }
+
+        .section-label i {
+            color: #0EA5E9;
+            font-size: 1.25rem;
+        }
+
+        .section-content {
+            color: #475569;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 0;
+            padding: 1rem;
+            background: #F8FAFC;
+            border-radius: 12px;
+            border-left: 4px solid #0EA5E9;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-label i {
+            color: #0EA5E9;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1A365D;
+        }
+
+        /* Badges */
+        .category-badge, .urgency-badge, .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .category-badge {
+            background: #F3F4F6;
+            color: #374151;
+        }
+
+        .urgency-badge.urgency-low { background: #D1FAE5; color: #059669; }
+        .urgency-badge.urgency-normal { background: #DBEAFE; color: #2563EB; }
+        .urgency-badge.urgency-high { background: #FEF3C7; color: #D97706; }
+        .urgency-badge.urgency-critical { background: #FEE2E2; color: #DC2626; }
+
+        .status-badge.status-open { background: #DBEAFE; color: #1E40AF; }
+        .status-badge.status-assigned { background: #E0E7FF; color: #3730A3; }
+        .status-badge.status-inprogress { background: #FEF3C7; color: #92400E; }
+        .status-badge.status-completed { background: #D1FAE5; color: #065F46; }
+        .status-badge.status-cancelled { background: #F3F4F6; color: #374151; }
+        .status-badge.status-pending { background: #E0F2FE; color: #0EA5E9; }
+        .status-badge.status-accepted { background: #D1FAE5; color: #059669; }
+
+        /* Action Buttons */
+        .action-buttons {
+            padding-top: 1.5rem;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .btn-cancel-request {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            background: #EF4444;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-cancel-request:hover {
+            background: #DC2626;
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Proposals Card */
+        .proposals-header {
+            padding: 1.5rem 2rem;
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .proposals-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .proposals-body {
+            padding: 1.5rem;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        /* Empty State */
+        .empty-proposals {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #94A3B8;
+        }
+
+        .empty-proposals i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-proposals p {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #64748B;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-hint {
+            font-size: 0.875rem;
+            color: #94A3B8;
+        }
+
+        /* Proposal Items */
+        .proposal-item {
+            padding: 1.5rem;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .proposal-item:hover {
+            border-color: #0EA5E9;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+        }
+
+        .recommendation-item {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-color: #F59E0B;
+            border-width: 2px;
+        }
+
+        .proposal-header {
+            margin-bottom: 1rem;
+        }
+
+        .proposal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .recommendation-badge {
+            background: #F59E0B;
+            color: white;
+        }
+
+        /* Aidant Profile */
+        .aidant-profile {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .aidant-avatar-small {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+        }
+
+        .aidant-info {
+            flex: 1;
+        }
+
+        .aidant-name {
+            font-weight: 700;
+            color: #1A365D;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .aidant-rating-small {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: #F59E0B;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .aidant-stats {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748B;
+            font-size: 0.875rem;
+        }
+
+        .proposal-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .proposal-status {
+            margin-bottom: 0.5rem;
+        }
+
+        .proposal-message {
+            color: #475569;
+            font-size: 0.9375rem;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .proposal-time {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748B;
+            font-size: 0.875rem;
+        }
+
+        .btn-accept-proposal {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-accept-proposal:hover {
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @@media (max-width: 1024px) {
+            .request-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .request-details-page {
+                padding: 1rem;
+            }
+
+            .request-header, .proposals-header {
+                padding: 1.5rem;
+            }
+
+            .request-title-main {
+                font-size: 1.5rem;
+            }
+
+            .request-body, .proposals-body {
+                padding: 1.5rem;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}

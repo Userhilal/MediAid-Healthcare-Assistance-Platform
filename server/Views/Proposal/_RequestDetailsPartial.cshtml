@@ -1,0 +1,316 @@
+@model MediAid.Models.Request
+@{
+    var request = ViewBag.Request as MediAid.Models.Request ?? Model;
+    var patient = ViewBag.Patient as MediAid.Models.User;
+    var distance = ViewBag.Distance as double?;
+    var aidant = ViewBag.Aidant as MediAid.Models.Aidant;
+}
+
+@if (request == null)
+{
+    <div class="detail-placeholder">
+        <i class="bi bi-exclamation-circle"></i>
+        <p>Demande introuvable</p>
+    </div>
+    return;
+}
+
+<div class="request-details-pro">
+    <!-- Request Header -->
+    <div class="detail-section">
+        <h4 class="detail-section-title">Informations générales</h4>
+        <div class="detail-info-grid">
+            <div class="detail-info-item">
+                <span class="detail-label">Titre</span>
+                <span class="detail-value">@request.Title</span>
+            </div>
+            <div class="detail-info-item">
+                <span class="detail-label">Catégorie</span>
+                <span class="detail-value">@request.Category</span>
+            </div>
+            <div class="detail-info-item">
+                <span class="detail-label">Urgence</span>
+                <span class="detail-value urgency-@request.Urgency.ToLower()">@request.Urgency</span>
+            </div>
+            @if (distance.HasValue)
+            {
+                <div class="detail-info-item">
+                    <span class="detail-label">Distance</span>
+                    <span class="detail-value">@distance.Value.ToString("F1") km</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Description -->
+    <div class="detail-section">
+        <h4 class="detail-section-title">Description</h4>
+        <p class="detail-description">@request.Description</p>
+    </div>
+
+    <!-- Location -->
+    @if (request.Location != null && request.Location.Coordinates?.Length >= 2)
+    {
+        <div class="detail-section">
+            <h4 class="detail-section-title">Localisation</h4>
+            <div class="detail-map-container" id="detailMap" data-lat="@request.Location.Coordinates[1]" data-lon="@request.Location.Coordinates[0]"></div>
+            @if (!string.IsNullOrEmpty(request.City))
+            {
+                <p class="detail-location-text">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    @request.City @request.PostalCode
+                </p>
+            }
+        </div>
+    }
+
+    <!-- Dates -->
+    <div class="detail-section">
+        <h4 class="detail-section-title">Dates</h4>
+        <div class="detail-info-grid">
+            <div class="detail-info-item">
+                <span class="detail-label">Créée le</span>
+                <span class="detail-value">@request.CreatedAt.ToString("dd MMM yyyy à HH:mm")</span>
+            </div>
+            @if (request.RequestedDate.HasValue)
+            {
+                <div class="detail-info-item">
+                    <span class="detail-label">Souhaitée le</span>
+                    <span class="detail-value">@request.RequestedDate.Value.ToString("dd MMM yyyy à HH:mm")</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Patient Info (if available) -->
+    @if (patient != null)
+    {
+        <div class="detail-section">
+            <h4 class="detail-section-title">Patient</h4>
+            <div class="patient-info-card">
+                <div class="patient-avatar-small">
+                    @{
+                        var initial = patient.FirstName?.Substring(0, 1).ToUpper() ?? "P";
+                    }
+                    <span>@initial</span>
+                </div>
+                <div class="patient-info">
+                    <strong>@patient.FirstName @patient.LastName</strong>
+                    <span class="patient-meta">Patient vérifié</span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Actions -->
+    <div class="detail-actions">
+        <a href="@Url.Action("Create", "Proposal", new { requestId = request.Id })" class="btn-propose-detail">
+            <i class="bi bi-hand-thumbs-up-fill"></i>
+            <span>Proposer mon aide</span>
+        </a>
+        <a href="@Url.Action("Details", "Request", new { id = request.Id })" class="btn-view-full">
+            <i class="bi bi-arrow-right"></i>
+            <span>Voir la page complète</span>
+        </a>
+    </div>
+</div>
+
+<style>
+.request-details-pro {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.detail-section {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+}
+
+.detail-section-title {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 1rem 0;
+}
+
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.detail-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+}
+
+.detail-value {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.detail-description {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.detail-map-container {
+    width: 100%;
+    height: 200px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
+.detail-location-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.patient-info-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+}
+
+.patient-avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-alt) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.patient-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.patient-info strong {
+    font-size: 0.9375rem;
+    color: var(--color-text-primary);
+}
+
+.patient-meta {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+}
+
+.detail-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.btn-propose-detail {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-alt) 100%);
+    color: white;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: var(--shadow-glow);
+    transition: all var(--transition-base);
+}
+
+.btn-propose-detail:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(15, 82, 186, 0.5);
+    color: white;
+}
+
+.btn-view-full {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all var(--transition-base);
+}
+
+.btn-view-full:hover {
+    background: var(--color-surface);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+</style>
+
+<script>
+// Initialize detail map
+document.addEventListener('DOMContentLoaded', function() {
+    const mapContainer = document.getElementById('detailMap');
+    if (mapContainer) {
+        const lat = parseFloat(mapContainer.dataset.lat);
+        const lon = parseFloat(mapContainer.dataset.lon);
+        
+        if (!isNaN(lat) && !isNaN(lon)) {
+            const map = L.map('detailMap', {
+                zoomControl: true,
+                attributionControl: true
+            }).setView([lat, lon], 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            }).addTo(map);
+            
+            L.marker([lat, lon], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                })
+            }).addTo(map).bindPopup('Destination');
+        }
+    }
+});
+</script>
+
+
+
+
+

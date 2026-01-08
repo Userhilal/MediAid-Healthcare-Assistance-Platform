@@ -1,0 +1,95 @@
+@model List<MediAid.Models.Request>
+@{
+    ViewData["Title"] = "Validation des demandes";
+}
+
+<div class="page-header-modern">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-shield-check"></i> Validation des demandes
+        </h1>
+        <p class="page-subtitle">Demandes nécessitant une validation experte</p>
+    </div>
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="card-modern neumorphic-card">
+        <div class="empty-state-modern text-center py-5">
+            <i class="bi bi-check-circle" style="font-size: 4rem; color: var(--color-success); margin-bottom: 1rem;"></i>
+            <h3>Tout est à jour</h3>
+            <p class="text-gray-600">Aucune demande en attente de validation.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card-modern neumorphic-card">
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Catégorie</th>
+                        <th>Urgence</th>
+                        <th>Patient</th>
+                        <th>Date de création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@request.Title</strong>
+                                @if (!string.IsNullOrEmpty(request.Description) && request.Description.Length > 60)
+                                {
+                                    <br><small class="text-gray-600">@request.Description.Substring(0, 60)...</small>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge-modern badge-primary">@request.Category</span>
+                            </td>
+                            <td>
+                                @if (request.Urgency == "Critical")
+                                {
+                                    <span class="badge-modern badge-danger">
+                                        <i class="bi bi-exclamation-triangle"></i> Critique
+                                    </span>
+                                }
+                                else if (request.Urgency == "High")
+                                {
+                                    <span class="badge-modern badge-warning">
+                                        <i class="bi bi-exclamation-circle"></i> Élevée
+                                    </span>
+                                }
+                                else if (request.Urgency == "Normal")
+                                {
+                                    <span class="badge-modern badge-info">
+                                        <i class="bi bi-info-circle"></i> Normale
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-modern badge-success">
+                                        <i class="bi bi-check-circle"></i> Faible
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span class="text-gray-600">Patient anonyme</span>
+                            </td>
+                            <td>@request.CreatedAt.ToString("dd MMM yyyy à HH:mm")</td>
+                            <td>
+                                <a href="@Url.Action("Validate", "Expert", new { id = request.Id })" class="btn-success-modern" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                    <i class="bi bi-check-circle"></i> Valider
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

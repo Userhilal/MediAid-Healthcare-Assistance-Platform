@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Tableau de bord";
+}
+
+<div class="text-center py-5">
+    <h1 class="display-4">Bienvenue, @ViewBag.User?.FirstName @ViewBag.User?.LastName</h1>
+    <p class="lead">Vous êtes redirigé vers votre tableau de bord...</p>
+</div>
+
+@section Scripts {
+    <script>
+        // Redirect will happen server-side
+    </script>
+}
+

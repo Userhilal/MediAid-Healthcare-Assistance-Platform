@@ -1,0 +1,423 @@
+@model MediAid.DTOs.LoginDto
+@{
+    ViewData["Title"] = "Connexion";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MediAid</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #E0F2FE 0%, #D1FAE5 50%, #E0F2FE 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @@keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Glassmorphism Background Overlay */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            z-index: 0;
+        }
+
+        /* Main Container */
+        .auth-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+        }
+
+        /* Glassmorphism Card */
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 3.5rem 3rem;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Header */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-logo {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(20, 184, 166, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-logo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+        }
+
+        .logo-heart {
+            position: relative;
+            z-index: 1;
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo-heart svg {
+            width: 100%;
+            height: 100%;
+            fill: white;
+        }
+
+        .ecg-line {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 8px;
+            z-index: 2;
+        }
+
+        .ecg-line svg {
+            width: 100%;
+            height: 100%;
+            stroke: white;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.9;
+        }
+
+        .auth-title {
+            font-family: 'Outfit', 'Inter', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1A365D;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.02em;
+        }
+
+        .auth-subtitle {
+            font-size: 0.9375rem;
+            color: #64748B;
+            font-weight: 400;
+        }
+
+        /* Form */
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .validation-summary {
+            background: rgba(254, 226, 226, 0.8);
+            color: #DC2626;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            border-left: 3px solid #DC2626;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Input Group */
+        .input-group {
+            position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            color: #0EA5E9;
+            font-size: 1.125rem;
+            z-index: 1;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1px solid #BFDBFE;
+            border-radius: 12px;
+            background: #FFFFFF;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            color: #1A365D;
+            transition: all 0.3s ease-in-out;
+            outline: none;
+        }
+
+        .input-field::placeholder {
+            color: #94A3B8;
+        }
+
+        .input-field:focus {
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        }
+
+        .input-field:focus ~ .input-icon {
+            color: #0284C7;
+        }
+
+        .field-validation {
+            display: block;
+            color: #DC2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+        }
+
+        /* Forgot Password Link */
+        .form-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -0.5rem;
+        }
+
+        .form-link {
+            color: #475569;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .form-link:hover {
+            color: #0EA5E9;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+            margin-top: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-submit:hover i {
+            transform: translateX(4px);
+        }
+
+        /* Footer */
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(226, 232, 240, 0.5);
+            color: #64748B;
+            font-size: 0.9375rem;
+        }
+
+        .auth-footer a {
+            color: #0EA5E9;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            color: #0284C7;
+        }
+
+        /* Responsive */
+        @@media (max-width: 640px) {
+            .auth-container {
+                padding: 1rem;
+            }
+
+            .auth-card {
+                padding: 2.5rem 2rem;
+                border-radius: 24px;
+            }
+
+            .auth-title {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Glassmorphism Background Overlay -->
+    <div class="bg-overlay"></div>
+
+    <!-- Main Container -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <div class="logo-heart">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </div>
+                    <div class="ecg-line">
+                        <svg viewBox="0 0 50 8" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0,4 L5,4 L7,2 L9,6 L11,1 L13,5 L15,3 L17,7 L19,2 L21,6 L23,4 L25,5 L27,3 L29,7 L31,2 L33,6 L35,4 L40,4 L45,4 L50,4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="auth-title">Connexion</h1>
+                <p class="auth-subtitle">Accédes à votre espace MediAid</p>
+            </div>
+
+            <!-- Form -->
+            <form asp-action="Login" method="post" class="auth-form">
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+                
+                <!-- Email Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input asp-for="Email" class="input-field" type="email" placeholder="Email" required id="Email" />
+                        <i class="bi bi-envelope input-icon"></i>
+                    </div>
+                    <span asp-validation-for="Email" class="field-validation"></span>
+                </div>
+
+                <!-- Password Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input asp-for="Password" class="input-field" type="password" placeholder="Mot de passe" required id="Password" />
+                        <i class="bi bi-lock input-icon"></i>
+                    </div>
+                    <span asp-validation-for="Password" class="field-validation"></span>
+                </div>
+
+                <!-- Forgot Password Link -->
+                <div class="form-footer">
+                    <a asp-action="ForgotPassword" class="form-link">Mot de passe oublié ?</a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">
+                    <span>Se connecter</span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- Footer -->
+            <div class="auth-footer">
+                <p>Pas encore de compte? <a asp-action="Register">S'inscrire</a></p>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+</body>
+</html>
+
+
+
+

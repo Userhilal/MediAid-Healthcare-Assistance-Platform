@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MediAid</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/theme-global.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        /* Floating Glass Navbar Wrapper */
+        .floating-navbar-wrapper {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            padding: 0 20px;
+            margin-bottom: 2rem;
+        }
+
+        /* Premium Floating Glass Navbar */
+        .floating-glass-navbar {
+            background: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .floating-glass-navbar.scrolled {
+            padding: 0.5rem 1.5rem;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .floating-navbar-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Premium Logo */
+        .premium-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo-icon-gradient {
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.2));
+        }
+
+        .logo-text-premium {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #1A365D 0%, #0EA5E9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.05em;
+        }
+
+        /* Premium Nav Links */
+        .premium-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .premium-nav-link {
+            position: relative;
+            color: #64748B !important;
+            font-weight: 500;
+            padding: 0.625rem 1.25rem !important;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9375rem;
+            text-decoration: none;
+        }
+
+        .nav-link-indicator {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 0;
+            background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+            border-radius: 0 4px 4px 0;
+            transition: height 0.3s ease;
+            opacity: 0;
+        }
+
+        .premium-nav-link:hover .nav-link-indicator,
+        .premium-nav-link.active .nav-link-indicator {
+            height: 60%;
+            opacity: 1;
+        }
+
+        .premium-nav-link:hover {
+            background: rgba(14, 165, 233, 0.08);
+            color: #1E3A8A !important;
+        }
+
+        .premium-nav-link.active {
+            background: rgba(14, 165, 233, 0.12);
+            color: #1E3A8A !important;
+            font-weight: 600;
+        }
+
+        /* Login Link with Avatar */
+        .login-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .login-avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-gray-300) 0%, var(--color-gray-400) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-avatar-circle::after {
+            content: '👤';
+            font-size: 1rem;
+        }
+
+        /* Premium Shimmer Button */
+        .btn-premium-shimmer {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.5rem;
+            background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .shimmer-effect {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @@keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .btn-premium-shimmer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+            color: white;
+        }
+
+        .btn-premium-shimmer i,
+        .btn-premium-shimmer span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Premium Toggler */
+        .premium-toggler {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 0.25rem 0.5rem;
+        }
+
+        /* Responsive */
+        @@media (max-width: 991px) {
+            .floating-navbar-wrapper {
+                padding: 0 10px;
+                top: 10px;
+            }
+
+            .floating-glass-navbar {
+                border-radius: 20px;
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        .modern-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #0EA5E9 0%, #1A365D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, #0EA5E9 0%, #1A365D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .modern-nav-link {
+            color: #64748B !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9375rem;
+        }
+
+        .modern-nav-link i {
+            font-size: 1.125rem;
+            stroke-width: 1.5;
+        }
+
+        .modern-nav-link:hover {
+            background: #F9FAFB;
+            color: #1E3A8A !important;
+        }
+
+        .modern-nav-link.active {
+            background: #F9FAFB;
+            color: #1E3A8A !important;
+            font-weight: 600;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1E3A8A 0%, #0EA5E9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(30, 58, 138, 0.2);
+            border: 2px solid white;
+        }
+
+        .user-avatar::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10B981;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+
+        .avatar-text {
+            font-size: 1.125rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #EF4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2.5px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .modern-dropdown {
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .modern-dropdown .dropdown-item {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .modern-dropdown .dropdown-item:hover {
+            background: #F1F5F9;
+        }
+
+        .modern-dropdown .dropdown-divider {
+            margin: 0.5rem 0;
+        }
+
+        /* Enhanced Professional Footer */
+        .footer-enhanced {
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            padding: 3rem 0 1.5rem;
+            margin-top: 5rem;
+            margin-bottom: 0;
+        }
+
+        body {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        html {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .footer-main {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-brand-section {
+            max-width: 400px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--color-navy);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            transition: all 0.3s ease;
+        }
+
+        .footer-logo:hover {
+            color: var(--color-sky-blue);
+            transform: translateX(2px);
+        }
+
+        .footer-logo i {
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-teal) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-description {
+            color: var(--color-gray-600);
+            font-size: var(--font-size-sm);
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .footer-section-title {
+            color: var(--color-navy);
+            font-size: var(--font-size-base);
+            font-weight: 700;
+            margin: 0 0 var(--spacing-md) 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+        }
+
+        .footer-links-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .footer-links-list li {
+            margin: 0;
+        }
+
+        .footer-links-list a {
+            color: var(--color-gray-600);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .footer-links-list a:hover {
+            color: var(--color-sky-blue);
+            transform: translateX(4px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--color-gray-200);
+            color: var(--color-gray-500);
+            font-size: var(--font-size-sm);
+        }
+
+        .footer-bottom strong {
+            color: var(--color-gray-700);
+            font-weight: 600;
+        }
+
+        @@media (max-width: 992px) {
+            .footer-main {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+
+            .footer-brand-section {
+                grid-column: 1 / -1;
+                max-width: 100%;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .footer-enhanced {
+                padding: 2rem 0 1.5rem;
+            }
+
+            .footer-main {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+
+            .footer-brand-section {
+                text-align: center;
+            }
+
+            .footer-links-list {
+                align-items: center;
+            }
+
+            .footer-links-list a:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="floating-navbar-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-light floating-glass-navbar">
+            <div class="floating-navbar-container">
+                <a class="navbar-brand premium-logo" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="logo-icon-gradient"><i class="bi bi-heart-pulse"></i></span>
+                    <span class="logo-text-premium">MediAid</span>
+                </a>
+                <button class="navbar-toggler premium-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 premium-nav-links">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link premium-nav-link" asp-controller="Dashboard" asp-action="Index">
+                                    <span class="nav-link-indicator"></span>
+                                    <i class="bi bi-speedometer2"></i> <span>Tableau de bord</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link premium-nav-link" asp-controller="Chat" asp-action="Conversations">
+                                    <span class="nav-link-indicator"></span>
+                                    <i class="bi bi-chat-dots"></i> <span>Messages</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link premium-nav-link" asp-controller="Map" asp-action="Index">
+                                    <span class="nav-link-indicator"></span>
+                                    <i class="bi bi-map"></i> <span>Carte</span>
+                                </a>
+                            </li>
+                            @if (User.IsInRole("Patient"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Request" asp-action="Index">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-list-ul"></i> <span>Mes demandes</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Request" asp-action="Create">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-plus-circle"></i> <span>Nouvelle demande</span>
+                                    </a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Aidant"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Proposal" asp-action="Index">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-search"></i> <span>Demandes disponibles</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Proposal" asp-action="MyProposals">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-list-check"></i> <span>Mes propositions</span>
+                                    </a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Expert"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Expert" asp-action="Index">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-shield-check"></i> <span>Validation</span>
+                                    </a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Admin" asp-action="Index">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-speedometer2"></i> <span>Administration</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Admin" asp-action="Users">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-people"></i> <span>Utilisateurs</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Admin" asp-action="AuditLogs">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-journal-text"></i> <span>Logs</span>
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <ul class="navbar-nav premium-nav-right">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <div class="user-menu">
+                                    <div class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+                                        @{
+                                            var userInitial = User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U";
+                                        }
+                                        <span class="avatar-text">@userInitial</span>
+                                        @if (ViewBag.UnreadNotifications != null && ViewBag.UnreadNotifications > 0)
+                                        {
+                                            <span class="notification-badge">@ViewBag.UnreadNotifications</span>
+                                        }
+                                    </div>
+                                    <ul class="dropdown-menu dropdown-menu-end modern-dropdown">
+                                        <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person-circle"></i> Mon profil</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                                <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right"></i> Déconnexion
+                                    </button>
+                                </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link premium-nav-link login-link" asp-controller="Account" asp-action="Login">
+                                    <div class="login-avatar-circle"></div>
+                                    <span>Connexion</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn-premium-shimmer" asp-controller="Account" asp-action="Register">
+                                    <span class="shimmer-effect"></span>
+                                    <i class="bi bi-person-plus"></i>
+                                    <span>Inscription</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container page-container">
+        <main role="main" class="pb-3">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert-modern alert-success-modern alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert-modern alert-danger-modern alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer-enhanced">
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-section footer-brand-section">
+                    <a asp-controller="Home" asp-action="Index" class="footer-logo">
+                        <i class="bi bi-heart-pulse"></i>
+                        <span>MediAid</span>
+                    </a>
+                    <p class="footer-description">
+                        Une plateforme sécurisée connectant patients, aidants, bénévoles et experts pour fournir un soutien humain réel quand cela compte le plus.
+                    </p>
+                </div>
+                
+                <div class="footer-section footer-links-section">
+                    <h5 class="footer-section-title">Navigation</h5>
+                    <ul class="footer-links-list">
+                        <li><a asp-controller="Home" asp-action="Index">Accueil</a></li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li><a asp-controller="Dashboard" asp-action="Index">Tableau de bord</a></li>
+                        }
+                        else
+                        {
+                            <li><a asp-controller="Account" asp-action="Login">Connexion</a></li>
+                            <li><a asp-controller="Account" asp-action="Register">Inscription</a></li>
+                        }
+                    </ul>
+                </div>
+                
+                <div class="footer-section footer-legal-section">
+                    <h5 class="footer-section-title">Légal</h5>
+                    <ul class="footer-links-list">
+                        <li><a asp-controller="Home" asp-action="Privacy">Confidentialité</a></li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li><a asp-controller="Map" asp-action="Index">Carte</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; @DateTime.Now.Year <strong>MediAid</strong>. Tous droits réservés. | Conforme RGPD | Éthique & Sécurisé</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Initialize AOS - with error handling
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true,
+                offset: 100,
+                disable: false
+            });
+        } else {
+            console.warn('AOS library not loaded, animations disabled');
+            // Remove data-aos attributes to show content immediately
+            document.addEventListener('DOMContentLoaded', function() {
+                const elements = document.querySelectorAll('[data-aos]');
+                elements.forEach(el => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                });
+            });
+        }
+
+        // Floating Glass Navbar - Shrink on Scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.floating-glass-navbar');
+            if (navbar) {
+                if (window.scrollY > 100) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+        });
+
+        // Active Nav Link Indicator
+        document.querySelectorAll('.premium-nav-link').forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                const indicator = this.querySelector('.nav-link-indicator');
+                if (indicator) {
+                    indicator.style.width = '4px';
+                }
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('active')) {
+                    const indicator = this.querySelector('.nav-link-indicator');
+                    if (indicator) {
+                        indicator.style.width = '0';
+                    }
+                }
+            });
+        });
+
+        // Set active link based on current page
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.premium-nav-link').forEach(link => {
+            if (link.getAttribute('href') === currentPath || currentPath.includes(link.getAttribute('href'))) {
+                link.classList.add('active');
+                const indicator = link.querySelector('.nav-link-indicator');
+                if (indicator) {
+                    indicator.style.height = '60%';
+                    indicator.style.opacity = '1';
+                }
+            }
+        });
+
+
+        // Counter animation for trust bar
+        function animateCounter(element, target, duration = 2000) {
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target % 1 === 0 ? Math.floor(target) : target.toFixed(1);
+                    clearInterval(timer);
+                } else {
+                    element.textContent = current % 1 === 0 ? Math.floor(current) : current.toFixed(1);
+                }
+            }, 16);
+        }
+
+        // Trigger counter animation when in viewport
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                    entry.target.classList.add('counted');
+                    const target = parseFloat(entry.target.getAttribute('data-count'));
+                    animateCounter(entry.target, target);
+                }
+            });
+        }, observerOptions);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const counters = document.querySelectorAll('.trust-number');
+            counters.forEach(counter => {
+                observer.observe(counter);
+            });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

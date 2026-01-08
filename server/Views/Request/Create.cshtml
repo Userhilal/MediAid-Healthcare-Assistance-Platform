@@ -1,0 +1,12 @@
+@model MediAid.DTOs.CreateRequestDto
+@{
+    ViewData["Title"] = "Nouvelle demande";
+}
+
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> Vous êtes redirigé vers l'assistant de création de demande...
+</div>
+
+<script>
+    window.location.href = '@Url.Action("CreateWizard")';
+</script>
