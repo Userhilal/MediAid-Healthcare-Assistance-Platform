@@ -30,3 +30,7 @@ server/Views/Shared/_Layout.backup.cshtml
 # OS
 .DS_Store
 Thumbs.db
+
+# Local controller backups
+server/Controllers/*.before*.cs
+server/Controllers/*.backup.cs
