@@ -114,8 +114,8 @@ public class MissionController : Controller
 
         if (request.Status == "InProgress" || request.Status == "Assigned")
         {
-            request.Status = "Completed";
-            request.CompletedAt = DateTime.UtcNow;
+            request.Status = "PendingVerification";
+            
             request.UpdatedAt = DateTime.UtcNow;
             await _requestService.UpdateRequestAsync(request);
 
@@ -126,9 +126,9 @@ public class MissionController : Controller
 
             await _notificationService.CreateNotificationAsync(
                 request.PatientId,
-                "RequestCompleted",
-                "Mission terminée",
-                $"La mission « {request.Title} » a été complétée par l'aidant.",
+                "ProofSubmitted",
+                "Preuve envoyée",
+                $"La mission « {request.Title} » est en attente de votre vérification.",
                 request.Id ?? requestId,
                 "Request");
         }
@@ -276,6 +276,11 @@ public class MissionController : Controller
             return Json(new { success = false, message = "Code de vÃ©rification incorrect" });
         }
 
+
+        if (request.Status != "PendingVerification" && request.Status != "InProgress")
+        {
+            return Json(new { success = false, message = "La mission doit être en attente de vérification avant d'être clôturée." });
+        }
         // Find and verify proof
         var proof = await _context.MissionProofs
             .Find(p => p.RequestId == requestId && p.VerificationCode == code)
@@ -291,7 +296,7 @@ public class MissionController : Controller
 
         // Complete the mission
         request.Status = "Completed";
-        request.CompletedAt = DateTime.UtcNow;
+        
         await _requestService.UpdateRequestAsync(request);
 
         if (!string.IsNullOrWhiteSpace(request.AssignedAidantId))
@@ -427,6 +432,7 @@ public class MissionController : Controller
         return degrees * (Math.PI / 180);
     }
 }
+
 
 
 

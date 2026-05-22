@@ -115,7 +115,11 @@ Aidant starts the mission
         ↓
 Mission becomes InProgress
         ↓
-Aidant uploads proof or patient verifies completion
+Aidant uploads proof
+        ↓
+Mission becomes PendingVerification
+        ↓
+Patient verifies completion
         ↓
 Mission becomes Completed
         ↓
@@ -408,3 +412,4 @@ GitHub: [@Userhilal](https://github.com/Userhilal)
 ## License
 
 This project was developed for academic and portfolio purposes.
+
