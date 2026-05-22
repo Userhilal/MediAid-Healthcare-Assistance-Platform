@@ -8,30 +8,31 @@
 
 **MediAid** is a healthcare assistance platform built with **ASP.NET Core MVC**, **.NET 8**, and **MongoDB**.
 
-The platform connects patients, caregivers, experts, and administrators through a structured workflow for assistance requests, proposals, mission tracking, notifications, chat, reviews, and safety reporting.
+The platform connects patients, caregivers, experts, and administrators through a structured workflow for healthcare assistance requests, proposals, mission tracking, notifications, chat, reviews, and safety reporting.
 
 ---
 
 ## Overview
 
-MediAid supports healthcare assistance coordination between people who need help and people who can provide support.
+MediAid is a web platform designed to coordinate healthcare assistance between patients who need support and aidants who can provide help.
 
-Patients can create assistance requests. Aidants can browse available validated requests and send proposals. Patients can accept proposals and follow mission progress. Experts can validate sensitive requests. Administrators supervise users, logs, and platform activity.
+Patients can create assistance requests, aidants can send proposals, experts can validate sensitive requests, and administrators can supervise platform activity.
 
-The project focuses on building a real end-to-end web application with clear role-based access, backend workflows, data persistence, and a professional user interface.
+The project focuses on a real end-to-end workflow with authentication, role-based access, MongoDB persistence, mission tracking, notification management, and a professional Razor-based interface.
 
 ---
 
 ## Main Features
 
-### Authentication and Accounts
+### Authentication and Account Management
 
 - User registration and login
 - Cookie-based authentication
 - BCrypt password hashing
 - Account activation and deactivation logic
 - Role-based access control
-- Change password and email
+- Change password
+- Change email
 - General account profile management
 
 ### Patient Features
@@ -80,7 +81,7 @@ The project focuses on building a real end-to-end web application with clear rol
 | Patient | Creates assistance requests and follows missions |
 | Aidant | Sends proposals and completes assistance missions |
 | Expert | Validates sensitive healthcare-related requests |
-| Admin | Manages users, supervision, logs, and platform activity |
+| Admin | Manages users, logs, and platform activity |
 
 Public registration is limited to:
 
@@ -133,9 +134,8 @@ Patient can review the aidant
 | Frontend | Razor Views, HTML, CSS, Bootstrap |
 | Authentication | Cookie Authentication |
 | Password Security | BCrypt |
-| Realtime Layer | SignalR-ready structure |
 | Data Access | MongoDB Driver |
-| Local Infrastructure | Docker Compose |
+| Infrastructure | Docker Compose |
 | Development OS | Windows / PowerShell |
 
 ---
@@ -211,7 +211,7 @@ git --version
 
 ```powershell
 git clone https://github.com/Userhilal/MediAid-Healthcare-Assistance-Platform.git
-cd MediAid/server
+cd MediAid-Healthcare-Assistance-Platform/server
 dotnet restore
 dotnet build
 ```
@@ -279,12 +279,6 @@ Example:
     "RefreshTokenExpirationDays": 7
   }
 }
-```
-
-A template file is also provided:
-
-```text
-server/.env.example
 ```
 
 Production secrets should not be committed.
