@@ -1,7 +1,7 @@
-@model MediAid.DTOs.CreateReviewDto
+﻿@model MediAid.DTOs.CreateReviewDto
 @using MediAid.Services
 @{
-    ViewData["Title"] = "Évaluations de l'aidant";
+    ViewData["Title"] = "Ã‰valuations de l'aidant";
     var aidant = ViewBag.Aidant as MediAid.Models.Aidant;
     var aidantUser = ViewBag.AidantUser as MediAid.Models.User;
     var reviews = ViewBag.Reviews as List<dynamic> ?? new List<dynamic>();
@@ -23,7 +23,7 @@
                 <i class="bi bi-arrow-left"></i> Retour
             </a>
             <h1 class="page-title-modern">
-                <i class="bi bi-star-fill"></i> Évaluations & Commentaires
+                <i class="bi bi-star-fill"></i> Ã‰valuations & Commentaires
             </h1>
         </div>
     </div>
@@ -58,7 +58,7 @@
                         @if (aidant.IsVerified)
                         {
                             <div class="verified-badge-inline">
-                                <i class="bi bi-shield-check-fill"></i> Aidant Vérifié
+                                <i class="bi bi-shield-check-fill"></i> Aidant VÃ©rifiÃ©
                             </div>
                         }
 
@@ -72,7 +72,7 @@
                             </div>
                             <div class="rating-info">
                                 <span class="rating-value-modern">@averageRating.ToString("F1")</span>
-                                <span class="rating-count-modern">(@totalReviews évaluation@(totalReviews > 1 ? "s" : ""))</span>
+                                <span class="rating-count-modern">(@totalReviews Ã©valuation@(totalReviews > 1 ? "s" : ""))</span>
                             </div>
                         </div>
 
@@ -82,7 +82,7 @@
                                 <i class="bi bi-trophy-fill"></i>
                                 <div>
                                     <div class="stat-value-mini">@aidant.CompletedMissions</div>
-                                    <div class="stat-label-mini">Missions complétées</div>
+                                    <div class="stat-label-mini">Missions complÃ©tÃ©es</div>
                                 </div>
                             </div>
                         </div>
@@ -95,7 +95,7 @@
                     <div class="review-form-card-modern">
                         <div class="card-header-modern">
                             <h3 class="card-title-modern">
-                                <i class="bi bi-pencil-square"></i> Ajouter une évaluation
+                                <i class="bi bi-pencil-square"></i> Ajouter une Ã©valuation
                             </h3>
                         </div>
                         <div class="card-body-modern">
@@ -107,10 +107,10 @@
                                 <!-- Request Selection -->
                                 <div class="form-group-modern">
                                     <label class="form-label-modern">
-                                        <i class="bi bi-clipboard-check"></i> Mission à évaluer
+                                        <i class="bi bi-clipboard-check"></i> Mission Ã  Ã©valuer
                                     </label>
                                     <select asp-for="RequestId" class="form-select-modern" required>
-                                        <option value="">Sélectionner une mission...</option>
+                                        <option value="">SÃ©lectionner une mission...</option>
                                         @foreach (var req in reviewableRequests)
                                         {
                                             <option value="@req.Id">@req.Title - @req.CreatedAt.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("fr-FR"))</option>
@@ -132,7 +132,7 @@
                                             }
                                         </div>
                                         <input type="hidden" asp-for="Rating" id="ratingValue" value="0" required />
-                                        <span class="rating-text" id="ratingText">Sélectionnez une note</span>
+                                        <span class="rating-text" id="ratingText">SÃ©lectionnez une note</span>
                                     </div>
                                     <span asp-validation-for="Rating" class="text-danger"></span>
                                 </div>
@@ -142,13 +142,13 @@
                                     <label class="form-label-modern">
                                         <i class="bi bi-chat-left-text"></i> Commentaire (optionnel)
                                     </label>
-                                    <textarea asp-for="Comment" class="form-textarea-modern" rows="4" placeholder="Partagez votre expérience avec cet aidant..."></textarea>
+                                    <textarea asp-for="Comment" class="form-textarea-modern" rows="4" placeholder="Partagez votre expÃ©rience avec cet aidant..."></textarea>
                                     <span asp-validation-for="Comment" class="text-danger"></span>
                                 </div>
 
                                 <!-- Submit Button -->
                                 <button type="submit" class="btn-submit-review">
-                                    <i class="bi bi-check-circle"></i> Publier l'évaluation
+                                    <i class="bi bi-check-circle"></i> Publier l'Ã©valuation
                                 </button>
                             </form>
                         </div>
@@ -158,7 +158,7 @@
                 {
                     <div class="info-card-modern">
                         <i class="bi bi-info-circle"></i>
-                        <p>Vous n'avez pas de missions complétées avec cet aidant à évaluer pour le moment.</p>
+                        <p>Vous n'avez pas de missions complÃ©tÃ©es avec cet aidant Ã  Ã©valuer pour le moment.</p>
                     </div>
                 }
             </div>
@@ -168,7 +168,7 @@
                 <div class="reviews-card-modern">
                     <div class="card-header-modern">
                         <h3 class="card-title-modern">
-                            <i class="bi bi-chat-left-text"></i> Toutes les évaluations
+                            <i class="bi bi-chat-left-text"></i> Toutes les Ã©valuations
                             <span class="reviews-count-badge">@totalReviews</span>
                         </h3>
                     </div>
@@ -221,8 +221,8 @@
                                 <div class="empty-icon-large">
                                     <i class="bi bi-star"></i>
                                 </div>
-                                <h3>Aucune évaluation</h3>
-                                <p>Cet aidant n'a pas encore reçu d'évaluations.</p>
+                                <h3>Aucune Ã©valuation</h3>
+                                <p>Cet aidant n'a pas encore reÃ§u d'Ã©valuations.</p>
                             </div>
                         }
                     </div>
@@ -235,7 +235,7 @@
         <div class="error-card-modern">
             <i class="bi bi-exclamation-triangle"></i>
             <h3>Aidant introuvable</h3>
-            <p>L'aidant demandé n'existe pas.</p>
+            <p>L'aidant demandÃ© n'existe pas.</p>
         </div>
     }
 </div>
@@ -248,12 +248,12 @@
         const ratingText = document.getElementById('ratingText');
 
         const ratingTexts = {
-            0: 'Sélectionnez une note',
-            1: 'Très insatisfait',
+            0: 'SÃ©lectionnez une note',
+            1: 'TrÃ¨s insatisfait',
             2: 'Insatisfait',
             3: 'Neutre',
             4: 'Satisfait',
-            5: 'Très satisfait'
+            5: 'TrÃ¨s satisfait'
         };
 
         stars.forEach(star => {
@@ -876,3 +876,4 @@
         }
     </style>
 }
+

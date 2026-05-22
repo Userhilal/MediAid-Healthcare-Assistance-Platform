@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -62,7 +62,7 @@ public class AdminController : Controller
         user.UpdatedAt = DateTime.UtcNow;
         await _userService.UpdateUserAsync(user);
 
-        TempData["SuccessMessage"] = "Utilisateur suspendu avec succès.";
+        TempData["SuccessMessage"] = "Utilisateur suspendu avec succÃ¨s.";
         return RedirectToAction("Users");
     }
 
@@ -80,7 +80,7 @@ public class AdminController : Controller
         user.UpdatedAt = DateTime.UtcNow;
         await _userService.UpdateUserAsync(user);
 
-        TempData["SuccessMessage"] = "Utilisateur activé avec succès.";
+        TempData["SuccessMessage"] = "Utilisateur activÃ© avec succÃ¨s.";
         return RedirectToAction("Users");
     }
 
@@ -98,7 +98,7 @@ public class AdminController : Controller
         user.UpdatedAt = DateTime.UtcNow;
         await _userService.UpdateUserAsync(user);
 
-        TempData["SuccessMessage"] = $"Rôle modifié en {role}.";
+        TempData["SuccessMessage"] = $"RÃ´le modifiÃ© en {role}.";
         return RedirectToAction("Users");
     }
 
@@ -111,4 +111,5 @@ public class AdminController : Controller
         return View(logs);
     }
 }
+
 

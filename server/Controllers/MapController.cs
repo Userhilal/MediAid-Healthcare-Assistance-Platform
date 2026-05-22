@@ -1,6 +1,7 @@
-using MediAid.Services;
+﻿using MediAid.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace MediAid.Controllers;
 
@@ -20,15 +21,21 @@ public class MapController : Controller
 
     public async Task<IActionResult> Index()
     {
+        var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var currentAidant = !string.IsNullOrWhiteSpace(currentUserId)
+            ? await _userService.GetAidantByUserIdAsync(currentUserId)
+            : null;
+
         var aidants = await _aidantService.GetAllAidantsWithLocationAsync();
         var requests = await _requestService.GetAllRequestsWithLocationAsync();
 
-        // Enrichir les aidants avec les informations utilisateur
         var aidantsWithUserInfo = new List<object>();
+
         foreach (var aidant in aidants)
         {
             var user = await _userService.GetUserByIdAsync(aidant.UserId);
-            if (user != null && aidant.Location != null && aidant.Location.Coordinates.Length >= 2)
+
+            if (user != null && aidant.Location?.Coordinates?.Length >= 2)
             {
                 aidantsWithUserInfo.Add(new
                 {
@@ -46,36 +53,65 @@ public class MapController : Controller
             }
         }
 
-        // Enrichir les demandes avec les informations patient
         var requestsWithUserInfo = new List<object>();
+
         foreach (var request in requests)
         {
-            if (request.Location != null && request.Location.Coordinates.Length >= 2)
+            if (request.Location?.Coordinates == null || request.Location.Coordinates.Length < 2)
             {
-                var patient = await _userService.GetPatientByUserIdAsync(request.PatientId);
-                var user = await _userService.GetUserByIdAsync(request.PatientId);
-                
-                requestsWithUserInfo.Add(new
-                {
-                    Id = request.Id,
-                    Title = request.Title,
-                    Description = request.Description,
-                    Category = request.Category,
-                    Urgency = request.Urgency,
-                    Latitude = request.Location.Coordinates[1],
-                    Longitude = request.Location.Coordinates[0],
-                    Address = request.Address,
-                    City = request.City,
-                    Status = request.Status,
-                    PatientName = user != null ? $"{user.FirstName} {user.LastName}" : "Inconnu"
-                });
+                continue;
             }
+
+            if (request.RequiresExpertValidation && !request.IsExpertValidated)
+            {
+                continue;
+            }
+
+            var canSeeExactLocation =
+                User.IsInRole("Admin") ||
+                request.PatientId == currentUserId ||
+                (!string.IsNullOrWhiteSpace(request.AssignedAidantId) &&
+                 currentAidant != null &&
+                 request.AssignedAidantId == currentAidant.Id);
+
+            var latitude = request.Location.Coordinates[1];
+            var longitude = request.Location.Coordinates[0];
+
+            if (!canSeeExactLocation)
+            {
+                (latitude, longitude) = BlurLocation(latitude, longitude, request.Id ?? request.Title);
+            }
+
+            requestsWithUserInfo.Add(new
+            {
+                Id = request.Id,
+                Title = request.Title,
+                Description = canSeeExactLocation ? request.Description : "Description masquée avant acceptation de la mission.",
+                Category = request.Category,
+                Urgency = request.Urgency,
+                Latitude = latitude,
+                Longitude = longitude,
+                Address = canSeeExactLocation ? request.Address : "Zone approximative",
+                City = request.City,
+                Status = request.Status,
+                PatientName = canSeeExactLocation ? "Patient identifié" : "Patient anonyme",
+                IsApproximate = !canSeeExactLocation
+            });
         }
 
         ViewBag.Aidants = aidantsWithUserInfo;
         ViewBag.Requests = requestsWithUserInfo;
 
         return View();
+    }
+
+    private static (double Latitude, double Longitude) BlurLocation(double latitude, double longitude, string seed)
+    {
+        var hash = Math.Abs(seed.GetHashCode());
+        var latOffset = ((hash % 7) - 3) * 0.0015;
+        var lonOffset = (((hash / 10) % 7) - 3) * 0.0015;
+
+        return (latitude + latOffset, longitude + lonOffset);
     }
 }
 

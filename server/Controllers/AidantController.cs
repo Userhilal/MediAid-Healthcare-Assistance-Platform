@@ -1,4 +1,4 @@
-using MediAid.Services;
+﻿using MediAid.Services;
 using MediAid.Models;
 using MediAid.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -57,7 +57,7 @@ public class AidantController : Controller
         // Statistiques des demandes
         var allProposals = await _proposalService.GetProposalsByAidantIdAsync(aidant.Id!);
         
-        // Calculer les missions en cours et terminées
+        // Calculer les missions en cours et terminÃ©es
         int inProgressCount = 0;
         int completedCount = 0;
         foreach (var proposal in allProposals.Where(p => p.Status == "Accepted"))
@@ -99,7 +99,7 @@ public class AidantController : Controller
             ReputationScore = aidant.ReputationScore
         };
 
-        // Prochaines missions planifiées
+        // Prochaines missions planifiÃ©es
         var upcomingProposals = allProposals
             .Where(p => p.Status == "Accepted")
             .Select(async p => new { Proposal = p, Request = await _requestService.GetRequestByIdAsync(p.RequestId) })
@@ -137,13 +137,13 @@ public class AidantController : Controller
         // Notifications
         var notifications = await _notificationService.GetNotificationsByUserIdAsync(userId, unreadOnly: true);
         
-        // Messages non lus - calculer le total (réutiliser context déjà défini)
+        // Messages non lus - calculer le total (rÃ©utiliser context dÃ©jÃ  dÃ©fini)
         var unreadMessages = await context.Messages
             .Find(m => m.ReceiverId == userId && !m.IsRead)
             .ToListAsync();
         int totalUnreadMessages = unreadMessages.Count;
         
-        // Propositions envoyées avec détails
+        // Propositions envoyÃ©es avec dÃ©tails
         var myProposals = new List<object>();
         foreach (var proposal in allProposals.OrderByDescending(p => p.CreatedAt).Take(10))
         {
@@ -205,7 +205,7 @@ public class AidantController : Controller
             }
         }
         
-        // Historique récent (5 dernières missions complétées)
+        // Historique rÃ©cent (5 derniÃ¨res missions complÃ©tÃ©es)
         var recentHistory = new List<object>();
         var completedProposals = allProposals
             .Where(p => p.Status == "Accepted")
@@ -232,7 +232,7 @@ public class AidantController : Controller
         }
         recentHistory = recentHistory.OrderByDescending(h => ((DateTime)((dynamic)h).CompletedAt)).Take(5).ToList();
         
-        // Calculer les vies touchées (patients uniques aidés)
+        // Calculer les vies touchÃ©es (patients uniques aidÃ©s)
         var uniquePatientsHelped = completedProposals
             .Select(async p => await _requestService.GetRequestByIdAsync(p.RequestId))
             .Select(t => t.Result)
@@ -241,7 +241,7 @@ public class AidantController : Controller
             .Distinct()
             .Count();
         
-        // Reviews pour réputation
+        // Reviews pour rÃ©putation
         var allReviews = await _reviewService.GetReviewsByAidantIdAsync(aidant.Id!);
         
         ViewBag.Stats = stats;
@@ -265,7 +265,7 @@ public class AidantController : Controller
     // Helper method to calculate distance between two coordinates
     private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
     {
-        const double R = 6371; // Rayon de la Terre en kilomètres
+        const double R = 6371; // Rayon de la Terre en kilomÃ¨tres
         var dLat = ToRadians(lat2 - lat1);
         var dLon = ToRadians(lon2 - lon1);
         var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
@@ -306,7 +306,7 @@ public class AidantController : Controller
             var request = await _requestService.GetRequestByIdAsync(proposal.RequestId);
             if (request != null)
             {
-                // Filtrer par catégorie
+                // Filtrer par catÃ©gorie
                 if (!string.IsNullOrEmpty(category) && request.Category != category)
                     continue;
 
@@ -345,11 +345,11 @@ public class AidantController : Controller
             return RedirectToAction("Dashboard");
         }
 
-        // Récupérer l'aidant dont on veut voir le profil
+        // RÃ©cupÃ©rer l'aidant dont on veut voir le profil
         Aidant? targetAidant = null;
         User? targetUser = null;
 
-        // Récupérer le contexte MongoDB une seule fois
+        // RÃ©cupÃ©rer le contexte MongoDB une seule fois
         var context = HttpContext.RequestServices.GetRequiredService<MediAid.Data.MongoDbContext>();
         
         if (!string.IsNullOrEmpty(id))
@@ -363,7 +363,7 @@ public class AidantController : Controller
         }
         else
         {
-            // Sinon, afficher le profil de l'aidant connecté
+            // Sinon, afficher le profil de l'aidant connectÃ©
             targetAidant = currentAidant;
             targetUser = await _userService.GetUserByIdAsync(currentUserId);
         }
@@ -373,7 +373,7 @@ public class AidantController : Controller
             return NotFound();
         }
 
-        // Récupérer les commentaires sur cet aidant
+        // RÃ©cupÃ©rer les commentaires sur cet aidant
         var comments = await _aidantCommentService.GetCommentsByAidantIdAsync(targetAidant.Id!);
         
         // Enrichir les commentaires avec les informations des auteurs
@@ -391,13 +391,13 @@ public class AidantController : Controller
             });
         }
 
-        // Vérifier si l'aidant connecté a déjà laissé un commentaire
+        // VÃ©rifier si l'aidant connectÃ© a dÃ©jÃ  laissÃ© un commentaire
         var existingComment = await _aidantCommentService.GetCommentByAuthorAndTargetAsync(
             currentAidant.Id!, 
             targetAidant.Id!
         );
 
-        // Récupérer les reviews des patients pour cet aidant
+        // RÃ©cupÃ©rer les reviews des patients pour cet aidant
         var reviews = await _reviewService.GetReviewsByAidantIdAsync(targetAidant.Id!);
         var reviewsWithPatients = new List<object>();
         foreach (var review in reviews.Take(10))
@@ -447,11 +447,11 @@ public class AidantController : Controller
 
         if (string.IsNullOrWhiteSpace(content))
         {
-            TempData["ErrorMessage"] = "Le commentaire ne peut pas être vide.";
+            TempData["ErrorMessage"] = "Le commentaire ne peut pas Ãªtre vide.";
             return RedirectToAction("Profile", new { id = targetAidantId });
         }
 
-        // Vérifier si un commentaire existe déjà
+        // VÃ©rifier si un commentaire existe dÃ©jÃ 
         var existingComment = await _aidantCommentService.GetCommentByAuthorAndTargetAsync(
             currentAidant.Id, 
             targetAidantId
@@ -459,16 +459,16 @@ public class AidantController : Controller
 
         if (existingComment != null)
         {
-            // Mettre à jour le commentaire existant
+            // Mettre Ã  jour le commentaire existant
             existingComment.Content = content;
             existingComment.Rating = rating;
             existingComment.UpdatedAt = DateTime.UtcNow;
             await _aidantCommentService.UpdateCommentAsync(existingComment);
-            TempData["SuccessMessage"] = "Commentaire mis à jour avec succès.";
+            TempData["SuccessMessage"] = "Commentaire mis Ã  jour avec succÃ¨s.";
         }
         else
         {
-            // Créer un nouveau commentaire
+            // CrÃ©er un nouveau commentaire
             var comment = new MediAid.Models.AidantComment
             {
                 TargetAidantId = targetAidantId,
@@ -478,7 +478,7 @@ public class AidantController : Controller
                 IsPublic = true
             };
             await _aidantCommentService.CreateCommentAsync(comment);
-            TempData["SuccessMessage"] = "Commentaire ajouté avec succès.";
+            TempData["SuccessMessage"] = "Commentaire ajoutÃ© avec succÃ¨s.";
         }
 
         return RedirectToAction("Profile", new { id = targetAidantId });
@@ -503,14 +503,14 @@ public class AidantController : Controller
             return NotFound();
         }
 
-        // Vérifier que l'aidant connecté est l'auteur du commentaire
+        // VÃ©rifier que l'aidant connectÃ© est l'auteur du commentaire
         if (comment.AuthorAidantId != currentAidant.Id)
         {
             return Forbid();
         }
 
         await _aidantCommentService.DeleteCommentAsync(commentId);
-        TempData["SuccessMessage"] = "Commentaire supprimé avec succès.";
+        TempData["SuccessMessage"] = "Commentaire supprimÃ© avec succÃ¨s.";
 
         return RedirectToAction("Profile", new { id = targetAidantId });
     }
@@ -534,4 +534,5 @@ public class MissionHistoryItem
     public Request Request { get; set; } = null!;
     public Review? Review { get; set; }
 }
+
 

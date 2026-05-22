@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MongoDB.Driver;
 
@@ -11,7 +11,11 @@ public class ProposalService : IProposalService
     private readonly INotificationService _notificationService;
     private readonly IPlanningService? _planningService;
 
-    public ProposalService(MongoDbContext context, IRequestService requestService, INotificationService notificationService, IPlanningService? planningService = null)
+    public ProposalService(
+        MongoDbContext context,
+        IRequestService requestService,
+        INotificationService notificationService,
+        IPlanningService? planningService = null)
     {
         _context = context;
         _requestService = requestService;
@@ -27,8 +31,21 @@ public class ProposalService : IProposalService
             return null;
         }
 
-        // Check if proposal already exists
-        var existing = await _context.Proposals.Find(p => p.RequestId == requestId && p.AidantId == aidantId && p.Status == "Pending").FirstOrDefaultAsync();
+        if (request.RequiresExpertValidation && !request.IsExpertValidated)
+        {
+            return null;
+        }
+
+        var aidant = await _context.Aidants.Find(a => a.Id == aidantId).FirstOrDefaultAsync();
+        if (aidant == null || aidant.AvailabilityStatus == "Unavailable")
+        {
+            return null;
+        }
+
+        var existing = await _context.Proposals
+            .Find(p => p.RequestId == requestId && p.AidantId == aidantId && p.Status == "Pending")
+            .FirstOrDefaultAsync();
+
         if (existing != null)
         {
             return null;
@@ -47,9 +64,13 @@ public class ProposalService : IProposalService
 
         await _context.Proposals.InsertOneAsync(proposal);
 
-        // Notify patient
-        await _notificationService.CreateNotificationAsync(request.PatientId, "NewProposal",
-            "Nouvelle proposition", $"Un aidant a fait une proposition pour votre demande: {request.Title}");
+        await _notificationService.CreateNotificationAsync(
+            request.PatientId,
+            "NewProposal",
+            "Nouvelle proposition",
+            $"Un aidant a fait une proposition pour votre demande : {request.Title}",
+            proposal.Id,
+            "Proposal");
 
         return proposal;
     }
@@ -76,13 +97,19 @@ public class ProposalService : IProposalService
     public async Task<bool> AcceptProposalAsync(string proposalId, string patientId)
     {
         var proposal = await GetProposalByIdAsync(proposalId);
-        if (proposal == null)
+        if (proposal == null || proposal.Status != "Pending")
         {
             return false;
         }
 
         var request = await _requestService.GetRequestByIdAsync(proposal.RequestId);
-        if (request == null || request.PatientId != patientId)
+        if (request == null || request.PatientId != patientId || request.Status != "Open")
+        {
+            return false;
+        }
+
+        var aidant = await _context.Aidants.Find(a => a.Id == proposal.AidantId).FirstOrDefaultAsync();
+        if (aidant == null || string.IsNullOrWhiteSpace(aidant.UserId))
         {
             return false;
         }
@@ -90,48 +117,64 @@ public class ProposalService : IProposalService
         proposal.Status = "Accepted";
         proposal.RespondedAt = DateTime.UtcNow;
         proposal.UpdatedAt = DateTime.UtcNow;
-        await _context.Proposals.ReplaceOneAsync(p => p.Id == proposal.Id, proposal);
 
-        // Assign aidant to request
+        await _context.Proposals.ReplaceOneAsync(p => p.Id == proposal.Id, proposal);
         await _requestService.AssignAidantAsync(request.Id!, proposal.AidantId);
 
-        // Auto-add mission to planning if EstimatedArrivalTime is set
-        if (proposal.EstimatedArrivalTime.HasValue && request.RequestedDate.HasValue && _planningService != null)
+        var otherProposals = await _context.Proposals
+            .Find(p => p.RequestId == proposal.RequestId && p.Id != proposal.Id && p.Status == "Pending")
+            .ToListAsync();
+
+        foreach (var other in otherProposals)
+        {
+            other.Status = "Rejected";
+            other.RespondedAt = DateTime.UtcNow;
+            other.UpdatedAt = DateTime.UtcNow;
+
+            await _context.Proposals.ReplaceOneAsync(p => p.Id == other.Id, other);
+
+            var otherAidant = await _context.Aidants.Find(a => a.Id == other.AidantId).FirstOrDefaultAsync();
+            if (otherAidant != null && !string.IsNullOrWhiteSpace(otherAidant.UserId))
+            {
+                await _notificationService.CreateNotificationAsync(
+                    otherAidant.UserId,
+                    "ProposalRejected",
+                    "Proposition refusée",
+                    $"Une autre proposition a été acceptée pour « {request.Title} ».",
+                    request.Id,
+                    "Request");
+            }
+        }
+
+        if (proposal.EstimatedArrivalTime.HasValue && _planningService != null)
         {
             try
             {
                 var missionDate = proposal.EstimatedArrivalTime.Value.Date;
                 var startTime = proposal.EstimatedArrivalTime.Value.TimeOfDay;
-                var endTime = startTime.Add(TimeSpan.FromHours(1)); // Default 1 hour mission
-                
+                var endTime = startTime.Add(TimeSpan.FromHours(1));
+
                 await _planningService.AssignMissionToSlotAsync(
                     proposal.AidantId,
                     missionDate,
                     startTime,
                     endTime,
                     request.Id!,
-                    request.Title
-                );
+                    request.Title);
             }
             catch
             {
-                // Planning service might not be available, continue anyway
+                // Planning should not block the main acceptance workflow.
             }
         }
 
-        // Reject other pending proposals
-        var otherProposals = await _context.Proposals.Find(p => p.RequestId == proposal.RequestId && p.Id != proposal.Id && p.Status == "Pending").ToListAsync();
-        foreach (var other in otherProposals)
-        {
-            other.Status = "Rejected";
-            other.RespondedAt = DateTime.UtcNow;
-            other.UpdatedAt = DateTime.UtcNow;
-            await _context.Proposals.ReplaceOneAsync(p => p.Id == other.Id, other);
-        }
-
-        // Notify aidant
-        await _notificationService.CreateNotificationAsync(proposal.AidantId, "ProposalAccepted",
-            "Proposition acceptée", $"Votre proposition pour '{request.Title}' a été acceptée.");
+        await _notificationService.CreateNotificationAsync(
+            aidant.UserId,
+            "ProposalAccepted",
+            "Proposition acceptée",
+            $"Votre proposition pour « {request.Title} » a été acceptée.",
+            request.Id,
+            "Request");
 
         return true;
     }
@@ -139,7 +182,7 @@ public class ProposalService : IProposalService
     public async Task<bool> RejectProposalAsync(string proposalId, string patientId)
     {
         var proposal = await GetProposalByIdAsync(proposalId);
-        if (proposal == null)
+        if (proposal == null || proposal.Status != "Pending")
         {
             return false;
         }
@@ -150,14 +193,24 @@ public class ProposalService : IProposalService
             return false;
         }
 
+        var aidant = await _context.Aidants.Find(a => a.Id == proposal.AidantId).FirstOrDefaultAsync();
+
         proposal.Status = "Rejected";
         proposal.RespondedAt = DateTime.UtcNow;
         proposal.UpdatedAt = DateTime.UtcNow;
+
         await _context.Proposals.ReplaceOneAsync(p => p.Id == proposal.Id, proposal);
 
-        // Notify aidant
-        await _notificationService.CreateNotificationAsync(proposal.AidantId, "ProposalRejected",
-            "Proposition refusée", $"Votre proposition pour '{request.Title}' a été refusée.");
+        if (aidant != null && !string.IsNullOrWhiteSpace(aidant.UserId))
+        {
+            await _notificationService.CreateNotificationAsync(
+                aidant.UserId,
+                "ProposalRejected",
+                "Proposition refusée",
+                $"Votre proposition pour « {request.Title} » a été refusée.",
+                request.Id,
+                "Request");
+        }
 
         return true;
     }
@@ -172,9 +225,8 @@ public class ProposalService : IProposalService
 
         proposal.Status = "Cancelled";
         proposal.UpdatedAt = DateTime.UtcNow;
+
         await _context.Proposals.ReplaceOneAsync(p => p.Id == proposal.Id, proposal);
         return true;
     }
 }
-
-

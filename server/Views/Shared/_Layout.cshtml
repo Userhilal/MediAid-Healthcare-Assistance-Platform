@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8" />
@@ -150,7 +150,7 @@
         }
 
         .login-avatar-circle::after {
-            content: '👤';
+            content: 'Ã°Å¸â€˜Â¤';
             font-size: 1rem;
         }
 
@@ -515,6 +515,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="~/css/frontend-refinement.css" asp-append-version="true" />
 </head>
 <body>
     <header class="floating-navbar-wrapper">
@@ -627,12 +628,21 @@
                                         }
                                     </div>
                                     <ul class="dropdown-menu dropdown-menu-end modern-dropdown">
-                                        <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person-circle"></i> Mon profil</a></li>
+                                                                                <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person-circle"></i> Mon compte</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Notification" asp-action="Index"><i class="bi bi-bell"></i> Mes notifications</a></li>
+                                        @if (User.IsInRole("Patient"))
+                                        {
+                                            <li><a class="dropdown-item" asp-controller="Patient" asp-action="Profile"><i class="bi bi-heart-pulse"></i> Profil patient</a></li>
+                                        }
+                                        @if (User.IsInRole("Aidant"))
+                                        {
+                                            <li><a class="dropdown-item" asp-controller="Aidant" asp-action="Profile"><i class="bi bi-person-heart"></i> Profil aidant</a></li>
+                                        }
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                                 <button type="submit" class="dropdown-item text-danger">
-                                        <i class="bi bi-box-arrow-right"></i> Déconnexion
+                                        <i class="bi bi-box-arrow-right"></i> DÃ©connexion
                                     </button>
                                 </form>
                                         </li>
@@ -690,7 +700,7 @@
                         <span>MediAid</span>
                     </a>
                     <p class="footer-description">
-                        Une plateforme sécurisée connectant patients, aidants, bénévoles et experts pour fournir un soutien humain réel quand cela compte le plus.
+                        Une plateforme sÃ©curisÃ©e connectant patients, aidants, bÃ©nÃ©voles et experts pour fournir un soutien humain rÃ©el quand cela compte le plus.
                     </p>
                 </div>
                 
@@ -711,9 +721,9 @@
                 </div>
                 
                 <div class="footer-section footer-legal-section">
-                    <h5 class="footer-section-title">Légal</h5>
+                    <h5 class="footer-section-title">LÃ©gal</h5>
                     <ul class="footer-links-list">
-                        <li><a asp-controller="Home" asp-action="Privacy">Confidentialité</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy">ConfidentialitÃ©</a></li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li><a asp-controller="Map" asp-action="Index">Carte</a></li>
@@ -723,7 +733,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; @DateTime.Now.Year <strong>MediAid</strong>. Tous droits réservés. | Conforme RGPD | Éthique & Sécurisé</p>
+                <p>&copy; @DateTime.Now.Year <strong>MediAid</strong>. Tous droits rÃ©servÃ©s. | Conforme RGPD | Ã‰thique & SÃ©curisÃ©</p>
             </div>
         </div>
     </footer>
@@ -839,6 +849,11 @@
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/js/nav-active.js" asp-append-version="true"></script>
 </body>
 </html>
+
+
+
+
 

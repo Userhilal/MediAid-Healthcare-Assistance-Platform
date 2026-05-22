@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.DTOs;
 using MediAid.Models;
 using MongoDB.Driver;
@@ -122,14 +122,14 @@ public class RequestService : IRequestService
             
             foreach (var request in requests)
             {
-                // Si la demande n'a pas de localisation, on l'inclut quand même
+                // Si la demande n'a pas de localisation, on l'inclut quand mÃªme
                 if (request.Location?.Coordinates == null || request.Location.Coordinates.Length < 2)
                 {
                     filteredRequests.Add(request);
                     continue;
                 }
 
-                // Sinon, on vérifie la distance
+                // Sinon, on vÃ©rifie la distance
                 var distance = CalculateDistance(latitude.Value, longitude.Value,
                     request.Location.Coordinates[1], request.Location.Coordinates[0]);
                 
@@ -147,10 +147,16 @@ public class RequestService : IRequestService
 
     public async Task<List<Request>> GetAllRequestsWithLocationAsync()
     {
-        var filter = Builders<Request>.Filter.And(
-            Builders<Request>.Filter.Ne(r => r.Location, null),
-            Builders<Request>.Filter.In(r => r.Status, new[] { "Open", "Assigned" })
+        var filterBuilder = Builders<Request>.Filter;
+
+        var filter = filterBuilder.And(
+            filterBuilder.Ne(r => r.Location, null),
+            filterBuilder.In(r => r.Status, new[] { "Open", "Assigned" }),
+            filterBuilder.Or(
+                filterBuilder.Eq(r => r.RequiresExpertValidation, false),
+                filterBuilder.Eq(r => r.IsExpertValidated, true))
         );
+
         return await _context.Requests.Find(filter).ToListAsync();
     }
 
@@ -201,7 +207,7 @@ public class RequestService : IRequestService
             return false;
         }
 
-        // Contraintes : on ne peut supprimer que les demandes annulées ou complétées
+        // Contraintes : on ne peut supprimer que les demandes annulÃ©es ou complÃ©tÃ©es
         // Pas les demandes en cours (Open, Assigned, InProgress)
         if (request.Status != "Cancelled" && request.Status != "Completed")
         {
@@ -229,5 +235,7 @@ public class RequestService : IRequestService
         return degrees * Math.PI / 180.0;
     }
 }
+
+
 
 

@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -60,8 +60,9 @@ public class ExpertController : Controller
 
         await _requestService.UpdateRequestAsync(request);
 
-        TempData["SuccessMessage"] = "Demande validée avec succès.";
+        TempData["SuccessMessage"] = "Demande validÃ©e avec succÃ¨s.";
         return RedirectToAction("Index");
     }
 }
+
 

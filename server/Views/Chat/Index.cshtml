@@ -1,4 +1,4 @@
-@model MediAid.Models.Request
+﻿@model MediAid.Models.Request
 @{
     ViewData["Title"] = "Chat";
     var currentUserId = ViewBag.CurrentUserId as string ?? "";
@@ -50,7 +50,7 @@
                 </div>
                 <div class="mission-context-subheader">
                     <i class="bi bi-clipboard-check"></i>
-                    <span>Discussion regarding Mission <strong>#@Model.Id.Substring(0, Math.Min(8, Model.Id.Length))</strong> — @GetCategoryDisplayName(Model.Category)</span>
+                    <span>Discussion regarding Mission <strong>#@((Model.Id ?? "MISSION").Substring(0, Math.Min(8, (Model.Id ?? "MISSION").Length)))</strong> â€” @GetCategoryDisplayName(Model.Category)</span>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
             }
             @if (currentUser?.Role == "Aidant")
             {
-                <button class="header-action-btn emergency-btn" title="Appel d'urgence" onclick="alert('Fonctionnalité d\'urgence à implémenter')">
+                <button class="header-action-btn emergency-btn" title="Appel d'urgence" onclick="alert('FonctionnalitÃ© d\'urgence Ã  implÃ©menter')">
                     <i class="bi bi-telephone-fill"></i>
                 </button>
             }
@@ -96,19 +96,19 @@
     @if (currentUser?.Role == "Aidant")
     {
         <div class="quick-actions-bar" id="quickActionsBar">
-            <button class="quick-action-btn" onclick="sendTranslatedMessage('en_route')" title="Je suis en route / I am on my way / أنا في الطريق">
+            <button class="quick-action-btn" onclick="sendTranslatedMessage('en_route')" title="Je suis en route / I am on my way / Ø£Ù†Ø§ ÙÙŠ Ø§Ù„Ø·Ø±ÙŠÙ‚">
                 <i class="bi bi-geo-alt"></i>
                 <span>En route</span>
             </button>
-            <button class="quick-action-btn" onclick="sendTranslatedMessage('mission_complete')" title="Mission terminée / Mission completed / تمت المهمة">
+            <button class="quick-action-btn" onclick="sendTranslatedMessage('mission_complete')" title="Mission terminÃ©e / Mission completed / ØªÙ…Øª Ø§Ù„Ù…Ù‡Ù…Ø©">
                 <i class="bi bi-check-circle"></i>
-                <span>Mission terminée</span>
+                <span>Mission terminÃ©e</span>
             </button>
-            <button class="quick-action-btn" onclick="sendTranslatedMessage('at_pharmacy')" title="Je suis à la pharmacie / I am at the pharmacy / أنا في الصيدلية">
+            <button class="quick-action-btn" onclick="sendTranslatedMessage('at_pharmacy')" title="Je suis Ã  la pharmacie / I am at the pharmacy / Ø£Ù†Ø§ ÙÙŠ Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ©">
                 <i class="bi bi-shop"></i>
-                <span>À la pharmacie</span>
+                <span>Ã€ la pharmacie</span>
             </button>
-            <button class="quick-action-btn" onclick="sendTranslatedMessage('arriving_soon')" title="J'arrive dans 5 minutes / Arriving in 5 minutes / سأصل خلال 5 دقائق">
+            <button class="quick-action-btn" onclick="sendTranslatedMessage('arriving_soon')" title="J'arrive dans 5 minutes / Arriving in 5 minutes / Ø³Ø£ØµÙ„ Ø®Ù„Ø§Ù„ 5 Ø¯Ù‚Ø§Ø¦Ù‚">
                 <i class="bi bi-clock"></i>
                 <span>5 min</span>
             </button>
@@ -117,13 +117,13 @@
     else if (currentUser?.Role == "Patient")
     {
         <div class="quick-actions-bar" id="quickActionsBar">
-            <button class="quick-action-btn" onclick="sendTranslatedMessage('thank_you')" title="Merci / Thank you / شكرا">
+            <button class="quick-action-btn" onclick="sendTranslatedMessage('thank_you')" title="Merci / Thank you / Ø´ÙƒØ±Ø§">
                 <i class="bi bi-heart"></i>
                 <span>Merci</span>
             </button>
-            <button class="quick-action-btn" onclick="sendTranslatedMessage('see_you_soon')" title="À bientôt / See you soon / أراك قريبا">
+            <button class="quick-action-btn" onclick="sendTranslatedMessage('see_you_soon')" title="Ã€ bientÃ´t / See you soon / Ø£Ø±Ø§Ùƒ Ù‚Ø±ÙŠØ¨Ø§">
                 <i class="bi bi-hand-thumbs-up"></i>
-                <span>À bientôt</span>
+                <span>Ã€ bientÃ´t</span>
             </button>
         </div>
     }
@@ -686,12 +686,12 @@
 
         // Quick Actions with Auto-Translation
         const translatedMessages = {
-            'en_route': { fr: 'Je suis en route', en: 'I am on my way', ar: 'أنا في الطريق' },
-            'mission_complete': { fr: 'Mission terminée', en: 'Mission completed', ar: 'تمت المهمة' },
-            'at_pharmacy': { fr: 'Je suis à la pharmacie', en: 'I am at the pharmacy', ar: 'أنا في الصيدلية' },
-            'arriving_soon': { fr: "J'arrive dans 5 minutes", en: 'Arriving in 5 minutes', ar: 'سأصل خلال 5 دقائق' },
-            'thank_you': { fr: 'Merci beaucoup', en: 'Thank you very much', ar: 'شكرا جزيلا' },
-            'see_you_soon': { fr: 'À bientôt', en: 'See you soon', ar: 'أراك قريبا' }
+            'en_route': { fr: 'Je suis en route', en: 'I am on my way', ar: 'Ø£Ù†Ø§ ÙÙŠ Ø§Ù„Ø·Ø±ÙŠÙ‚' },
+            'mission_complete': { fr: 'Mission terminÃ©e', en: 'Mission completed', ar: 'ØªÙ…Øª Ø§Ù„Ù…Ù‡Ù…Ø©' },
+            'at_pharmacy': { fr: 'Je suis Ã  la pharmacie', en: 'I am at the pharmacy', ar: 'Ø£Ù†Ø§ ÙÙŠ Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ©' },
+            'arriving_soon': { fr: "J'arrive dans 5 minutes", en: 'Arriving in 5 minutes', ar: 'Ø³Ø£ØµÙ„ Ø®Ù„Ø§Ù„ 5 Ø¯Ù‚Ø§Ø¦Ù‚' },
+            'thank_you': { fr: 'Merci beaucoup', en: 'Thank you very much', ar: 'Ø´ÙƒØ±Ø§ Ø¬Ø²ÙŠÙ„Ø§' },
+            'see_you_soon': { fr: 'Ã€ bientÃ´t', en: 'See you soon', ar: 'Ø£Ø±Ø§Ùƒ Ù‚Ø±ÙŠØ¨Ø§' }
         };
 
         function sendTranslatedMessage(messageKey) {
@@ -731,3 +731,4 @@
         };
     }
 }
+

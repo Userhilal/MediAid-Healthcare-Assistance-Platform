@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MediAid.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -34,7 +34,7 @@ public class MissionController : Controller
         
         if (request == null || request.PatientId != userId)
         {
-            return Json(new { success = false, message = "Demande non trouvée" });
+            return Json(new { success = false, message = "Demande non trouvÃ©e" });
         }
 
         // Generate 4-digit code
@@ -49,12 +49,12 @@ public class MissionController : Controller
 
     // Upload proof of delivery
     [HttpPost]
-    [RequestSizeLimit(10_000_000)] // 10MB
+    [RequestSizeLimit(SafeFileUploadService.ProofMaxBytes)]
     public async Task<IActionResult> UploadProof(string requestId, IFormFile file, string proofType = "Photo")
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
         var aidant = await _userService.GetAidantByUserIdAsync(userId);
-        
+
         if (aidant == null)
         {
             return Json(new { success = false, message = "Aidant non trouvé" });
@@ -66,68 +66,70 @@ public class MissionController : Controller
             return Json(new { success = false, message = "Mission non trouvée ou non assignée" });
         }
 
-        if (file == null || file.Length == 0)
+        if (request.Status != "InProgress" && request.Status != "Assigned")
         {
-            return Json(new { success = false, message = "Aucun fichier fourni" });
+            return Json(new { success = false, message = "La mission ne peut pas recevoir de preuve dans son état actuel." });
         }
 
-        // Save file
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "proofs");
-        if (!Directory.Exists(uploadsFolder))
+        var upload = await SafeFileUploadService.SaveAsync(
+            file,
+            "proofs",
+            SafeFileUploadService.ProofAllowedExtensions,
+            SafeFileUploadService.ProofMaxBytes);
+
+        if (!upload.IsValid)
         {
-            Directory.CreateDirectory(uploadsFolder);
+            return Json(new { success = false, message = upload.ErrorMessage });
         }
 
-        var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        var fileUrl = $"/uploads/proofs/{uniqueFileName}";
-
-        // Generate verification code if not exists
         if (string.IsNullOrEmpty(request.VerificationCode))
         {
             var random = new Random();
             request.VerificationCode = random.Next(1000, 9999).ToString();
         }
 
-        // Create proof record
+        var normalizedProofType = string.IsNullOrWhiteSpace(proofType) ? "Photo" : proofType.Trim();
+
+        if (normalizedProofType.Length > 40)
+        {
+            normalizedProofType = normalizedProofType[..40];
+        }
+
         var proof = new MissionProof
         {
             RequestId = requestId,
-            AidantId = aidant.Id,
-            ProofType = proofType,
-            FileUrl = fileUrl,
-            FileName = file.FileName,
+            AidantId = aidant.Id!,
+            ProofType = normalizedProofType,
+            FileUrl = upload.RelativeUrl,
+            FileName = upload.OriginalFileName,
             VerificationCode = request.VerificationCode
         };
 
         await _context.MissionProofs.InsertOneAsync(proof);
 
-        // Update request status to Completed after proof upload
-        if (request.Status == "InProgress")
+        if (request.Status == "InProgress" || request.Status == "Assigned")
         {
             request.Status = "Completed";
             request.CompletedAt = DateTime.UtcNow;
             request.UpdatedAt = DateTime.UtcNow;
             await _requestService.UpdateRequestAsync(request);
-            
-            // Notify patient
+
             await _notificationService.CreateNotificationAsync(
                 request.PatientId,
                 "RequestCompleted",
                 "Mission terminée",
-                $"La mission '{request.Title}' a été complétée par l'aidant.",
-                request.Id,
-                "Request"
-            );
+                $"La mission « {request.Title} » a été complétée par l'aidant.",
+                request.Id ?? requestId,
+                "Request");
         }
 
-        return Json(new { success = true, fileUrl = fileUrl, verificationCode = request.VerificationCode });
+        return Json(new
+        {
+            success = true,
+            fileUrl = upload.RelativeUrl,
+            fileName = upload.OriginalFileName,
+            verificationCode = request.VerificationCode
+        });
     }
 
     // Check-in with GPS location
@@ -139,13 +141,13 @@ public class MissionController : Controller
         
         if (aidant == null)
         {
-            return Json(new { success = false, message = "Aidant non trouvé" });
+            return Json(new { success = false, message = "Aidant non trouvÃ©" });
         }
 
         var request = await _requestService.GetRequestByIdAsync(requestId);
         if (request == null || request.AssignedAidantId != aidant.Id)
         {
-            return Json(new { success = false, message = "Mission non trouvée" });
+            return Json(new { success = false, message = "Mission non trouvÃ©e" });
         }
 
         if (request.Location == null)
@@ -173,7 +175,7 @@ public class MissionController : Controller
         var checkIn = new MissionCheckIn
         {
             RequestId = requestId,
-            AidantId = aidant.Id,
+            AidantId = aidant.Id!,
             Latitude = latitude,
             Longitude = longitude,
             DistanceFromDestination = distance * 1000, // Convert to meters
@@ -189,7 +191,7 @@ public class MissionController : Controller
             await _notificationService.CreateNotificationAsync(
                 request.PatientId,
                 "Aidant sur place",
-                "L'aidant est arrivé à votre adresse",
+                "L'aidant est arrivÃ© Ã  votre adresse",
                 "Mission",
                 requestId
             );
@@ -212,7 +214,7 @@ public class MissionController : Controller
         
         if (request == null)
         {
-            return Json(new { success = false, message = "Mission non trouvée" });
+            return Json(new { success = false, message = "Mission non trouvÃ©e" });
         }
 
         var incident = new SafetyIncident
@@ -239,7 +241,7 @@ public class MissionController : Controller
         // Notify admins (you can add admin notification logic here)
         // For now, we'll just return success
 
-        return Json(new { success = true, message = "Incident signalé avec succès" });
+        return Json(new { success = true, message = "Incident signalÃ© avec succÃ¨s" });
     }
 
     // Verify mission with code
@@ -251,12 +253,12 @@ public class MissionController : Controller
         
         if (request == null || request.PatientId != userId)
         {
-            return Json(new { success = false, message = "Mission non trouvée" });
+            return Json(new { success = false, message = "Mission non trouvÃ©e" });
         }
 
         if (string.IsNullOrEmpty(request.VerificationCode) || request.VerificationCode != code)
         {
-            return Json(new { success = false, message = "Code de vérification incorrect" });
+            return Json(new { success = false, message = "Code de vÃ©rification incorrect" });
         }
 
         // Find and verify proof
@@ -280,7 +282,7 @@ public class MissionController : Controller
         // Delete ephemeral messages (images that auto-delete after mission completion)
         await DeleteEphemeralMessagesAsync(requestId);
 
-        return Json(new { success = true, message = "Mission vérifiée et complétée" });
+        return Json(new { success = true, message = "Mission vÃ©rifiÃ©e et complÃ©tÃ©e" });
     }
 
     // Delete ephemeral messages after mission completion
@@ -349,4 +351,9 @@ public class MissionController : Controller
         return degrees * (Math.PI / 180);
     }
 }
+
+
+
+
+
 

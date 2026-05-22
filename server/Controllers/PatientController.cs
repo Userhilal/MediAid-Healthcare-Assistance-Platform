@@ -1,4 +1,4 @@
-using MediAid.DTOs;
+﻿using MediAid.DTOs;
 using MediAid.Models;
 using MediAid.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -152,12 +152,12 @@ public class PatientController : Controller
         // Get assigned aidant user info if available
         User? assignedAidantUser = null;
         List<Review> aidantRecentReviews = new List<Review>();
-        if (stats.AssignedAidant != null && !string.IsNullOrEmpty(stats.AssignedAidant.UserId))
+        if (stats.AssignedAidant != null && !string.IsNullOrEmpty(stats.AssignedAidant.UserId) && !string.IsNullOrEmpty(stats.AssignedAidant.Id))
         {
             assignedAidantUser = await _userService.GetUserByIdAsync(stats.AssignedAidant.UserId);
             
             // Get recent reviews for this aidant (last 3)
-            aidantRecentReviews = await reviewService.GetReviewsByAidantIdAsync(stats.AssignedAidant.Id);
+            aidantRecentReviews = await reviewService.GetReviewsByAidantIdAsync(stats.AssignedAidant.Id!);
             aidantRecentReviews = aidantRecentReviews.Take(3).ToList();
             
             // Find a completed request without review for this aidant
@@ -207,17 +207,17 @@ public class PatientController : Controller
         
         if (patient?.EmergencyContact == null)
         {
-            return Json(new { success = false, message = "Aucun contact d'urgence configuré" });
+            return Json(new { success = false, message = "Aucun contact d'urgence configurÃ©" });
         }
 
         var request = await _requestService.GetRequestByIdAsync(requestId);
         if (request == null || request.PatientId != userId)
         {
-            return Json(new { success = false, message = "Demande non trouvée" });
+            return Json(new { success = false, message = "Demande non trouvÃ©e" });
         }
 
         // Get aidant info if assigned
-        string aidantInfo = "Aucun aidant assigné";
+        string aidantInfo = "Aucun aidant assignÃ©";
         if (!string.IsNullOrEmpty(request.AssignedAidantId))
         {
             var context = HttpContext.RequestServices.GetRequiredService<MediAid.Data.MongoDbContext>();
@@ -225,7 +225,7 @@ public class PatientController : Controller
             if (aidant != null)
             {
                 var aidantUser = await _userService.GetUserByIdAsync(aidant.UserId);
-                aidantInfo = aidantUser != null ? $"{aidantUser.FirstName} {aidantUser.LastName}" : "Aidant assigné";
+                aidantInfo = aidantUser != null ? $"{aidantUser.FirstName} {aidantUser.LastName}" : "Aidant assignÃ©";
             }
         }
 
@@ -235,15 +235,15 @@ public class PatientController : Controller
         
         var statusMessage = request.Status switch
         {
-            "Assigned" => "Une aide a été assignée",
+            "Assigned" => "Une aide a Ã©tÃ© assignÃ©e",
             "InProgress" => "L'aide est en cours",
-            "Completed" => "L'aide a été complétée",
+            "Completed" => "L'aide a Ã©tÃ© complÃ©tÃ©e",
             _ => "Statut: " + request.Status
         };
 
         return Json(new { 
             success = true, 
-            message = "Contact d'urgence notifié",
+            message = "Contact d'urgence notifiÃ©",
             contactName = patient.EmergencyContact.Name,
             missionStatus = statusMessage,
             aidantInfo = aidantInfo
@@ -318,11 +318,11 @@ public class PatientController : Controller
 
         if (result)
         {
-            TempData["SuccessMessage"] = "Profil mis à jour avec succès.";
+            TempData["SuccessMessage"] = "Profil mis Ã  jour avec succÃ¨s.";
         }
         else
         {
-            TempData["ErrorMessage"] = "Erreur lors de la mise à jour du profil.";
+            TempData["ErrorMessage"] = "Erreur lors de la mise Ã  jour du profil.";
         }
 
         return RedirectToAction("Profile");
@@ -359,7 +359,7 @@ public class PatientController : Controller
 
         if (result.ModifiedCount > 0)
         {
-            return Json(new { success = true, message = "Contact ajouté avec succès" });
+            return Json(new { success = true, message = "Contact ajoutÃ© avec succÃ¨s" });
         }
 
         return Json(new { success = false, message = "Erreur lors de l'ajout du contact" });
@@ -387,7 +387,7 @@ public class PatientController : Controller
 
             if (result.ModifiedCount > 0)
             {
-                return Json(new { success = true, message = "Contact supprimé avec succès" });
+                return Json(new { success = true, message = "Contact supprimÃ© avec succÃ¨s" });
             }
         }
 
@@ -400,7 +400,7 @@ public class PatientController : Controller
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
         var requests = await _patientService.GetPatientRequestHistoryAsync(userId);
         
-        // Récupérer les reviews existantes pour les demandes complétées
+        // RÃ©cupÃ©rer les reviews existantes pour les demandes complÃ©tÃ©es
         var reviewService = HttpContext.RequestServices.GetRequiredService<IReviewService>();
         var reviewsByRequestId = new Dictionary<string, bool>();
         foreach (var request in requests.Where(r => r.Status == "Completed"))
@@ -445,7 +445,7 @@ public class PatientController : Controller
         
         html.AppendLine("<table>");
         html.AppendLine("<thead><tr>");
-        html.AppendLine("<th>Date</th><th>Titre</th><th>Catégorie</th><th>Urgence</th><th>Statut</th>");
+        html.AppendLine("<th>Date</th><th>Titre</th><th>CatÃ©gorie</th><th>Urgence</th><th>Statut</th>");
         html.AppendLine("</tr></thead><tbody>");
 
         foreach (var request in requests.OrderByDescending(r => r.CreatedAt))
@@ -477,3 +477,5 @@ public class PatientController : Controller
         return File(bytes, "text/html", $"historique_mediaid_{DateTime.Now:yyyyMMdd_HHmmss}.html");
     }
 }
+
+

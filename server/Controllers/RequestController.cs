@@ -1,4 +1,4 @@
-using MediAid.DTOs;
+﻿using MediAid.DTOs;
 using MediAid.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -78,11 +78,11 @@ public class RequestController : Controller
         var request = await _requestService.CreateRequestFromWizardAsync(userId, dto);
         if (request == null)
         {
-            ModelState.AddModelError("", "Erreur lors de la création de la demande.");
+            ModelState.AddModelError("", "Erreur lors de la crÃ©ation de la demande.");
             return View(dto);
         }
 
-        TempData["SuccessMessage"] = "Demande créée avec succès !";
+        TempData["SuccessMessage"] = "Demande crÃ©Ã©e avec succÃ¨s !";
         return RedirectToAction("Details", new { id = request.Id });
     }
 
@@ -123,7 +123,7 @@ public class RequestController : Controller
         }
         else
         {
-            TempData["SuccessMessage"] = "Demande annulée avec succès.";
+            TempData["SuccessMessage"] = "Demande annulÃ©e avec succÃ¨s.";
         }
 
         return RedirectToAction("Index");
@@ -147,7 +147,7 @@ public class RequestController : Controller
         }
         else
         {
-            TempData["SuccessMessage"] = "Proposition acceptée !";
+            TempData["SuccessMessage"] = "Proposition acceptÃ©e !";
         }
 
         return RedirectToAction("Index");
@@ -171,7 +171,7 @@ public class RequestController : Controller
         }
         else
         {
-            TempData["SuccessMessage"] = "Proposition refusée.";
+            TempData["SuccessMessage"] = "Proposition refusÃ©e.";
         }
 
         return RedirectToAction("Index");
@@ -189,7 +189,7 @@ public class RequestController : Controller
         }
         else
         {
-            TempData["SuccessMessage"] = "Aidant bloqué avec succès.";
+            TempData["SuccessMessage"] = "Aidant bloquÃ© avec succÃ¨s.";
         }
 
         return RedirectToAction("Index");
@@ -208,10 +208,10 @@ public class RequestController : Controller
             return RedirectToAction("Index");
         }
 
-        // Vérifier les contraintes : on ne peut supprimer que les demandes annulées ou complétées
+        // VÃ©rifier les contraintes : on ne peut supprimer que les demandes annulÃ©es ou complÃ©tÃ©es
         if (request.Status != "Cancelled" && request.Status != "Completed")
         {
-            TempData["ErrorMessage"] = "Vous ne pouvez supprimer que les demandes annulées ou complétées. Les demandes en cours doivent d'abord être annulées.";
+            TempData["ErrorMessage"] = "Vous ne pouvez supprimer que les demandes annulÃ©es ou complÃ©tÃ©es. Les demandes en cours doivent d'abord Ãªtre annulÃ©es.";
             return RedirectToAction("Index");
         }
 
@@ -222,10 +222,11 @@ public class RequestController : Controller
         }
         else
         {
-            TempData["SuccessMessage"] = "Demande supprimée avec succès.";
+            TempData["SuccessMessage"] = "Demande supprimÃ©e avec succÃ¨s.";
         }
 
         return RedirectToAction("Index");
     }
 }
+
 

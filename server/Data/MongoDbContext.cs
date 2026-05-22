@@ -1,4 +1,5 @@
-using MediAid.Models;
+﻿using MediAid.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MediAid.Data;
@@ -9,10 +10,35 @@ public class MongoDbContext
 
     public MongoDbContext(string connectionString, string databaseName)
     {
-        var client = new MongoClient(connectionString);
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("MongoDB connection string is missing.");
+        }
+
+        if (string.IsNullOrWhiteSpace(databaseName))
+        {
+            throw new InvalidOperationException("MongoDB database name is missing.");
+        }
+
+        var settings = MongoClientSettings.FromConnectionString(connectionString);
+        settings.ServerSelectionTimeout = TimeSpan.FromSeconds(3);
+        settings.ConnectTimeout = TimeSpan.FromSeconds(3);
+
+        var client = new MongoClient(settings);
         _database = client.GetDatabase(databaseName);
-        InitializeIndexes();
+
+        try
+        {
+            InitializeIndexes();
+        }
+        catch
+        {
+            // Do not crash the web application if MongoDB is temporarily unavailable.
+            // Health checks and page services will report database availability.
+        }
     }
+
+    public string DatabaseName => _database.DatabaseNamespace.DatabaseName;
 
     public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
     public IMongoCollection<Patient> Patients => _database.GetCollection<Patient>("Patients");
@@ -30,14 +56,18 @@ public class MongoDbContext
     public IMongoCollection<SafetyIncident> SafetyIncidents => _database.GetCollection<SafetyIncident>("SafetyIncidents");
     public IMongoCollection<Planning> Plannings => _database.GetCollection<Planning>("Plannings");
 
+    public async Task<bool> CanConnectAsync()
+    {
+        await _database.RunCommandAsync<BsonDocument>(new BsonDocument("ping", 1));
+        return true;
+    }
+
     private void InitializeIndexes()
     {
-        // User indexes
         Users.Indexes.CreateOne(new CreateIndexModel<User>(
             Builders<User>.IndexKeys.Ascending(u => u.Email),
             new CreateIndexOptions { Unique = true }));
 
-        // Request indexes - Geospatial index for location queries
         Requests.Indexes.CreateOne(new CreateIndexModel<Request>(
             Builders<Request>.IndexKeys.Geo2DSphere(r => r.Location)));
 
@@ -47,38 +77,31 @@ public class MongoDbContext
         Requests.Indexes.CreateOne(new CreateIndexModel<Request>(
             Builders<Request>.IndexKeys.Ascending(r => r.Status)));
 
-        // Proposal indexes
         Proposals.Indexes.CreateOne(new CreateIndexModel<Proposal>(
             Builders<Proposal>.IndexKeys.Ascending(p => p.RequestId)));
 
         Proposals.Indexes.CreateOne(new CreateIndexModel<Proposal>(
             Builders<Proposal>.IndexKeys.Ascending(p => p.AidantId)));
 
-        // Message indexes
         Messages.Indexes.CreateOne(new CreateIndexModel<Message>(
             Builders<Message>.IndexKeys.Ascending(m => m.RequestId)));
 
         Messages.Indexes.CreateOne(new CreateIndexModel<Message>(
             Builders<Message>.IndexKeys.Ascending(m => m.CreatedAt)));
 
-        // Review indexes
         Reviews.Indexes.CreateOne(new CreateIndexModel<Review>(
             Builders<Review>.IndexKeys.Ascending(r => r.AidantId)));
 
-        // Notification indexes
         Notifications.Indexes.CreateOne(new CreateIndexModel<Notification>(
             Builders<Notification>.IndexKeys.Ascending(n => n.UserId)));
 
-        // AuditLog indexes
         AuditLogs.Indexes.CreateOne(new CreateIndexModel<AuditLog>(
             Builders<AuditLog>.IndexKeys.Ascending(a => a.UserId)));
 
         AuditLogs.Indexes.CreateOne(new CreateIndexModel<AuditLog>(
             Builders<AuditLog>.IndexKeys.Ascending(a => a.CreatedAt)));
 
-        // Planning indexes
         Plannings.Indexes.CreateOne(new CreateIndexModel<Planning>(
             Builders<Planning>.IndexKeys.Ascending(p => p.AidantId).Ascending(p => p.Date)));
     }
 }
-

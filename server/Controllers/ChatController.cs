@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.DTOs;
 using MediAid.Models;
 using MediAid.Services;
@@ -96,7 +96,7 @@ public class ChatController : Controller
                 preview = lastMessage.Content;
                 if (string.IsNullOrEmpty(preview) && lastMessage.Attachments.Any())
                 {
-                    preview = $"📎 {lastMessage.Attachments.First().FileName}";
+                    preview = $"ðŸ“Ž {lastMessage.Attachments.First().FileName}";
                 }
             }
             
@@ -153,13 +153,13 @@ public class ChatController : Controller
         }
         else
         {
-            return BadRequest("Aucun aidant assigné à cette demande.");
+            return BadRequest("Aucun aidant assignÃ© Ã  cette demande.");
         }
 
         var currentUser = await _userService.GetUserByIdAsync(userId);
         var receiverUser = await _userService.GetUserByIdAsync(receiverId);
         
-        // Récupérer l'aidant du receiver si c'est un aidant
+        // RÃ©cupÃ©rer l'aidant du receiver si c'est un aidant
         Aidant? receiverAidant = null;
         if (receiverUser != null && receiverUser.Role == "Aidant")
         {
@@ -338,32 +338,27 @@ public class ChatController : Controller
     }
 
     [HttpPost]
-    [RequestSizeLimit(10_000_000)] // 10MB
+    [RequestSizeLimit(SafeFileUploadService.ChatMaxBytes)]
     public async Task<IActionResult> UploadAttachment(IFormFile file)
     {
-        if (file == null || file.Length == 0)
+        var upload = await SafeFileUploadService.SaveAsync(
+            file,
+            "chat",
+            SafeFileUploadService.ChatAllowedExtensions,
+            SafeFileUploadService.ChatMaxBytes);
+
+        if (!upload.IsValid)
         {
-            return BadRequest("No file uploaded");
+            return BadRequest(upload.ErrorMessage);
         }
 
-        // In production, upload to cloud storage (Azure Blob, AWS S3, etc.)
-        // For now, save to wwwroot/uploads
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "chat");
-        if (!Directory.Exists(uploadsFolder))
+        return Json(new
         {
-            Directory.CreateDirectory(uploadsFolder);
-        }
-
-        var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        var fileUrl = $"/uploads/chat/{uniqueFileName}";
-        return Json(new { url = fileUrl, fileName = file.FileName });
+            url = upload.RelativeUrl,
+            fileName = upload.OriginalFileName,
+            contentType = upload.ContentType,
+            size = upload.Size
+        });
     }
 
     private string GetFileType(string url)
@@ -378,3 +373,5 @@ public class ChatController : Controller
         };
     }
 }
+
+

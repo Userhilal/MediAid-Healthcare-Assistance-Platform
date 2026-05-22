@@ -1,4 +1,4 @@
-using MediAid.Services;
+﻿using MediAid.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -51,5 +51,6 @@ public class DashboardController : Controller
         };
     }
 }
+
 
 

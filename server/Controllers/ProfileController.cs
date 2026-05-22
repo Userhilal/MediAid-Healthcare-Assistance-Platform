@@ -1,4 +1,4 @@
-using MediAid.Services;
+﻿using MediAid.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -19,19 +19,18 @@ public class ProfileController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-        var user = await _userService.GetUserByIdAsync(userId);
-        if (user == null)
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId))
         {
             return RedirectToAction("Login", "Account");
         }
 
-        ViewBag.User = user;
+        var user = await _userService.GetUserByIdAsync(userId);
 
-        if (user.Role == "Aidant")
+        if (user == null)
         {
-            var aidant = await _aidantService.GetAidantByUserIdAsync(userId);
-            ViewBag.Aidant = aidant;
+            return RedirectToAction("Login", "Account");
         }
 
         return View(user);
@@ -39,68 +38,60 @@ public class ProfileController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateProfile(string firstName, string lastName, string phoneNumber, 
-        string? profilePhoto, string? bio, string? skills)
+    public async Task<IActionResult> UpdateProfile(string firstName, string lastName, string phoneNumber)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
         var user = await _userService.GetUserByIdAsync(userId);
+
         if (user == null)
         {
             return NotFound();
         }
 
-        user.FirstName = firstName;
-        user.LastName = lastName;
-        user.PhoneNumber = phoneNumber;
+        user.FirstName = firstName?.Trim();
+        user.LastName = lastName?.Trim();
+        user.PhoneNumber = phoneNumber?.Trim();
         user.UpdatedAt = DateTime.UtcNow;
 
         await _userService.UpdateUserAsync(user);
 
-        // Update aidant profile if user is an aidant
-        if (user.Role == "Aidant")
-        {
-            var aidant = await _aidantService.GetAidantByUserIdAsync(userId);
-            if (aidant != null)
-            {
-                if (!string.IsNullOrEmpty(profilePhoto))
-                {
-                    aidant.ProfilePhoto = profilePhoto;
-                }
-                if (!string.IsNullOrEmpty(bio))
-                {
-                    aidant.Bio = bio;
-                }
-                if (!string.IsNullOrEmpty(skills))
-                {
-                    aidant.Skills = skills.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
-                }
-                aidant.UpdatedAt = DateTime.UtcNow;
-                await _aidantService.UpdateAidantAsync(aidant);
-            }
-        }
-
-        TempData["SuccessMessage"] = "Profil mis à jour avec succès.";
-        return RedirectToAction("Index");
+        TempData["SuccessMessage"] = "Votre compte a été mis à jour avec succès.";
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateLocation(double latitude, double longitude, double radius)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-        var result = await _aidantService.UpdateLocationAsync(userId, latitude, longitude, radius);
-        
-        if (result)
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId))
         {
-            TempData["SuccessMessage"] = "Localisation mise à jour avec succès.";
-        }
-        else
-        {
-            TempData["ErrorMessage"] = "Erreur lors de la mise à jour de la localisation.";
+            return RedirectToAction("Login", "Account");
         }
 
-        return RedirectToAction("Index");
+        var aidant = await _aidantService.GetAidantByUserIdAsync(userId);
+
+        if (aidant == null)
+        {
+            TempData["ErrorMessage"] = "La localisation est disponible uniquement pour les profils aidants.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var result = await _aidantService.UpdateLocationAsync(userId, latitude, longitude, radius);
+
+        TempData[result ? "SuccessMessage" : "ErrorMessage"] =
+            result
+                ? "Localisation mise à jour avec succès."
+                : "Erreur lors de la mise à jour de la localisation.";
+
+        return RedirectToAction("Profile", "Aidant");
     }
 }
-
 

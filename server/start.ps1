@@ -1,30 +1,58 @@
-# Script de démarrage pour MediAid
-Write-Host "Démarrage de l'application MediAid..." -ForegroundColor Green
+﻿Write-Host ""
+Write-Host "======================================" -ForegroundColor Cyan
+Write-Host "   MediAid Development Startup" -ForegroundColor Cyan
+Write-Host "======================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Vérifier si MongoDB est accessible
-Write-Host "Vérification de MongoDB..." -ForegroundColor Yellow
-try {
-    $mongoTest = Test-NetConnection -ComputerName localhost -Port 27017 -WarningAction SilentlyContinue
-    if ($mongoTest.TcpTestSucceeded) {
-        Write-Host "MongoDB est accessible sur le port 27017" -ForegroundColor Green
-    } else {
-        Write-Host "ATTENTION: MongoDB ne semble pas être accessible sur le port 27017" -ForegroundColor Red
-        Write-Host "Assurez-vous que MongoDB est démarré avant de continuer." -ForegroundColor Yellow
+if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
+    Write-Host "ERROR: .NET SDK is not installed or not available in PATH." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Checking .NET version..." -ForegroundColor Yellow
+dotnet --version
+
+Write-Host ""
+Write-Host "Checking MongoDB on port 27017..." -ForegroundColor Yellow
+$mongoTest = Test-NetConnection -ComputerName 127.0.0.1 -Port 27017 -WarningAction SilentlyContinue
+
+if (-not $mongoTest.TcpTestSucceeded) {
+    Write-Host "MongoDB is not running on port 27017." -ForegroundColor Red
+
+    if (Get-Command docker -ErrorAction SilentlyContinue) {
+        Write-Host "Docker detected. Starting MongoDB with docker compose..." -ForegroundColor Yellow
+        docker compose up -d mongodb
+        Start-Sleep -Seconds 5
     }
-} catch {
-    Write-Host "Impossible de vérifier MongoDB: $_" -ForegroundColor Yellow
+    else {
+        Write-Host "Docker is not installed. Start MongoDB manually or install Docker Desktop." -ForegroundColor Red
+        Write-Host "Then run this script again." -ForegroundColor Yellow
+        exit 1
+    }
+}
+else {
+    Write-Host "MongoDB is running." -ForegroundColor Green
 }
 
 Write-Host ""
-Write-Host "Lancement de l'application..." -ForegroundColor Green
-Write-Host "L'application sera accessible sur:" -ForegroundColor Cyan
-Write-Host "  - HTTP:  http://localhost:5000" -ForegroundColor Cyan
-Write-Host "  - HTTPS: https://localhost:5001" -ForegroundColor Cyan
+Write-Host "Restoring packages..." -ForegroundColor Yellow
+dotnet restore
+
 Write-Host ""
-Write-Host "Appuyez sur Ctrl+C pour arrêter l'application" -ForegroundColor Yellow
+Write-Host "Building project..." -ForegroundColor Yellow
+dotnet build
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Build failed. Fix the errors above before running." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host ""
+Write-Host "Starting MediAid..." -ForegroundColor Green
+Write-Host "HTTP:  http://localhost:5000" -ForegroundColor Cyan
+Write-Host "HTTPS: https://localhost:5001" -ForegroundColor Cyan
+Write-Host "Health: http://localhost:5000/health" -ForegroundColor Cyan
+Write-Host "Mongo Express: http://localhost:8081" -ForegroundColor Cyan
 Write-Host ""
 
-# Lancer l'application
-dotnet run
-
+dotnet run --launch-profile http

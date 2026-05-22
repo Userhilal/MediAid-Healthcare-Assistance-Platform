@@ -1,4 +1,4 @@
-using BCrypt.Net;
+﻿using BCrypt.Net;
 using MediAid.Data;
 using MediAid.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -142,9 +142,9 @@ public class AuthService : IAuthService
         return result.ModifiedCount > 0;
     }
 
-    public async Task<string> GenerateJwtTokenAsync(User user)
+    public Task<string> GenerateJwtTokenAsync(User user)
     {
-        var jwtSettings = _configuration.GetSection("Jwt");
+        var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["SecretKey"] ?? "your-secret-key-at-least-32-characters-long";
         var issuer = jwtSettings["Issuer"] ?? "MediAid";
         var audience = jwtSettings["Audience"] ?? "MediAidUsers";
@@ -167,7 +167,7 @@ public class AuthService : IAuthService
             signingCredentials: credentials
         );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
     }
 
     public async Task<User?> ValidateRefreshTokenAsync(string refreshToken)
@@ -177,3 +177,6 @@ public class AuthService : IAuthService
         return await Task.FromResult<User?>(null);
     }
 }
+
+
+

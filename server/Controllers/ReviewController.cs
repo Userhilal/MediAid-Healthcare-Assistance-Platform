@@ -1,4 +1,4 @@
-using MediAid.DTOs;
+﻿using MediAid.DTOs;
 using MediAid.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,25 +35,25 @@ public class ReviewController : Controller
             return NotFound();
         }
 
-        // Vérifier que la demande est complétée
+        // VÃ©rifier que la demande est complÃ©tÃ©e
         if (request.Status != "Completed")
         {
-            TempData["ErrorMessage"] = "Vous ne pouvez évaluer que les demandes complétées.";
+            TempData["ErrorMessage"] = "Vous ne pouvez Ã©valuer que les demandes complÃ©tÃ©es.";
             return RedirectToAction("Index", "Request");
         }
 
-        // Vérifier qu'il y a un aidant assigné
+        // VÃ©rifier qu'il y a un aidant assignÃ©
         if (string.IsNullOrEmpty(request.AssignedAidantId))
         {
-            TempData["ErrorMessage"] = "Aucun aidant assigné à cette demande.";
+            TempData["ErrorMessage"] = "Aucun aidant assignÃ© Ã  cette demande.";
             return RedirectToAction("Index", "Request");
         }
 
-        // Vérifier si une review existe déjà
+        // VÃ©rifier si une review existe dÃ©jÃ 
         var existingReview = await _reviewService.GetReviewByRequestIdAsync(requestId);
         if (existingReview != null)
         {
-            TempData["InfoMessage"] = "Vous avez déjà évalué cette demande.";
+            TempData["InfoMessage"] = "Vous avez dÃ©jÃ  Ã©valuÃ© cette demande.";
             return RedirectToAction("Index", "Request");
         }
 
@@ -79,25 +79,25 @@ public class ReviewController : Controller
             return NotFound();
         }
 
-        // Vérifier que la demande est complétée
+        // VÃ©rifier que la demande est complÃ©tÃ©e
         if (request.Status != "Completed")
         {
-            TempData["ErrorMessage"] = "Vous ne pouvez évaluer que les demandes complétées.";
+            TempData["ErrorMessage"] = "Vous ne pouvez Ã©valuer que les demandes complÃ©tÃ©es.";
             return RedirectToAction("Index", "Request");
         }
 
-        // Vérifier qu'il y a un aidant assigné
+        // VÃ©rifier qu'il y a un aidant assignÃ©
         if (string.IsNullOrEmpty(request.AssignedAidantId) || request.AssignedAidantId != dto.AidantId)
         {
             TempData["ErrorMessage"] = "Aidant invalide.";
             return RedirectToAction("Index", "Request");
         }
 
-        // Vérifier si une review existe déjà
+        // VÃ©rifier si une review existe dÃ©jÃ 
         var existingReview = await _reviewService.GetReviewByRequestIdAsync(dto.RequestId);
         if (existingReview != null)
         {
-            TempData["InfoMessage"] = "Vous avez déjà évalué cette demande.";
+            TempData["InfoMessage"] = "Vous avez dÃ©jÃ  Ã©valuÃ© cette demande.";
             return RedirectToAction("Index", "Request");
         }
 
@@ -111,12 +111,12 @@ public class ReviewController : Controller
         
         if (review == null)
         {
-            TempData["ErrorMessage"] = "Erreur lors de la création de l'évaluation.";
+            TempData["ErrorMessage"] = "Erreur lors de la crÃ©ation de l'Ã©valuation.";
             ViewBag.Request = request;
             return View(dto);
         }
 
-        TempData["SuccessMessage"] = "Évaluation créée avec succès !";
+        TempData["SuccessMessage"] = "Ã‰valuation crÃ©Ã©e avec succÃ¨s !";
         return RedirectToAction("Index", "Request");
     }
 
@@ -204,25 +204,25 @@ public class ReviewController : Controller
             return RedirectToAction("ByAidant", new { aidantId = dto.AidantId });
         }
 
-        // Vérifier que la demande est complétée
+        // VÃ©rifier que la demande est complÃ©tÃ©e
         if (request.Status != "Completed")
         {
-            TempData["ErrorMessage"] = "Vous ne pouvez évaluer que les demandes complétées.";
+            TempData["ErrorMessage"] = "Vous ne pouvez Ã©valuer que les demandes complÃ©tÃ©es.";
             return RedirectToAction("ByAidant", new { aidantId = dto.AidantId });
         }
 
-        // Vérifier qu'il y a un aidant assigné
+        // VÃ©rifier qu'il y a un aidant assignÃ©
         if (string.IsNullOrEmpty(request.AssignedAidantId) || request.AssignedAidantId != dto.AidantId)
         {
             TempData["ErrorMessage"] = "Aidant invalide.";
             return RedirectToAction("ByAidant", new { aidantId = dto.AidantId });
         }
 
-        // Vérifier si une review existe déjà
+        // VÃ©rifier si une review existe dÃ©jÃ 
         var existingReview = await _reviewService.GetReviewByRequestIdAsync(dto.RequestId);
         if (existingReview != null)
         {
-            TempData["InfoMessage"] = "Vous avez déjà évalué cette demande.";
+            TempData["InfoMessage"] = "Vous avez dÃ©jÃ  Ã©valuÃ© cette demande.";
             return RedirectToAction("ByAidant", new { aidantId = dto.AidantId });
         }
 
@@ -236,12 +236,13 @@ public class ReviewController : Controller
         
         if (review == null)
         {
-            TempData["ErrorMessage"] = "Erreur lors de la création de l'évaluation.";
+            TempData["ErrorMessage"] = "Erreur lors de la crÃ©ation de l'Ã©valuation.";
             return RedirectToAction("ByAidant", new { aidantId = dto.AidantId });
         }
 
-        TempData["SuccessMessage"] = "Évaluation créée avec succès !";
+        TempData["SuccessMessage"] = "Ã‰valuation crÃ©Ã©e avec succÃ¨s !";
         return RedirectToAction("ByAidant", new { aidantId = dto.AidantId });
     }
 }
+
 

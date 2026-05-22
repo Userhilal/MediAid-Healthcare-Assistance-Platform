@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MediAid.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,7 +9,10 @@ using Microsoft.AspNetCore.SignalR;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<MediAid.Filters.LayoutDataFilter>();
+});
 
 // MongoDB Configuration
 var connectionString = builder.Configuration.GetConnectionString("MongoDB");
@@ -32,6 +35,7 @@ builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IIntelligentAlertService, IntelligentAlertService>();
 builder.Services.AddScoped<IAidantCommentService, AidantCommentService>();
 builder.Services.AddScoped<IPlanningService, PlanningService>();
+builder.Services.AddScoped<IPlatformStatsService, PlatformStatsService>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -120,6 +124,8 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
+
+
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
@@ -147,4 +153,8 @@ app.MapHub<MediAid.Hubs.ChatHub>("/chathub", options =>
 });
 
 app.Run();
+
+
+
+
 

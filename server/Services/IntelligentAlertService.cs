@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MongoDB.Driver;
 
@@ -33,10 +33,10 @@ public class IntelligentAlertService : IIntelligentAlertService
 
         foreach (var request in requests.Where(r => r.Status == "Open" || r.Status == "Assigned" || r.Status == "InProgress"))
         {
-            // Vérifier si un aidant est proche
+            // VÃ©rifier si un aidant est proche
             if (request.Status == "Assigned" || request.Status == "InProgress")
             {
-                var allProposalsForRequest = await _proposalService.GetProposalsByRequestIdAsync(request.Id);
+                var allProposalsForRequest = await _proposalService.GetProposalsByRequestIdAsync(request.Id!);
                 var acceptedProposal = allProposalsForRequest.FirstOrDefault(p => p.Status == "Accepted");
                 
                 if (acceptedProposal != null && request.Location != null)
@@ -55,9 +55,9 @@ public class IntelligentAlertService : IIntelligentAlertService
                             {
                                 Type = "AidantProche",
                                 Title = "Un aidant est proche",
-                                Message = $"L'aidant assigné est à moins de {distance:F1} km de votre localisation",
+                                Message = $"L'aidant assignÃ© est Ã  moins de {distance:F1} km de votre localisation",
                                 Priority = "High",
-                                RequestId = request.Id,
+                                RequestId = request.Id!,
                                 CreatedAt = DateTime.UtcNow
                             });
                         }
@@ -65,7 +65,7 @@ public class IntelligentAlertService : IIntelligentAlertService
                 }
             }
 
-            // Vérifier si la demande est prioritaire
+            // VÃ©rifier si la demande est prioritaire
             if (request.Urgency == "Critical" || request.Urgency == "High")
             {
                 var timeSinceCreation = DateTime.UtcNow - request.CreatedAt;
@@ -75,16 +75,16 @@ public class IntelligentAlertService : IIntelligentAlertService
                     {
                         Type = "DemandePrioritaire",
                         Title = "Votre demande est prioritaire",
-                        Message = "Votre demande urgente nécessite une attention immédiate",
+                        Message = "Votre demande urgente nÃ©cessite une attention immÃ©diate",
                         Priority = "Critical",
-                        RequestId = request.Id,
+                        RequestId = request.Id!,
                         CreatedAt = DateTime.UtcNow
                     });
                 }
             }
 
-            // Vérifier les nouvelles propositions
-            var allProposals = await _proposalService.GetProposalsByRequestIdAsync(request.Id);
+            // VÃ©rifier les nouvelles propositions
+            var allProposals = await _proposalService.GetProposalsByRequestIdAsync(request.Id!);
             var unreadProposals = allProposals.Where(p => p.Status == "Pending").Count();
             if (unreadProposals > 0)
             {
@@ -92,9 +92,9 @@ public class IntelligentAlertService : IIntelligentAlertService
                 {
                     Type = "NouvellesPropositions",
                     Title = "Nouvelles propositions",
-                    Message = $"Vous avez {unreadProposals} nouvelle(s) proposition(s) à examiner",
+                    Message = $"Vous avez {unreadProposals} nouvelle(s) proposition(s) Ã  examiner",
                     Priority = "Normal",
-                    RequestId = request.Id,
+                    RequestId = request.Id!,
                     CreatedAt = DateTime.UtcNow
                 });
             }
@@ -115,7 +115,7 @@ public class IntelligentAlertService : IIntelligentAlertService
 
         foreach (var alert in relevantAlerts)
         {
-            // Créer une notification pour chaque alerte
+            // CrÃ©er une notification pour chaque alerte
             await _notificationService.CreateNotificationAsync(
                 request.PatientId,
                 alert.Type,
@@ -154,4 +154,5 @@ public class IntelligentAlert
     public string? RequestId { get; set; }
     public DateTime CreatedAt { get; set; }
 }
+
 

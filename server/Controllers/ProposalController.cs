@@ -1,4 +1,4 @@
-using MediAid.Services;
+﻿using MediAid.Services;
 using MediAid.Data;
 using MediAid.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -37,15 +37,15 @@ public class ProposalController : Controller
         
         if (aidant == null)
         {
-            message = "Votre profil aidant n'est pas encore configuré. Veuillez compléter votre profil.";
+            message = "Votre profil aidant n'est pas encore configurÃ©. Veuillez complÃ©ter votre profil.";
             requests = new List<MediAid.Models.Request>();
         }
         else if (aidant.Location == null)
         {
             // Afficher toutes les demandes ouvertes si pas de localisation (mode fallback)
-            message = "⚠️ Localisation non configurée. Toutes les demandes sont affichées. Configurez votre localisation pour voir uniquement les demandes à proximité.";
+            message = "âš ï¸ Localisation non configurÃ©e. Toutes les demandes sont affichÃ©es. Configurez votre localisation pour voir uniquement les demandes Ã  proximitÃ©.";
             
-            // Récupérer TOUTES les demandes ouvertes (avec ou sans localisation)
+            // RÃ©cupÃ©rer TOUTES les demandes ouvertes (avec ou sans localisation)
             var context = HttpContext.RequestServices.GetRequiredService<MediAid.Data.MongoDbContext>();
             var filterBuilder = MongoDB.Driver.Builders<MediAid.Models.Request>.Filter;
             var baseFilter = filterBuilder.Eq(r => r.Status, "Open");
@@ -69,7 +69,7 @@ public class ProposalController : Controller
             var longitude = aidant.Location.Coordinates[0];
             var radius = aidant.InterventionRadius;
 
-            // Récupérer toutes les demandes ouvertes (avec et sans localisation)
+            // RÃ©cupÃ©rer toutes les demandes ouvertes (avec et sans localisation)
             var context = HttpContext.RequestServices.GetRequiredService<MongoDbContext>();
             var filterBuilder = Builders<MediAid.Models.Request>.Filter;
             var baseFilter = filterBuilder.Eq(r => r.Status, "Open");
@@ -100,13 +100,13 @@ public class ProposalController : Controller
                     continue;
                 }
 
-                // Pour les demandes avec localisation, toujours les inclure (même si loin)
-                // On calcule quand même la distance pour l'affichage
+                // Pour les demandes avec localisation, toujours les inclure (mÃªme si loin)
+                // On calcule quand mÃªme la distance pour l'affichage
                 var requestLat = request.Location.Coordinates[1];
                 var requestLon = request.Location.Coordinates[0];
                 var distance = CalculateDistance(latitude, longitude, requestLat, requestLon);
                 
-                // Toujours inclure, même si hors du rayon
+                // Toujours inclure, mÃªme si hors du rayon
                 requests.Add(request);
                 if (request.Id != null)
                 {
@@ -139,8 +139,8 @@ public class ProposalController : Controller
                 }
                 
                 var parts = new List<string>();
-                if (nearbyCount > 0) parts.Add($"{nearbyCount} à proximité");
-                if (farCount > 0) parts.Add($"{farCount} plus éloignées");
+                if (nearbyCount > 0) parts.Add($"{nearbyCount} Ã  proximitÃ©");
+                if (farCount > 0) parts.Add($"{farCount} plus Ã©loignÃ©es");
                 if (withoutLocation > 0) parts.Add($"{withoutLocation} sans localisation");
                 
                 message = $"{requests.Count} demande(s) disponible(s) ({string.Join(", ", parts)}).";
@@ -216,11 +216,11 @@ public class ProposalController : Controller
         var proposal = await _proposalService.CreateProposalAsync(requestId, aidant.Id!, message, estimatedArrivalTime);
         if (proposal == null)
         {
-            TempData["ErrorMessage"] = "Impossible de créer cette proposition.";
+            TempData["ErrorMessage"] = "Impossible de crÃ©er cette proposition.";
             return RedirectToAction("Index");
         }
 
-        TempData["SuccessMessage"] = "Proposition créée avec succès !";
+        TempData["SuccessMessage"] = "Proposition crÃ©Ã©e avec succÃ¨s !";
         return RedirectToAction("MyProposals");
     }
 
@@ -276,7 +276,7 @@ public class ProposalController : Controller
             .OrderBy(p => ((dynamic)p).Request.RequestedDate ?? DateTime.MaxValue)
             .FirstOrDefault();
         
-        // Missions acceptées
+        // Missions acceptÃ©es
         var acceptedMissions = enrichedProposals
             .Where(p => ((dynamic)p).Proposal.Status == "Accepted")
             .OrderByDescending(p => ((dynamic)p).Proposal.CreatedAt)
@@ -302,7 +302,7 @@ public class ProposalController : Controller
             .Find(m => m.ReceiverId == userId && !m.IsRead)
             .ToListAsync();
         
-        // Calculer les heures réelles par semaine (7 dernières semaines)
+        // Calculer les heures rÃ©elles par semaine (7 derniÃ¨res semaines)
         var weeklyHours = new List<double>();
         var now = DateTime.UtcNow;
         for (int i = 6; i >= 0; i--)
@@ -310,7 +310,7 @@ public class ProposalController : Controller
             var weekStart = now.AddDays(-(i * 7)).Date;
             var weekEnd = weekStart.AddDays(7);
             
-            // Récupérer les missions complétées dans cette semaine
+            // RÃ©cupÃ©rer les missions complÃ©tÃ©es dans cette semaine
             var weekMissions = enrichedProposals
                 .Where(ep => 
                 {
@@ -323,7 +323,7 @@ public class ProposalController : Controller
                 })
                 .ToList();
             
-            // Calculer les heures pour cette semaine (basé sur la durée réelle)
+            // Calculer les heures pour cette semaine (basÃ© sur la durÃ©e rÃ©elle)
             double weekHours = 0.0;
             foreach (var mission in weekMissions)
             {
@@ -342,13 +342,13 @@ public class ProposalController : Controller
                         }
                         else
                         {
-                            // Estimation par défaut : 1 heure par mission si durée invalide
+                            // Estimation par dÃ©faut : 1 heure par mission si durÃ©e invalide
                             weekHours += 1.0;
                         }
                     }
                     else
                     {
-                        // Estimation par défaut : 1 heure par mission
+                        // Estimation par dÃ©faut : 1 heure par mission
                         weekHours += 1.0;
                     }
                 }
@@ -356,22 +356,22 @@ public class ProposalController : Controller
             weeklyHours.Add(Math.Round(weekHours, 1));
         }
         
-        // Récupérer les reviews réelles pour calculer la réputation
+        // RÃ©cupÃ©rer les reviews rÃ©elles pour calculer la rÃ©putation
         var reviewService = HttpContext.RequestServices.GetRequiredService<IReviewService>();
         var reviews = await reviewService.GetReviewsByAidantIdAsync(aidant.Id!);
-        var realReputationScore = aidant.ReputationScore; // Déjà calculé dans ReviewService
+        var realReputationScore = aidant.ReputationScore; // DÃ©jÃ  calculÃ© dans ReviewService
         
-        // Calculer le nombre réel de vies touchées (patients uniques aidés)
+        // Calculer le nombre rÃ©el de vies touchÃ©es (patients uniques aidÃ©s)
         var uniquePatients = enrichedProposals
             .Where(ep => ((dynamic)ep).Proposal.Status == "Accepted")
             .Select(ep => ((dynamic)ep).Request.PatientId)
             .Distinct()
             .Count();
         
-        // Récupérer les badges réels
+        // RÃ©cupÃ©rer les badges rÃ©els
         var realBadges = aidant.Badges ?? new List<string>();
         
-        // Calculer les heures totales réelles depuis les missions complétées
+        // Calculer les heures totales rÃ©elles depuis les missions complÃ©tÃ©es
         var completedMissions = enrichedProposals
             .Where(ep => 
             {
@@ -398,17 +398,17 @@ public class ProposalController : Controller
                     }
                     else
                     {
-                        realTotalHours += 1.0; // Estimation par défaut si durée invalide
+                        realTotalHours += 1.0; // Estimation par dÃ©faut si durÃ©e invalide
                     }
                 }
                 else
                 {
-                    realTotalHours += 1.0; // Estimation par défaut
+                    realTotalHours += 1.0; // Estimation par dÃ©faut
                 }
             }
         }
         
-        // Si TotalHours dans la DB est plus grand, utiliser celui-ci (peut être mis à jour manuellement)
+        // Si TotalHours dans la DB est plus grand, utiliser celui-ci (peut Ãªtre mis Ã  jour manuellement)
         if (aidant.TotalHours > realTotalHours)
         {
             realTotalHours = aidant.TotalHours;
@@ -422,9 +422,9 @@ public class ProposalController : Controller
         ViewBag.User = user;
         ViewBag.UnreadMessagesCount = unreadMessages.Count;
         ViewBag.Proposals = proposals;
-        ViewBag.WeeklyHours = weeklyHours; // Données réelles pour le graphique
+        ViewBag.WeeklyHours = weeklyHours; // DonnÃ©es rÃ©elles pour le graphique
         ViewBag.RealReputationScore = realReputationScore;
-        ViewBag.UniquePatientsCount = uniquePatients; // Vies touchées réelles
+        ViewBag.UniquePatientsCount = uniquePatients; // Vies touchÃ©es rÃ©elles
         ViewBag.RealBadges = realBadges;
         ViewBag.RealTotalHours = realTotalHours;
         
@@ -449,7 +449,7 @@ public class ProposalController : Controller
         }
         else
         {
-            TempData["SuccessMessage"] = "Proposition annulée avec succès.";
+            TempData["SuccessMessage"] = "Proposition annulÃ©e avec succÃ¨s.";
         }
 
         return RedirectToAction("MyProposals");
@@ -464,19 +464,19 @@ public class ProposalController : Controller
         var aidant = await _aidantService.GetAidantByUserIdAsync(userId);
         if (aidant == null)
         {
-            return Json(new { success = false, message = "Aidant non trouvé" });
+            return Json(new { success = false, message = "Aidant non trouvÃ©" });
         }
 
         var request = await _requestService.GetRequestByIdAsync(requestId);
         if (request == null)
         {
-            return Json(new { success = false, message = "Demande non trouvée" });
+            return Json(new { success = false, message = "Demande non trouvÃ©e" });
         }
 
-        // Vérifier que l'aidant est bien assigné à cette demande
+        // VÃ©rifier que l'aidant est bien assignÃ© Ã  cette demande
         if (request.AssignedAidantId != aidant.Id)
         {
-            return Json(new { success = false, message = "Vous n'êtes pas assigné à cette demande" });
+            return Json(new { success = false, message = "Vous n'Ãªtes pas assignÃ© Ã  cette demande" });
         }
 
         // Valider la transition de statut
@@ -492,7 +492,7 @@ public class ProposalController : Controller
             return Json(new { success = false, message = "Transition de statut invalide" });
         }
 
-        // Mettre à jour le statut
+        // Mettre Ã  jour le statut
         request.Status = newStatus;
         request.UpdatedAt = DateTime.UtcNow;
 
@@ -505,12 +505,12 @@ public class ProposalController : Controller
 
         if (result)
         {
-            // Créer une notification pour le patient
+            // CrÃ©er une notification pour le patient
             var notificationService = HttpContext.RequestServices.GetRequiredService<INotificationService>();
             var statusMessages = new Dictionary<string, string>
             {
-                { "InProgress", "L'aidant a commencé la mission" },
-                { "Completed", "La mission a été complétée" }
+                { "InProgress", "L'aidant a commencÃ© la mission" },
+                { "Completed", "La mission a Ã©tÃ© complÃ©tÃ©e" }
             };
 
             if (statusMessages.ContainsKey(newStatus))
@@ -524,15 +524,15 @@ public class ProposalController : Controller
                 );
             }
 
-            return Json(new { success = true, message = "Statut mis à jour avec succès" });
+            return Json(new { success = true, message = "Statut mis Ã  jour avec succÃ¨s" });
         }
 
-        return Json(new { success = false, message = "Erreur lors de la mise à jour" });
+        return Json(new { success = false, message = "Erreur lors de la mise Ã  jour" });
     }
 
     private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
     {
-        const double R = 6371; // Rayon de la Terre en kilomètres
+        const double R = 6371; // Rayon de la Terre en kilomÃ¨tres
         var dLat = ToRadians(lat2 - lat1);
         var dLon = ToRadians(lon2 - lon1);
         var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
@@ -547,5 +547,6 @@ public class ProposalController : Controller
         return degrees * Math.PI / 180.0;
     }
 }
+
 
 
