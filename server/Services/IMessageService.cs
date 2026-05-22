@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -12,3 +12,4 @@ public interface IMessageService
     Task<List<Message>> GetConversationsByUserIdAsync(string userId);
     Task<int> MarkAllMessagesAsReadAsync(string requestId, string userId);
 }
+

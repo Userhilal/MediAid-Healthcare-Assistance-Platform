@@ -1,4 +1,4 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -38,5 +38,6 @@ public class Proposal
     [BsonElement("respondedAt")]
     public DateTime? RespondedAt { get; set; }
 }
+
 
 

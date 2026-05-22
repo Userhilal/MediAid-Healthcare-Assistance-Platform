@@ -1,4 +1,4 @@
-@model List<MediAid.Models.Request>
+﻿@model List<MediAid.Models.Request>
 @using System.Linq
 @{
     ViewData["Title"] = "Demandes disponibles";
@@ -80,7 +80,7 @@
                         }
                         @if (totalCount > 0)
                         {
-                            <span class="total-count">• @totalCount au total</span>
+                            <span class="total-count">- @totalCount au total</span>
                         }
                     </p>
                 </div>
@@ -124,12 +124,12 @@
         <!-- Alert Message -->
         @if (ViewBag.Message != null)
         {
-            <div class="alert-glass @((ViewBag.Message as string)?.Contains("⚠️") == true ? "alert-warning" : "alert-info")">
-                <i class="bi @((ViewBag.Message as string)?.Contains("⚠️") == true ? "bi-exclamation-triangle" : "bi-info-circle")"></i>
+            <div class="alert-glass @((ViewBag.Message as string)?.Contains("Attention") == true ? "alert-warning" : "alert-info")">
+                <i class="bi @((ViewBag.Message as string)?.Contains("Attention") == true ? "bi-exclamation-triangle" : "bi-info-circle")"></i>
                 <span>@ViewBag.Message</span>
                 @if (aidant?.Location == null)
                 {
-                    <a href="@Url.Action("Profile", "Aidant")" class="alert-link">Configurer →</a>
+                    <a href="@Url.Action("Profile", "Aidant")" class="alert-link">Configurer -></a>
                 }
             </div>
         }
@@ -272,4 +272,5 @@
 </div>
 
 <script src="~/js/professional-proposals.js" asp-append-version="true"></script>
+
 

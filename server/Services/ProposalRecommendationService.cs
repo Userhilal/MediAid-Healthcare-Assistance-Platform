@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MongoDB.Driver;
 
@@ -110,4 +110,5 @@ public class ProposalRecommendationService : IProposalRecommendationService
         return degrees * Math.PI / 180.0;
     }
 }
+
 

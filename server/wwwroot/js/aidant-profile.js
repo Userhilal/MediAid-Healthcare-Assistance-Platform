@@ -1,4 +1,4 @@
-// Reliability Heatmap Generator (GitHub-style)
+﻿// Reliability Heatmap Generator (GitHub-style)
 function generateReliabilityHeatmap(aidantId) {
     const heatmapContainer = document.getElementById('reliabilityHeatmap');
     if (!heatmapContainer) return;
@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         generateReliabilityHeatmap('demo');
     }
 });
+
 
 
 

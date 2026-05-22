@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MongoDB.Driver;
 using System.Text;
@@ -221,4 +221,5 @@ public class PlanningService : IPlanningService
         return start1 < end2 && end1 > start2;
     }
 }
+
 

@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -12,5 +12,6 @@ public interface IProposalService
     Task<bool> RejectProposalAsync(string proposalId, string patientId);
     Task<bool> CancelProposalAsync(string proposalId, string aidantId);
 }
+
 
 

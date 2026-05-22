@@ -1,5 +1,5 @@
-// ========================================
-// DASHBOARD PATIENT — JAVASCRIPT
+﻿// ========================================
+// DASHBOARD PATIENT - JAVASCRIPT
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -742,6 +742,7 @@ function escapeHtml(text) {
     };
     return text.replace(/[&<>"']/g, m => map[m]);
 }
+
 
 
 

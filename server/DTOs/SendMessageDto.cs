@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MediAid.DTOs;
 
@@ -15,4 +15,5 @@ public class SendMessageDto
 
     public List<string> AttachmentUrls { get; set; } = new();
 }
+
 

@@ -1,4 +1,4 @@
-using MediAid.DTOs;
+﻿using MediAid.DTOs;
 using MediAid.Models;
 
 namespace MediAid.Services;
@@ -16,3 +16,4 @@ public interface IRequestService
     Task<bool> AssignAidantAsync(string requestId, string aidantId);
     Task<bool> DeleteRequestAsync(string requestId, string patientId);
 }
+

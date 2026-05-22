@@ -34,7 +34,7 @@ public class MissionController : Controller
         
         if (request == null || request.PatientId != userId)
         {
-            return Json(new { success = false, message = "Demande non trouvÃ©e" });
+            return Json(new { success = false, message = "Demande non trouvée" });
         }
 
         // Generate 4-digit code
@@ -151,13 +151,13 @@ public class MissionController : Controller
         
         if (aidant == null)
         {
-            return Json(new { success = false, message = "Aidant non trouvÃ©" });
+            return Json(new { success = false, message = "Aidant non trouvé" });
         }
 
         var request = await _requestService.GetRequestByIdAsync(requestId);
         if (request == null || request.AssignedAidantId != aidant.Id)
         {
-            return Json(new { success = false, message = "Mission non trouvÃ©e" });
+            return Json(new { success = false, message = "Mission non trouvée" });
         }
 
         if (request.Location == null)
@@ -206,7 +206,7 @@ public class MissionController : Controller
             await _notificationService.CreateNotificationAsync(
                 request.PatientId,
                 "Aidant sur place",
-                "L'aidant est arrivÃ© Ã  votre adresse",
+                "L'aidant est arrivé à votre adresse",
                 "Mission",
                 requestId
             );
@@ -229,7 +229,7 @@ public class MissionController : Controller
         
         if (request == null)
         {
-            return Json(new { success = false, message = "Mission non trouvÃ©e" });
+            return Json(new { success = false, message = "Mission non trouvée" });
         }
 
         var incident = new SafetyIncident
@@ -256,7 +256,7 @@ public class MissionController : Controller
         // Notify admins (you can add admin notification logic here)
         // For now, we'll just return success
 
-        return Json(new { success = true, message = "Incident signalÃ© avec succÃ¨s" });
+        return Json(new { success = true, message = "Incident signalé avec succès" });
     }
 
     // Verify mission with code
@@ -268,12 +268,12 @@ public class MissionController : Controller
         
         if (request == null || request.PatientId != userId)
         {
-            return Json(new { success = false, message = "Mission non trouvÃ©e" });
+            return Json(new { success = false, message = "Mission non trouvée" });
         }
 
         if (string.IsNullOrEmpty(request.VerificationCode) || request.VerificationCode != code)
         {
-            return Json(new { success = false, message = "Code de vÃ©rification incorrect" });
+            return Json(new { success = false, message = "Code de vérification incorrect" });
         }
 
 
@@ -307,7 +307,7 @@ public class MissionController : Controller
         // Delete ephemeral messages (images that auto-delete after mission completion)
         await DeleteEphemeralMessagesAsync(requestId);
 
-        return Json(new { success = true, message = "Mission vÃ©rifiÃ©e et complÃ©tÃ©e" });
+        return Json(new { success = true, message = "Mission vérifiée et complétée" });
     }
 
     // Delete ephemeral messages after mission completion
@@ -432,6 +432,7 @@ public class MissionController : Controller
         return degrees * (Math.PI / 180);
     }
 }
+
 
 
 

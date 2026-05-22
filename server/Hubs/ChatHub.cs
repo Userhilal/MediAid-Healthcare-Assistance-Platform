@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
@@ -101,3 +101,4 @@ public class ChatHub : Hub
         await Clients.Caller.SendAsync("OnlineUsers", new[] { userId });
     }
 }
+

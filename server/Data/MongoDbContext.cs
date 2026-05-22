@@ -105,3 +105,4 @@ public class MongoDbContext
             Builders<Planning>.IndexKeys.Ascending(p => p.AidantId).Ascending(p => p.Date)));
     }
 }
+

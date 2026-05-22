@@ -1,4 +1,4 @@
-/* Mission Completion Modal */
+﻿/* Mission Completion Modal */
 .mission-modal {
     display: none;
     position: fixed;
@@ -304,6 +304,7 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
+
 
 
 

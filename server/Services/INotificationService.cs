@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -9,5 +9,6 @@ public interface INotificationService
     Task<bool> MarkAsReadAsync(string notificationId, string userId);
     Task<bool> MarkAllAsReadAsync(string userId);
 }
+
 
 

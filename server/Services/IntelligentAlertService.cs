@@ -33,7 +33,7 @@ public class IntelligentAlertService : IIntelligentAlertService
 
         foreach (var request in requests.Where(r => r.Status == "Open" || r.Status == "Assigned" || r.Status == "InProgress"))
         {
-            // VÃ©rifier si un aidant est proche
+            // Vérifier si un aidant est proche
             if (request.Status == "Assigned" || request.Status == "InProgress")
             {
                 var allProposalsForRequest = await _proposalService.GetProposalsByRequestIdAsync(request.Id!);
@@ -55,7 +55,7 @@ public class IntelligentAlertService : IIntelligentAlertService
                             {
                                 Type = "AidantProche",
                                 Title = "Un aidant est proche",
-                                Message = $"L'aidant assignÃ© est Ã  moins de {distance:F1} km de votre localisation",
+                                Message = $"L'aidant assigné est à moins de {distance:F1} km de votre localisation",
                                 Priority = "High",
                                 RequestId = request.Id!,
                                 CreatedAt = DateTime.UtcNow
@@ -65,7 +65,7 @@ public class IntelligentAlertService : IIntelligentAlertService
                 }
             }
 
-            // VÃ©rifier si la demande est prioritaire
+            // Vérifier si la demande est prioritaire
             if (request.Urgency == "Critical" || request.Urgency == "High")
             {
                 var timeSinceCreation = DateTime.UtcNow - request.CreatedAt;
@@ -75,7 +75,7 @@ public class IntelligentAlertService : IIntelligentAlertService
                     {
                         Type = "DemandePrioritaire",
                         Title = "Votre demande est prioritaire",
-                        Message = "Votre demande urgente nÃ©cessite une attention immÃ©diate",
+                        Message = "Votre demande urgente nécessite une attention immédiate",
                         Priority = "Critical",
                         RequestId = request.Id!,
                         CreatedAt = DateTime.UtcNow
@@ -83,7 +83,7 @@ public class IntelligentAlertService : IIntelligentAlertService
                 }
             }
 
-            // VÃ©rifier les nouvelles propositions
+            // Vérifier les nouvelles propositions
             var allProposals = await _proposalService.GetProposalsByRequestIdAsync(request.Id!);
             var unreadProposals = allProposals.Where(p => p.Status == "Pending").Count();
             if (unreadProposals > 0)
@@ -92,7 +92,7 @@ public class IntelligentAlertService : IIntelligentAlertService
                 {
                     Type = "NouvellesPropositions",
                     Title = "Nouvelles propositions",
-                    Message = $"Vous avez {unreadProposals} nouvelle(s) proposition(s) Ã  examiner",
+                    Message = $"Vous avez {unreadProposals} nouvelle(s) proposition(s) à examiner",
                     Priority = "Normal",
                     RequestId = request.Id!,
                     CreatedAt = DateTime.UtcNow
@@ -115,7 +115,7 @@ public class IntelligentAlertService : IIntelligentAlertService
 
         foreach (var alert in relevantAlerts)
         {
-            // CrÃ©er une notification pour chaque alerte
+            // Créer une notification pour chaque alerte
             await _notificationService.CreateNotificationAsync(
                 request.PatientId,
                 alert.Type,
@@ -154,5 +154,6 @@ public class IntelligentAlert
     public string? RequestId { get; set; }
     public DateTime CreatedAt { get; set; }
 }
+
 
 

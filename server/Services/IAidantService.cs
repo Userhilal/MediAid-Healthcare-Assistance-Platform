@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -9,5 +9,6 @@ public interface IAidantService
     Task<bool> UpdateLocationAsync(string userId, double latitude, double longitude, double radius);
     Task<List<Aidant>> GetAllAidantsWithLocationAsync();
 }
+
 
 

@@ -1,4 +1,4 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -72,5 +72,6 @@ public class EmergencyContact
     [BsonElement("relationship")]
     public string Relationship { get; set; } = string.Empty;
 }
+
 
 

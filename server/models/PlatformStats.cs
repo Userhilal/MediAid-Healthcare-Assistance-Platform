@@ -13,3 +13,4 @@ public class PlatformStats
     public double AverageRating { get; set; }
     public bool IsDatabaseAvailable { get; set; } = true;
 }
+

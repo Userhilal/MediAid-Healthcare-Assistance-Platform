@@ -1,4 +1,4 @@
-// Mission Completion with Proof Upload
+﻿// Mission Completion with Proof Upload
 async function completeMissionWithProof(requestId) {
     const modal = document.getElementById('missionCompletionModal');
     if (!modal) {
@@ -186,7 +186,7 @@ async function checkInWithGPS(requestId) {
                     if (result.isWithinRadius) {
                         alert('✅ Vous êtes arrivé à destination! Le patient a été notifié.');
                     } else {
-                        alert(`📍 Check-in effectué. Distance: ${result.distance}m de la destination`);
+                        alert(` Check-in effectué. Distance: ${result.distance}m de la destination`);
                     }
                 } else {
                     alert('Erreur: ' + result.message);
@@ -253,4 +253,5 @@ async function submitIncident(requestId, incidentType, severity, description, la
         alert('Erreur lors du signalement');
     }
 }
+
 

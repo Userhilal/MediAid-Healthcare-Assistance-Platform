@@ -60,9 +60,10 @@ public class ExpertController : Controller
 
         await _requestService.UpdateRequestAsync(request);
 
-        TempData["SuccessMessage"] = "Demande validÃ©e avec succÃ¨s.";
+        TempData["SuccessMessage"] = "Demande validée avec succès.";
         return RedirectToAction("Index");
     }
 }
+
 
 

@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MongoDB.Driver;
 
@@ -76,5 +76,6 @@ public class ReviewService : IReviewService
         return Math.Round(averageRating, 2);
     }
 }
+
 
 

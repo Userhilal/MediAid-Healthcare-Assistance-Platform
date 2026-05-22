@@ -1,4 +1,4 @@
-// Planning Management JavaScript
+﻿// Planning Management JavaScript
 
 let currentSlotId = null;
 let currentSlotDate = null;
@@ -300,4 +300,5 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
 

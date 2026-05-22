@@ -1,4 +1,4 @@
-// Professional Proposals Page JavaScript
+﻿// Professional Proposals Page JavaScript
 // Handles map initialization, detail pane, and interactions
 
 let detailPaneOpen = false;
@@ -136,4 +136,5 @@ window.addEventListener('resize', function() {
         }, 100);
     });
 });
+
 

@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    MEDIAID - GLOBAL PROFESSIONAL THEME
    "Executive Medical" Design System
    ======================================== */
@@ -445,6 +445,7 @@ h6 { font-size: var(--font-size-base); }
 
 .rounded-modern { border-radius: var(--radius-md); }
 .rounded-large { border-radius: var(--radius-xl); }
+
 
 
 

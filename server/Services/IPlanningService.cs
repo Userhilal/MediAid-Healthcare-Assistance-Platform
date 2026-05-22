@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -22,6 +22,7 @@ public class PlanningConflict
     public PlanningTimeSlot? ConflictingSlot { get; set; }
     public string Message { get; set; } = string.Empty;
 }
+
 
 
 

@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MongoDB.Driver;
 
@@ -46,5 +46,6 @@ public class AuditLogService : IAuditLogService
             .ToListAsync();
     }
 }
+
 
 

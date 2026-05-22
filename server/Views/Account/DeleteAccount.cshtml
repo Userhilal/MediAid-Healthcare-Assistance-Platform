@@ -8,7 +8,7 @@
         <h1 class="page-title">
             <i class="bi bi-exclamation-triangle-fill"></i> Désactiver le compte
         </h1>
-        <p class="page-subtitle">Action irrÃ©versible</p>
+        <p class="page-subtitle">Action irréversible</p>
     </div>
     <a href="@Url.Action("Index", "Profile")" class="btn-secondary-modern">
         <i class="bi bi-arrow-left"></i> Retour au profil
@@ -27,13 +27,13 @@
                 <div style="display: flex; align-items: start; gap: var(--spacing-md);">
                     <i class="bi bi-exclamation-triangle-fill" style="font-size: 1.5rem; flex-shrink: 0;"></i>
                     <div>
-                        <strong>Attention : Cette action est irrÃ©versible</strong>
-                        <p style="margin: var(--spacing-sm) 0 0 0;">Toutes vos donnÃ©es seront supprimÃ©es dÃ©finitivement :</p>
+                        <strong>Attention : Cette action est irréversible</strong>
+                        <p style="margin: var(--spacing-sm) 0 0 0;">Toutes vos données seront supprimées définitivement :</p>
                         <ul style="margin: var(--spacing-sm) 0 0 var(--spacing-lg); padding-left: 0;">
                             <li>Vos demandes et propositions</li>
                             <li>Vos messages et conversations</li>
                             <li>Votre profil et informations personnelles</li>
-                            <li>Toutes les donnÃ©es associÃ©es Ã  votre compte</li>
+                            <li>Toutes les données associées à votre compte</li>
                         </ul>
                     </div>
                 </div>
@@ -60,9 +60,9 @@
                     <div class="confirmation-checkbox">
                         <input asp-for="ConfirmDeletion" class="form-check-input" type="checkbox" id="confirmDeletion" />
                         <label asp-for="ConfirmDeletion" class="form-check-label" for="confirmDeletion">
-                            <strong>Je comprends et confirme que je souhaite supprimer dÃ©finitivement mon compte</strong>
+                            <strong>Je comprends et confirme que je souhaite supprimer définitivement mon compte</strong>
                             <br>
-                            <small style="color: var(--color-gray-600);">Cette action ne peut pas Ãªtre annulÃ©e.</small>
+                            <small style="color: var(--color-gray-600);">Cette action ne peut pas être annulée.</small>
                         </label>
                         <span asp-validation-for="ConfirmDeletion" class="field-validation"></span>
                     </div>
@@ -72,8 +72,8 @@
                     <a href="@Url.Action("Index", "Profile")" class="btn-secondary-modern">
                         <i class="bi bi-arrow-left"></i> Annuler
                     </a>
-                    <button type="submit" class="btn-danger-modern" onclick="return confirm('ÃŠtes-vous absolument sÃ»r ? Cette action est IRRÃ‰VERSIBLE ! Toutes vos donnÃ©es seront perdues.');">
-                        <i class="bi bi-trash"></i> Supprimer dÃ©finitivement mon compte
+                    <button type="submit" class="btn-danger-modern" onclick="return confirm('Êtes-vous absolument sûr ? Cette action est IRRÉVERSIBLE ! Toutes vos données seront perdues.');">
+                        <i class="bi bi-trash"></i> Supprimer définitivement mon compte
                     </button>
                 </div>
             </form>
@@ -166,6 +166,7 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
 
 
 

@@ -1,4 +1,4 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -141,3 +141,4 @@ public class Certification
     [BsonElement("documentUrl")]
     public string? DocumentUrl { get; set; } // URL du document de certification
 }
+

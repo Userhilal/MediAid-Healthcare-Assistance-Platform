@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -10,3 +10,4 @@ public interface IAuthService
     Task<string> GenerateJwtTokenAsync(User user);
     Task<User?> ValidateRefreshTokenAsync(string refreshToken);
 }
+

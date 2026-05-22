@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -9,5 +9,6 @@ public interface IReviewService
     Task<Review?> GetReviewByRequestIdAsync(string requestId);
     Task<double> CalculateReputationScoreAsync(string aidantId);
 }
+
 
 

@@ -1,4 +1,4 @@
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
 
 namespace MediAid.Models;
 
@@ -19,4 +19,5 @@ public class MessageAttachment
     [BsonElement("uploadedAt")]
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 }
+
 

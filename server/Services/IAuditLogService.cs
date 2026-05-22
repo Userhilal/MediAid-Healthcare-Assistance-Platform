@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -8,5 +8,6 @@ public interface IAuditLogService
     Task<List<AuditLog>> GetLogsByUserIdAsync(string userId, int limit = 100);
     Task<List<AuditLog>> GetLogsByActionAsync(string action, int limit = 100);
 }
+
 
 

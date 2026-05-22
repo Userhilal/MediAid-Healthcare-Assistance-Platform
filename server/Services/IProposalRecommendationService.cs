@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -16,4 +16,5 @@ public class ProposalRecommendation
     public bool IsRecommended { get; set; }
     public string? RecommendationReason { get; set; }
 }
+
 

@@ -1,4 +1,4 @@
-// Site-wide JavaScript
+﻿// Site-wide JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-dismiss alerts after 5 seconds
@@ -10,5 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 });
+
 
 

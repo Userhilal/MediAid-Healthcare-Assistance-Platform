@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MediAid.DTOs;
 
@@ -31,4 +31,5 @@ public class EmergencyContactDto
 
     public string Relationship { get; set; } = string.Empty;
 }
+
 

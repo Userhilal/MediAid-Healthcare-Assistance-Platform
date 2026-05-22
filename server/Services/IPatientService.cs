@@ -1,4 +1,4 @@
-using MediAid.DTOs;
+﻿using MediAid.DTOs;
 using MediAid.Models;
 
 namespace MediAid.Services;
@@ -24,4 +24,5 @@ public class PatientDashboardStats
     public Aidant? AssignedAidant { get; set; }
     public int UnreadNotifications { get; set; }
 }
+
 

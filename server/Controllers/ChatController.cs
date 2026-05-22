@@ -96,7 +96,7 @@ public class ChatController : Controller
                 preview = lastMessage.Content;
                 if (string.IsNullOrEmpty(preview) && lastMessage.Attachments.Any())
                 {
-                    preview = $"ðŸ“Ž {lastMessage.Attachments.First().FileName}";
+                    preview = $"📎 {lastMessage.Attachments.First().FileName}";
                 }
             }
             
@@ -153,13 +153,13 @@ public class ChatController : Controller
         }
         else
         {
-            return BadRequest("Aucun aidant assignÃ© Ã  cette demande.");
+            return BadRequest("Aucun aidant assigné à cette demande.");
         }
 
         var currentUser = await _userService.GetUserByIdAsync(userId);
         var receiverUser = await _userService.GetUserByIdAsync(receiverId);
         
-        // RÃ©cupÃ©rer l'aidant du receiver si c'est un aidant
+        // Récupérer l'aidant du receiver si c'est un aidant
         Aidant? receiverAidant = null;
         if (receiverUser != null && receiverUser.Role == "Aidant")
         {
@@ -373,5 +373,6 @@ public class ChatController : Controller
         };
     }
 }
+
 
 

@@ -1,4 +1,4 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -49,7 +49,7 @@ public class Request
     public List<string> Documents { get; set; } = new(); // URLs or file paths
 
     [BsonElement("status")]
-    public string Status { get; set; } = "Open"; // Open, Assigned, InProgress, Completed, Cancelled
+    public string Status { get; set; } = "Open"; // Open, Assigned, InProgress, PendingVerification, Completed, Cancelled
 
     [BsonElement("assignedAidantId")]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -89,5 +89,7 @@ public class Request
     [BsonElement("isAidantOnSite")]
     public bool IsAidantOnSite { get; set; } = false; // Within 50m radius
 }
+
+
 
 

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MediAid.DTOs;
 
@@ -48,4 +48,5 @@ public class DeleteAccountDto
     [Display(Name = "Confirmer la suppression")]
     public bool ConfirmDeletion { get; set; } = false;
 }
+
 

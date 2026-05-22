@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.DTOs;
 using MediAid.Models;
 using MongoDB.Driver;
@@ -184,4 +184,5 @@ public class PatientService : IPatientService
         return patient.BlockedAidantIds.Contains(aidantId);
     }
 }
+
 

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MediAid.DTOs;
 
@@ -76,4 +76,5 @@ public class CreateRequestWizardDto
     public bool RequiresExpertValidation { get; set; } = false;
     public DateTime? RequestedDate { get; set; }
 }
+
 

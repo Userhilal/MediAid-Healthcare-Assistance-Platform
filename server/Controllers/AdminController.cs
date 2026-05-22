@@ -62,7 +62,7 @@ public class AdminController : Controller
         user.UpdatedAt = DateTime.UtcNow;
         await _userService.UpdateUserAsync(user);
 
-        TempData["SuccessMessage"] = "Utilisateur suspendu avec succÃ¨s.";
+        TempData["SuccessMessage"] = "Utilisateur suspendu avec succès.";
         return RedirectToAction("Users");
     }
 
@@ -80,7 +80,7 @@ public class AdminController : Controller
         user.UpdatedAt = DateTime.UtcNow;
         await _userService.UpdateUserAsync(user);
 
-        TempData["SuccessMessage"] = "Utilisateur activÃ© avec succÃ¨s.";
+        TempData["SuccessMessage"] = "Utilisateur activé avec succès.";
         return RedirectToAction("Users");
     }
 
@@ -98,7 +98,7 @@ public class AdminController : Controller
         user.UpdatedAt = DateTime.UtcNow;
         await _userService.UpdateUserAsync(user);
 
-        TempData["SuccessMessage"] = $"RÃ´le modifiÃ© en {role}.";
+        TempData["SuccessMessage"] = $"Rôle modifié en {role}.";
         return RedirectToAction("Users");
     }
 
@@ -111,5 +111,6 @@ public class AdminController : Controller
         return View(logs);
     }
 }
+
 
 

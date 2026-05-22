@@ -25,13 +25,13 @@
     string statusText = aidant?.AvailabilityStatus switch
     {
         "Available" => "Disponible",
-        "Busy" => "OccupÃ©",
+        "Busy" => "Occupé",
         "Unavailable" => "Indisponible",
         _ => "Disponible"
     };
     
     var hour = DateTime.Now.Hour;
-    string greeting = hour < 12 ? "Bonjour" : hour < 18 ? "Bon aprÃ¨s-midi" : "Bonsoir";
+    string greeting = hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
     var currentTime = DateTime.Now.ToString("HH:mm");
     var currentDate = DateTime.Now.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"));
 }
@@ -53,7 +53,7 @@
                 <span class="current-date">@currentDate</span>
                 </div>
             <p class="reassuring-message">
-                <i class="bi bi-heart-fill"></i> Votre tableau de bord bÃ©nÃ©vole
+                <i class="bi bi-heart-fill"></i> Votre tableau de bord bénévole
             </p>
         </div>
     </header>
@@ -102,7 +102,7 @@
                     <i class="bi bi-person-circle"></i>
             </div>
                 <h3 class="action-title">Mon profil</h3>
-                <p class="action-subtitle">GÃ©rer mes informations</p>
+                <p class="action-subtitle">Gérer mes informations</p>
         </a>
     </div>
     </section>
@@ -116,23 +116,23 @@
             <section id="demandes-disponibles" class="active-requests-section">
                 <div class="module-header">
                     <div>
-                        <h2 class="module-title">Demandes prÃ¨s de moi</h2>
+                        <h2 class="module-title">Demandes près de moi</h2>
                         <p class="module-subtitle">Demandes ouvertes, validées et disponibles pour proposition</p>
                     </div>
                     <div class="section-filters">
                         <select id="filterCategory" class="filter-select">
-                            <option value="">Toutes catÃ©gories</option>
-                            <option value="Medication">MÃ©dicaments</option>
+                            <option value="">Toutes catégories</option>
+                            <option value="Medication">Médicaments</option>
                             <option value="Transport">Transport</option>
                             <option value="Shopping">Courses</option>
                             <option value="Companionship">Compagnie</option>
-                            <option value="Medical">Soin mÃ©dical</option>
+                            <option value="Medical">Soin médical</option>
                         </select>
                         <select id="filterUrgency" class="filter-select">
                             <option value="">Toutes urgences</option>
                             <option value="Low">Faible</option>
                             <option value="Normal">Normale</option>
-                            <option value="High">Ã‰levÃ©e</option>
+                            <option value="High">Élevée</option>
                             <option value="Critical">Critique</option>
                         </select>
                     </div>
@@ -187,7 +187,7 @@
                                         <i class="bi bi-hand-thumbs-up"></i> Proposer mon aide
                                     </a>
                                     <a href="@Url.Action("Details", "Request", new { id = request.Id })" class="btn-action btn-edit">
-                                        <i class="bi bi-eye"></i> Voir dÃ©tails
+                                        <i class="bi bi-eye"></i> Voir détails
                                     </a>
                                 </div>
                             </div>
@@ -206,7 +206,7 @@
             <!-- Mes Propositions -->
             <section class="active-requests-section">
                 <div class="module-header">
-                    <h2 class="module-title">Mes propositions envoyÃ©es</h2>
+                    <h2 class="module-title">Mes propositions envoyées</h2>
                     @if (myProposals.Any())
                     {
                         <span class="request-count-badge">@myProposals.Count</span>
@@ -251,7 +251,7 @@
                     {
                         <div class="empty-state">
                             <i class="bi bi-send"></i>
-                            <p>Aucune proposition envoyÃ©e</p>
+                            <p>Aucune proposition envoyée</p>
                         </div>
                     }
                 </div>
@@ -302,7 +302,7 @@
                                         @if (req?.Status == "Assigned")
                                         {
                                         <a href="@Url.Action("MyProposals", "Proposal")" class="btn-action btn-view">
-                                                <i class="bi bi-play-circle"></i> DÃ©marrer
+                                                <i class="bi bi-play-circle"></i> Démarrer
                                             </a>
                                         }
                                         else if (req?.Status == "InProgress")
@@ -341,7 +341,7 @@
                                 </div>
                         <div class="stat-content-mini">
                             <div class="stat-value-mini">@(stats?.CompletedMissions ?? 0)</div>
-                            <div class="stat-label-mini">Missions complÃ©tÃ©es</div>
+                            <div class="stat-label-mini">Missions complétées</div>
                                 </div>
                         </div>
                     
@@ -351,7 +351,7 @@
                 </div>
                         <div class="stat-content-mini">
                             <div class="stat-value-mini">@((stats?.ReputationScore ?? 0.0).ToString("F1"))</div>
-                            <div class="stat-label-mini">Score de fiabilitÃ©</div>
+                            <div class="stat-label-mini">Score de fiabilité</div>
                         </div>
                     </div>
                     
@@ -361,7 +361,7 @@
                     </div>
                         <div class="stat-content-mini">
                             <div class="stat-value-mini">@uniquePatientsHelped</div>
-                            <div class="stat-label-mini">Vies aidÃ©es</div>
+                            <div class="stat-label-mini">Vies aidées</div>
                                         </div>
                                             </div>
                     
@@ -371,16 +371,16 @@
                                         </div>
                         <div class="stat-content-mini">
                             <div class="stat-value-mini">@allReviews.Count</div>
-                            <div class="stat-label-mini">Avis reÃ§us</div>
+                            <div class="stat-label-mini">Avis reçus</div>
                                     </div>
                     </div>
                     </div>
                 </section>
             
-            <!-- Historique RÃ©cent -->
+            <!-- Historique Récent -->
             <section class="active-requests-section">
                 <div class="module-header">
-                    <h2 class="module-title">Historique rÃ©cent</h2>
+                    <h2 class="module-title">Historique récent</h2>
                 </div>
                 
                 <div class="history-list-mini">
@@ -733,4 +733,5 @@
         }
     </style>
 }
+
 

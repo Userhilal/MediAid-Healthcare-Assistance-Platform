@@ -122,14 +122,14 @@ public class RequestService : IRequestService
             
             foreach (var request in requests)
             {
-                // Si la demande n'a pas de localisation, on l'inclut quand mÃªme
+                // Si la demande n'a pas de localisation, on l'inclut quand même
                 if (request.Location?.Coordinates == null || request.Location.Coordinates.Length < 2)
                 {
                     filteredRequests.Add(request);
                     continue;
                 }
 
-                // Sinon, on vÃ©rifie la distance
+                // Sinon, on vérifie la distance
                 var distance = CalculateDistance(latitude.Value, longitude.Value,
                     request.Location.Coordinates[1], request.Location.Coordinates[0]);
                 
@@ -207,7 +207,7 @@ public class RequestService : IRequestService
             return false;
         }
 
-        // Contraintes : on ne peut supprimer que les demandes annulÃ©es ou complÃ©tÃ©es
+        // Contraintes : on ne peut supprimer que les demandes annulées ou complétées
         // Pas les demandes en cours (Open, Assigned, InProgress)
         if (request.Status != "Cancelled" && request.Status != "Completed")
         {
@@ -235,6 +235,7 @@ public class RequestService : IRequestService
         return degrees * Math.PI / 180.0;
     }
 }
+
 
 
 

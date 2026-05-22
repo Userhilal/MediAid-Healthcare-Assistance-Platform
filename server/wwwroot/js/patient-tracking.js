@@ -1,4 +1,4 @@
-// Real-time Aidant Tracking for Patients
+﻿// Real-time Aidant Tracking for Patients
 let trackingMap = null;
 let trackingMarker = null;
 let trackingInterval = null;
@@ -219,6 +219,7 @@ async function verifyMissionWithCode(requestId) {
         alert('Erreur lors de la vérification');
     }
 }
+
 
 
 

@@ -73,7 +73,7 @@
                     <div class="mission-card-header">
                         <h2 class="mission-title">Mission Active</h2>
                         <span class="mission-status-badge status-@(request?.Status?.ToLower() ?? "")">
-                            @(request?.Status == "Assigned" ? "AssignÃ©e" : request?.Status == "InProgress" ? "En cours" : request?.Status ?? "")
+                            @(request?.Status == "Assigned" ? "Assignée" : request?.Status == "InProgress" ? "En cours" : request?.Status ?? "")
                         </span>
                     </div>
                     
@@ -107,7 +107,7 @@
                                 <div class="step-icon">
                                     <i class="bi bi-check-circle"></i>
                                 </div>
-                                <div class="step-label">AssignÃ©e</div>
+                                <div class="step-label">Assignée</div>
                             </div>
                             <div class="timeline-connector @(request?.Status == "InProgress" || request?.Status == "Completed" ? "completed" : "")"></div>
                             <div class="timeline-step @(request?.Status == "InProgress" || request?.Status == "Completed" ? "completed" : "")">
@@ -128,7 +128,7 @@
                                 <div class="step-icon">
                                     <i class="bi bi-check2-all"></i>
                                 </div>
-                                <div class="step-label">TerminÃ©e</div>
+                                <div class="step-label">Terminée</div>
                             </div>
                         </div>
                         
@@ -137,23 +137,23 @@
                             @if (request?.Status == "Assigned")
                             {
                                 <button class="btn-command-primary" onclick="updateStatus('@request?.Id', 'InProgress')">
-                                    <i class="bi bi-play-circle-fill"></i> DÃ©marrer la mission
+                                    <i class="bi bi-play-circle-fill"></i> Démarrer la mission
                                 </button>
                             }
                             else if (request?.Status == "InProgress")
                             {
                                 <button class="btn-command-primary" onclick="completeMissionWithProof('@request?.Id')">
-                                    <i class="bi bi-check-circle-fill"></i> ComplÃ©ter avec preuve
+                                    <i class="bi bi-check-circle-fill"></i> Compléter avec preuve
                                 </button>
                                 <button class="btn-command-secondary gps-checkin-btn" onclick="checkInWithGPS('@request?.Id')">
                                     <i class="bi bi-geo-alt"></i> Check-in GPS
                                 </button>
-                                <button class="btn-command-secondary safety-incident-btn" onclick="reportSafetyIncident('@request?.Id')" title="Signaler un incident de sÃ©curitÃ©">
+                                <button class="btn-command-secondary safety-incident-btn" onclick="reportSafetyIncident('@request?.Id')" title="Signaler un incident de sécurité">
                                     <i class="bi bi-exclamation-triangle"></i> Incident
                                 </button>
                             }
                             <button class="btn-command-secondary" onclick="startRoute('@request?.Id')">
-                                <i class="bi bi-geo-alt-fill"></i> ItinÃ©raire
+                                <i class="bi bi-geo-alt-fill"></i> Itinéraire
                             </button>
                             <a href="@Url.Action("Index", "Chat", new { requestId = request?.Id })" class="btn-command-secondary">
                                 <i class="bi bi-chat-dots"></i> Chat
@@ -170,14 +170,14 @@
                     <div class="feed-filters">
                         <select id="statusFilter" class="filter-select">
                             <option value="all">Tous</option>
-                            <option value="Accepted">AcceptÃ©es</option>
+                            <option value="Accepted">Acceptées</option>
                             <option value="InProgress">En cours</option>
-                            <option value="Completed">TerminÃ©es</option>
+                            <option value="Completed">Terminées</option>
                             <option value="Pending">En attente</option>
                         </select>
                         <select id="categoryFilter" class="filter-select">
-                            <option value="all">Toutes catÃ©gories</option>
-                            <option value="Medication">MÃ©dicaments</option>
+                            <option value="all">Toutes catégories</option>
+                            <option value="Medication">Médicaments</option>
                             <option value="Transport">Transport</option>
                             <option value="Shopping">Courses</option>
                         </select>
@@ -203,10 +203,10 @@
                                 <div class="mission-item-title">
                                     <strong>@(req?.Title ?? "Mission")</strong>
                                     <span class="mission-badge status-@(prop.Status?.ToLower() ?? "")">
-                                        @(prop.Status == "Accepted" ? "AcceptÃ©e" : 
+                                        @(prop.Status == "Accepted" ? "Acceptée" : 
                                           prop.Status == "Pending" ? "En attente" : 
-                                          prop.Status == "Rejected" ? "RefusÃ©e" : 
-                                          prop.Status == "Cancelled" ? "AnnulÃ©e" : prop.Status)
+                                          prop.Status == "Rejected" ? "Refusée" : 
+                                          prop.Status == "Cancelled" ? "Annulée" : prop.Status)
                                     </span>
                                 </div>
                                 <div class="mission-item-meta">
@@ -227,11 +227,11 @@
                                         <i class="bi bi-chat"></i> Chat
                                     </a>
                                     <button class="btn-mission-action" onclick="startRoute('@req?.Id')">
-                                        <i class="bi bi-navigation"></i> ItinÃ©raire
+                                        <i class="bi bi-navigation"></i> Itinéraire
                                     </button>
                                 }
                                 <a href="@Url.Action("Details", "Request", new { id = req?.Id })" class="btn-mission-action">
-                                    <i class="bi bi-eye"></i> DÃ©tails
+                                    <i class="bi bi-eye"></i> Détails
                                 </a>
                             </div>
                         </div>
@@ -246,16 +246,16 @@
             <div class="analytics-card">
                 <h3 class="analytics-title">Performance</h3>
                 <div class="performance-metric">
-                    <div class="metric-label">Heures cumulÃ©es</div>
+                    <div class="metric-label">Heures cumulées</div>
                     <div class="metric-value">@((ViewBag.RealTotalHours as double? ?? aidant?.TotalHours ?? 0.0).ToString("F1"))h</div>
                     <canvas class="sparkline-chart" id="hoursChart" width="200" height="40"></canvas>
                 </div>
                 <div class="performance-metric">
-                    <div class="metric-label">Score de rÃ©putation</div>
+                    <div class="metric-label">Score de réputation</div>
                     <div class="metric-value">@((ViewBag.RealReputationScore as double? ?? aidant?.ReputationScore ?? 0.0).ToString("F1"))/5.0</div>
                 </div>
                 <div class="performance-metric">
-                    <div class="metric-label">Vies touchÃ©es</div>
+                    <div class="metric-label">Vies touchées</div>
                     <div class="metric-value">@(ViewBag.UniquePatientsCount as int? ?? 0)</div>
                 </div>
             </div>
@@ -266,7 +266,7 @@
                 <div class="stats-grid-mini">
                     <div class="stat-mini">
                         <div class="stat-mini-value">@(stats?.AcceptedCount ?? 0)</div>
-                        <div class="stat-mini-label">AcceptÃ©es</div>
+                        <div class="stat-mini-label">Acceptées</div>
                     </div>
                     <div class="stat-mini">
                         <div class="stat-mini-value">@(stats?.InProgressCount ?? 0)</div>
@@ -274,7 +274,7 @@
                     </div>
                     <div class="stat-mini">
                         <div class="stat-mini-value">@(stats?.CompletedCount ?? 0)</div>
-                        <div class="stat-mini-label">TerminÃ©es</div>
+                        <div class="stat-mini-label">Terminées</div>
                     </div>
                 </div>
             </div>
@@ -289,7 +289,7 @@
             <div class="analytics-card">
                 <h3 class="analytics-title">Rapports & Certifications</h3>
                 <button class="btn-report" onclick="generateReport()">
-                    <i class="bi bi-file-earmark-pdf"></i> GÃ©nÃ©rer rapport mensuel
+                    <i class="bi bi-file-earmark-pdf"></i> Générer rapport mensuel
                 </button>
                 <div class="certifications-list">
                     @{
@@ -349,7 +349,7 @@
     
     // Update Request Status
     function updateStatus(requestId, newStatus) {
-        if (!confirm('ÃŠtes-vous sÃ»r de vouloir changer le statut de cette mission ?')) {
+        if (!confirm('Êtes-vous sûr de vouloir changer le statut de cette mission ?')) {
             return;
         }
 
@@ -369,14 +369,14 @@
         .then(data => {
             if (data.success) {
                 alert(data.message);
-                location.reload(); // Recharger la page pour mettre Ã  jour l'affichage
+                location.reload(); // Recharger la page pour mettre à jour l'affichage
             } else {
                 alert('Erreur: ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Une erreur est survenue lors de la mise Ã  jour du statut');
+            alert('Une erreur est survenue lors de la mise à jour du statut');
         });
     }
 
@@ -968,4 +968,5 @@
         }
     }
 </style>
+
 

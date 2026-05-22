@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 
 namespace MediAid.Services;
 
@@ -11,5 +11,6 @@ public interface IUserService
     Task<Aidant?> GetAidantByUserIdAsync(string userId);
     Task<Expert?> GetExpertByUserIdAsync(string userId);
 }
+
 
 

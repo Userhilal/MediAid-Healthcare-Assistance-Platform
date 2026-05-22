@@ -1,4 +1,4 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -55,6 +55,7 @@ public class PlanningTimeSlot
     [BsonElement("recurringPattern")]
     public string? RecurringPattern { get; set; } // Daily, Weekly, Monthly
 }
+
 
 
 

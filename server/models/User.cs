@@ -1,4 +1,4 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -61,5 +61,6 @@ public class User
     [BsonElement("lastLoginAt")]
     public DateTime? LastLoginAt { get; set; }
 }
+
 
 

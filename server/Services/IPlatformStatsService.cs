@@ -6,3 +6,4 @@ public interface IPlatformStatsService
 {
     Task<PlatformStats> GetStatsAsync();
 }
+

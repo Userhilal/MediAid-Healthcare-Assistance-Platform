@@ -1,4 +1,4 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -59,5 +59,6 @@ public class Message
     [BsonElement("deleteAfter")]
     public DateTime? DeleteAfter { get; set; } // When to delete ephemeral content
 }
+
 
 

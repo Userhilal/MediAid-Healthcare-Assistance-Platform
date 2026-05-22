@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MediAid.DTOs;
 
@@ -19,4 +19,5 @@ public class CreateReviewDto
     [Required]
     public string AidantId { get; set; } = string.Empty;
 }
+
 

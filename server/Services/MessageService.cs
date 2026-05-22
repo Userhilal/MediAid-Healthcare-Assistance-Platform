@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MongoDB.Driver;
 
@@ -122,3 +122,4 @@ public class MessageService : IMessageService
         return (int)result.ModifiedCount;
     }
 }
+

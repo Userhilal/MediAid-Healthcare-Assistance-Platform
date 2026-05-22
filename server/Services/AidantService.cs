@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MongoDB.Driver;
 
@@ -53,5 +53,6 @@ public class AidantService : IAidantService
         return await _context.Aidants.Find(filter).ToListAsync();
     }
 }
+
 
 

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MediAid.DTOs;
 
@@ -45,5 +45,6 @@ public class AuthResponseDto
     public string Role { get; set; } = string.Empty;
     public DateTime ExpiresAt { get; set; }
 }
+
 
 
