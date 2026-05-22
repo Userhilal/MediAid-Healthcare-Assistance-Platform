@@ -1,4 +1,4 @@
-@model MediAid.Services.PatientDashboardStats
+﻿@model MediAid.Services.PatientDashboardStats
 @{
     ViewData["Title"] = "Tableau de bord Patient";
     var user = ViewBag.User as MediAid.Models.User;
@@ -27,7 +27,7 @@
     }
     else if (activeRequests.Any(r => r.Status == "Assigned"))
     {
-        globalStatusText = "Aide planifiée";
+        globalStatusText = "Aide planifiÃ©e";
         globalStatusClass = "status-planned";
         globalStatusIcon = "bi-calendar-check";
     }
@@ -40,7 +40,7 @@
     
     // Get current time for greeting
     var hour = DateTime.Now.Hour;
-    string greeting = hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
+    string greeting = hour < 12 ? "Bonjour" : hour < 18 ? "Bon aprÃ¨s-midi" : "Bonsoir";
     var currentTime = DateTime.Now.ToString("HH:mm");
     var currentDate = DateTime.Now.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"));
     
@@ -71,7 +71,7 @@
 
 <div class="patient-dashboard" id="patientDashboard" data-accessibility-mode="@(patient?.AnonymousMode == true ? "enabled" : "disabled")">
     
-    <!-- 1️⃣ HEADER PRINCIPAL — ÉTAT DU PATIENT (CRUCIAL) -->
+    <!-- 1ï¸âƒ£ HEADER PRINCIPAL â€” Ã‰TAT DU PATIENT (CRUCIAL) -->
     <header class="dashboard-header-main">
         <div class="header-greeting-section">
             <h1 class="greeting-message">
@@ -82,11 +82,11 @@
                 <span class="current-date">@currentDate</span>
     </div>
             <p class="reassuring-message">
-                <i class="bi bi-heart-fill"></i> Nous sommes là pour vous accompagner.
+                <i class="bi bi-heart-fill"></i> Nous sommes lÃ  pour vous accompagner.
             </p>
 </div>
 
-        @if (globalStatusText != "Aide planifiée")
+        @if (globalStatusText != "Aide planifiÃ©e")
         {
             <div class="header-status-section">
                 <div class="global-status-badge @globalStatusClass">
@@ -98,7 +98,7 @@
         }
     </header>
 
-    <!-- 2️⃣ BOUTONS D'ACTIONS ESSENTIELLES (TRÈS VISIBLES) -->
+    <!-- 2ï¸âƒ£ BOUTONS D'ACTIONS ESSENTIELLES (TRÃˆS VISIBLES) -->
     <section class="essential-actions-section" id="essentialActions">
         <div class="action-cards-grid">
             <a href="@Url.Action("CreateWizard", "Request")" class="action-card action-primary" data-action="request-help">
@@ -106,7 +106,7 @@
                     <i class="bi bi-plus-circle-fill"></i>
             </div>
                 <h3 class="action-title">Demander de l'aide</h3>
-                <p class="action-subtitle">Créez une nouvelle demande</p>
+                <p class="action-subtitle">CrÃ©ez une nouvelle demande</p>
             </a>
             
             <a href="@Url.Action("Index", "Request")" class="action-card action-secondary" data-action="my-requests">
@@ -142,7 +142,7 @@
                     <i class="bi bi-person-circle"></i>
                 </div>
                 <h3 class="action-title">Mon profil</h3>
-                <p class="action-subtitle">Gérer mes informations</p>
+                <p class="action-subtitle">GÃ©rer mes informations</p>
             </a>
         </div>
     </section>
@@ -152,16 +152,16 @@
         <!-- Left Column -->
         <div class="dashboard-left-column">
             
-            <!-- 3️⃣ MODULE "DEMANDER DE L'AIDE" (INTELLIGENT SANS IA) -->
+            <!-- 3ï¸âƒ£ MODULE "DEMANDER DE L'AIDE" (INTELLIGENT SANS IA) -->
             <section class="request-help-module" id="requestHelp">
                 <div class="module-header">
                     <h2 class="module-title">De quoi avez-vous besoin ?</h2>
                     <p class="module-subtitle">Choisissez rapidement votre type d'aide</p>
     </div>
                 <div class="quick-choice-grid">
-                    <a href="@Url.Action("CreateWizard", "Request")?category=Médicaments" class="quick-choice-card" data-category="medication">
+                    <a href="@Url.Action("CreateWizard", "Request")?category=MÃ©dicaments" class="quick-choice-card" data-category="medication">
                         <div class="choice-icon"><i class="bi bi-capsule-pill"></i></div>
-                        <span class="choice-label">Médicaments</span>
+                        <span class="choice-label">MÃ©dicaments</span>
                     </a>
                     <a href="@Url.Action("CreateWizard", "Request")?category=Transport" class="quick-choice-card" data-category="transport">
                         <div class="choice-icon"><i class="bi bi-car-front"></i></div>
@@ -171,9 +171,9 @@
                         <div class="choice-icon"><i class="bi bi-person-heart"></i></div>
                         <span class="choice-label">Accompagnement</span>
                     </a>
-                    <a href="@Url.Action("CreateWizard", "Request")?category=Aide à domicile" class="quick-choice-card" data-category="home-care">
+                    <a href="@Url.Action("CreateWizard", "Request")?category=Aide Ã  domicile" class="quick-choice-card" data-category="home-care">
                         <div class="choice-icon"><i class="bi bi-house-heart"></i></div>
-                        <span class="choice-label">Aide à domicile</span>
+                        <span class="choice-label">Aide Ã  domicile</span>
                     </a>
                     <a href="@Url.Action("CreateWizard", "Request")?category=Post-hospitalisation" class="quick-choice-card" data-category="post-hospital">
                         <div class="choice-icon"><i class="bi bi-hospital"></i></div>
@@ -182,7 +182,7 @@
                 </div>
             </section>
 
-            <!-- 4️⃣ DEMANDES ACTIVES — VUE TRÈS CLAIRE -->
+            <!-- 4ï¸âƒ£ DEMANDES ACTIVES â€” VUE TRÃˆS CLAIRE -->
             <section class="active-requests-section" id="myRequests">
                 <div class="module-header">
                     <h2 class="module-title">Mes demandes en cours</h2>
@@ -225,11 +225,11 @@
                                     <div class="timeline-steps">
                                         <div class="timeline-step @(statusProgress >= 25 ? "completed" : "")">
                                             <i class="bi bi-@(statusProgress >= 25 ? "check-circle-fill" : "circle")"></i>
-                                            <span>Créée</span>
+                                            <span>CrÃ©Ã©e</span>
                             </div>
                                         <div class="timeline-step @(statusProgress >= 50 ? "completed" : "")">
                                             <i class="bi bi-@(statusProgress >= 50 ? "check-circle-fill" : "circle")"></i>
-                                            <span>Acceptée</span>
+                                            <span>AcceptÃ©e</span>
                                         </div>
                                         <div class="timeline-step @(statusProgress >= 75 ? "completed" : "")">
                                             <i class="bi bi-@(statusProgress >= 75 ? "check-circle-fill" : "circle")"></i>
@@ -237,7 +237,7 @@
                                         </div>
                                         <div class="timeline-step @(statusProgress >= 100 ? "completed" : "")">
                                             <i class="bi bi-@(statusProgress >= 100 ? "check-circle-fill" : "circle")"></i>
-                                            <span>Terminée</span>
+                                            <span>TerminÃ©e</span>
                                         </div>
                             </div>
                         </div>
@@ -246,13 +246,13 @@
                                 {
                                     <div class="request-scheduled-date">
                                         <i class="bi bi-calendar"></i>
-                                        <span>Date souhaitée : @request.RequestedDate.Value.ToString("dd/MM/yyyy à HH:mm")</span>
+                                        <span>Date souhaitÃ©e : @request.RequestedDate.Value.ToString("dd/MM/yyyy Ã  HH:mm")</span>
                                     </div>
                                 }
                                 
                                 <div class="request-card-actions">
                                     <a href="@Url.Action("Details", "Request", new { id = request.Id })" class="btn-action btn-view">
-                                        <i class="bi bi-eye-fill"></i> Voir détails
+                                        <i class="bi bi-eye-fill"></i> Voir dÃ©tails
                                     </a>
                                     @if (request.Status == "Open")
                                     {
@@ -282,12 +282,12 @@
                     <div class="empty-state">
                         <i class="bi bi-inbox"></i>
                         <p>Aucune demande active pour le moment</p>
-                        <a href="@Url.Action("CreateWizard", "Request")" class="btn-create-request">Créer une demande</a>
+                        <a href="@Url.Action("CreateWizard", "Request")" class="btn-create-request">CrÃ©er une demande</a>
                     </div>
                 }
             </section>
 
-            <!-- 5️⃣ SECTION "QUI VA M'AIDER ?" (CONFIANCE) -->
+            <!-- 5ï¸âƒ£ SECTION "QUI VA M'AIDER ?" (CONFIANCE) -->
                         @if (assignedAidant != null && assignedAidantUser != null)
                         {
                 <section class="aidant-info-section" id="whoWillHelp">
@@ -296,7 +296,7 @@
                         @if (assignedAidant.IsVerified == true)
                         {
                             <span class="verified-badge-header">
-                                <i class="bi bi-shield-check-fill"></i> Vérifié
+                                <i class="bi bi-shield-check-fill"></i> VÃ©rifiÃ©
                             </span>
                         }
                     </div>
@@ -326,7 +326,7 @@
                                     </div>
                             <div class="aidant-missions-count">
                                         <i class="bi bi-trophy-fill"></i>
-                                <span>@assignedAidant.CompletedMissions mission(s) réalisée(s)</span>
+                                <span>@assignedAidant.CompletedMissions mission(s) rÃ©alisÃ©e(s)</span>
                                     </div>
                             @if (!string.IsNullOrEmpty(assignedAidant.Bio))
                             {
@@ -334,7 +334,7 @@
                             }
                             else
                             {
-                                <p class="aidant-bio">Aidant expérimenté et dévoué à votre service.</p>
+                                <p class="aidant-bio">Aidant expÃ©rimentÃ© et dÃ©vouÃ© Ã  votre service.</p>
                             }
                             
                             @{
@@ -343,7 +343,7 @@
                                 {
                                     <div class="aidant-reviews-preview">
                                         <h4 class="reviews-preview-title">
-                                            <i class="bi bi-chat-left-text"></i> Commentaires récents
+                                            <i class="bi bi-chat-left-text"></i> Commentaires rÃ©cents
                                         </h4>
                                         <div class="reviews-preview-list">
                                             @foreach (var review in aidantRecentReviews)
@@ -369,14 +369,14 @@
                             
                             <div class="aidant-actions">
                                 <a href="@Url.Action("ByAidant", "Review", new { aidantId = assignedAidant.Id })" class="btn-view-reviews">
-                                    <i class="bi bi-star"></i> Voir toutes les évaluations
+                                    <i class="bi bi-star"></i> Voir toutes les Ã©valuations
                                 </a>
                                 @{
                                     var completedRequestForReview = ViewBag.CompletedRequestForReview as MediAid.Models.Request;
                                     if (completedRequestForReview != null)
                                     {
                                         <a href="@Url.Action("Create", "Review", new { requestId = completedRequestForReview.Id })" class="btn-evaluate">
-                                            <i class="bi bi-star-fill"></i> Évaluer cette mission
+                                            <i class="bi bi-star-fill"></i> Ã‰valuer cette mission
                                         </a>
                                     }
                                 }
@@ -389,12 +389,12 @@
                             {
                                 <div class="aidant-tracking-actions">
                                     <button class="btn-tracking" onclick="initAidantTracking('@activeRequestWithAidant.Id')">
-                                        <i class="bi bi-geo-alt-fill"></i> Suivre en temps réel
+                                        <i class="bi bi-geo-alt-fill"></i> Suivre en temps rÃ©el
                                     </button>
                                     @if (activeRequestWithAidant.VerificationCode != null)
                                     {
                                         <button class="btn-verify" onclick="verifyMissionWithCode('@activeRequestWithAidant.Id')">
-                                            <i class="bi bi-shield-check"></i> Vérifier la mission
+                                            <i class="bi bi-shield-check"></i> VÃ©rifier la mission
                                         </button>
                                     }
                                 </div>
@@ -432,7 +432,7 @@
                 </section>
             }
 
-            <!-- 7️⃣ PLANNING & RAPPELS (TRÈS UTILE) -->
+            <!-- 7ï¸âƒ£ PLANNING & RAPPELS (TRÃˆS UTILE) -->
             <section class="planning-section" id="planning">
                 <div class="module-header">
                     <h2 class="module-title">Mon planning</h2>
@@ -485,7 +485,7 @@
                         else
                         {
                             <div class="empty-state-small">
-                                <p>Aucune aide planifiée aujourd'hui</p>
+                                <p>Aucune aide planifiÃ©e aujourd'hui</p>
                 </div>
             }
                     </div>
@@ -512,7 +512,7 @@
                         else
                         {
                             <div class="empty-state-small">
-                                <p>Aucune aide planifiée demain</p>
+                                <p>Aucune aide planifiÃ©e demain</p>
                         </div>
             }
                             </div>
@@ -539,7 +539,7 @@
                         else
                         {
                             <div class="empty-state-small">
-                                <p>Aucune aide planifiée cette semaine</p>
+                                <p>Aucune aide planifiÃ©e cette semaine</p>
                             </div>
                         }
                         </div>
@@ -551,7 +551,7 @@
         <!-- Right Column -->
         <div class="dashboard-right-column">
             
-            <!-- 🔟 ÉVALUATION SIMPLE & BIENVEILLANTE -->
+            <!-- ðŸ”Ÿ Ã‰VALUATION SIMPLE & BIENVEILLANTE -->
             @if (pendingFeedbackRequests.Any())
             {
                 <section class="evaluation-section" id="evaluation">
@@ -562,7 +562,7 @@
                         @foreach (var req in pendingFeedbackRequests.Take(2))
                         {
                             <div class="evaluation-card">
-                                <p class="evaluation-question">Comment s'est passée l'aide pour :</p>
+                                <p class="evaluation-question">Comment s'est passÃ©e l'aide pour :</p>
                                 <h4 class="evaluation-request-title">@req.Title</h4>
                                 <div class="rating-stars-input" data-request-id="@req.Id">
                                     @for (int i = 1; i <= 5; i++)
@@ -584,7 +584,7 @@
                 </section>
             }
 
-            <!-- 1️⃣1️⃣ NOTES PERSONNELLES (TRÈS HUMAIN) -->
+            <!-- 1ï¸âƒ£1ï¸âƒ£ NOTES PERSONNELLES (TRÃˆS HUMAIN) -->
             <section class="personal-notes-section" id="personalNotes">
                 <div class="module-header">
                     <h2 class="module-title">Mon carnet</h2>
@@ -595,7 +595,7 @@
                 <div class="notes-list" id="notesList">
                     <div class="note-item">
                         <div class="note-content">
-                            <p>Votre carnet personnel pour vos notes privées</p>
+                            <p>Votre carnet personnel pour vos notes privÃ©es</p>
                     </div>
                         <div class="note-actions">
                             <button class="btn-note-edit" onclick="editNote('')">
@@ -605,7 +605,7 @@
             </div>
                 </div>
                 <div class="notes-editor" id="notesEditor" style="display: none;">
-                    <textarea class="notes-textarea" id="notesTextarea" placeholder="Écrivez vos notes ici..."></textarea>
+                    <textarea class="notes-textarea" id="notesTextarea" placeholder="Ã‰crivez vos notes ici..."></textarea>
                     <div class="notes-editor-actions">
                         <button class="btn-save-note" onclick="saveNote()">Enregistrer</button>
                         <button class="btn-cancel-note" onclick="cancelNote()">Annuler</button>
@@ -613,7 +613,7 @@
                 </div>
             </section>
 
-            <!-- 1️⃣2️⃣ CONTACTS DE CONFIANCE -->
+            <!-- 1ï¸âƒ£2ï¸âƒ£ CONTACTS DE CONFIANCE -->
             <section class="trusted-contacts-section" id="trustedContacts">
                 <div class="module-header">
                     <h2 class="module-title">Contacts de confiance</h2>
@@ -658,7 +658,7 @@
                 }
             </section>
 
-            <!-- 1️⃣4️⃣ AIDE & GUIDES SIMPLIFIÉS -->
+            <!-- 1ï¸âƒ£4ï¸âƒ£ AIDE & GUIDES SIMPLIFIÃ‰S -->
             <section class="help-guides-section" id="helpGuides">
                 <div class="module-header">
                     <h2 class="module-title">Aide rapide</h2>
@@ -670,7 +670,7 @@
                     </a>
                     <a href="#helpNoResponse" class="help-link" onclick="showHelpModal('noResponse')">
                         <i class="bi bi-question-circle-fill"></i>
-                        <span>Que faire si personne ne répond</span>
+                        <span>Que faire si personne ne rÃ©pond</span>
                     </a>
                     <a href="#helpCancel" class="help-link" onclick="showHelpModal('cancel')">
                         <i class="bi bi-question-circle-fill"></i>
@@ -678,15 +678,15 @@
                     </a>
                     <a href="#helpSafety" class="help-link" onclick="showHelpModal('safety')">
                         <i class="bi bi-shield-check"></i>
-                        <span>Sécurité & respect</span>
+                        <span>SÃ©curitÃ© & respect</span>
                     </a>
 </div>
             </section>
 
-            <!-- 1️⃣5️⃣ ACCESSIBILITÉ (POINT FORT) -->
+            <!-- 1ï¸âƒ£5ï¸âƒ£ ACCESSIBILITÃ‰ (POINT FORT) -->
             <section class="accessibility-section" id="accessibility">
                 <div class="module-header">
-                    <h2 class="module-title">Accessibilité</h2>
+                    <h2 class="module-title">AccessibilitÃ©</h2>
                         </div>
                 <div class="accessibility-controls">
                     <div class="accessibility-item">
@@ -704,7 +704,7 @@
                     <div class="accessibility-item">
                         <label class="accessibility-label">
                             <i class="bi bi-contrast"></i>
-                            <span>Contraste élevé</span>
+                            <span>Contraste Ã©levÃ©</span>
                         </label>
                         <label class="toggle-switch">
                             <input type="checkbox" id="highContrast">
@@ -741,3 +741,5 @@
 @section Scripts {
 <script src="~/js/patient-dashboard.js" asp-append-version="true"></script>
 }
+
+

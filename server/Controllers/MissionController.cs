@@ -44,6 +44,11 @@ public class MissionController : Controller
         request.VerificationCode = code;
         await _requestService.UpdateRequestAsync(request);
 
+        if (!string.IsNullOrWhiteSpace(request.AssignedAidantId))
+        {
+            await RefreshAidantMissionStatsAsync(request.AssignedAidantId);
+        }
+
         return Json(new { success = true, code = code });
     }
 
@@ -114,6 +119,11 @@ public class MissionController : Controller
             request.UpdatedAt = DateTime.UtcNow;
             await _requestService.UpdateRequestAsync(request);
 
+        if (!string.IsNullOrWhiteSpace(request.AssignedAidantId))
+        {
+            await RefreshAidantMissionStatsAsync(request.AssignedAidantId);
+        }
+
             await _notificationService.CreateNotificationAsync(
                 request.PatientId,
                 "RequestCompleted",
@@ -170,6 +180,11 @@ public class MissionController : Controller
         request.LastCheckInAt = DateTime.UtcNow;
         request.IsAidantOnSite = isWithinRadius;
         await _requestService.UpdateRequestAsync(request);
+
+        if (!string.IsNullOrWhiteSpace(request.AssignedAidantId))
+        {
+            await RefreshAidantMissionStatsAsync(request.AssignedAidantId);
+        }
 
         // Create check-in record
         var checkIn = new MissionCheckIn
@@ -279,6 +294,11 @@ public class MissionController : Controller
         request.CompletedAt = DateTime.UtcNow;
         await _requestService.UpdateRequestAsync(request);
 
+        if (!string.IsNullOrWhiteSpace(request.AssignedAidantId))
+        {
+            await RefreshAidantMissionStatsAsync(request.AssignedAidantId);
+        }
+
         // Delete ephemeral messages (images that auto-delete after mission completion)
         await DeleteEphemeralMessagesAsync(requestId);
 
@@ -334,6 +354,62 @@ public class MissionController : Controller
         });
     }
 
+    private async Task RefreshAidantMissionStatsAsync(string aidantId)
+    {
+        if (string.IsNullOrWhiteSpace(aidantId))
+        {
+            return;
+        }
+
+        var aidant = await _context.Aidants.Find(a => a.Id == aidantId).FirstOrDefaultAsync();
+
+        if (aidant == null)
+        {
+            return;
+        }
+
+        var activeStatuses = new[] { "Assigned", "InProgress" };
+
+        var activeCount = await _context.Requests.CountDocumentsAsync(r =>
+            r.AssignedAidantId == aidantId && activeStatuses.Contains(r.Status));
+
+        var completedRequests = await _context.Requests
+            .Find(r => r.AssignedAidantId == aidantId && r.Status == "Completed")
+            .ToListAsync();
+
+        aidant.CompletedMissions = completedRequests.Count;
+        aidant.TotalMissions = completedRequests.Count + (int)activeCount;
+
+        var totalHours = 0.0;
+
+        foreach (var request in completedRequests)
+        {
+            if (request.RequestedDate.HasValue)
+            {
+                var endDate = request.CompletedAt ?? request.UpdatedAt;
+                var duration = endDate - request.RequestedDate.Value;
+
+                if (duration.TotalHours > 0 && duration.TotalHours < 24)
+                {
+                    totalHours += duration.TotalHours;
+                }
+                else
+                {
+                    totalHours += 1;
+                }
+            }
+            else
+            {
+                totalHours += 1;
+            }
+        }
+
+        aidant.TotalHours = Math.Round(totalHours, 1);
+        aidant.AvailabilityStatus = activeCount > 0 ? "Busy" : "Available";
+        aidant.UpdatedAt = DateTime.UtcNow;
+
+        await _context.Aidants.ReplaceOneAsync(a => a.Id == aidant.Id, aidant);
+    }
     private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
     {
         const double R = 6371; // Earth radius in kilometers
@@ -351,6 +427,8 @@ public class MissionController : Controller
         return degrees * (Math.PI / 180);
     }
 }
+
+
 
 
 

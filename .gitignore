@@ -1,0 +1,32 @@
+﻿# .NET
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# Environment / secrets
+.env
+.env.local
+appsettings.Production.json
+
+# Logs
+*.log
+logs/
+
+# Runtime uploads
+server/wwwroot/uploads/*
+!server/wwwroot/uploads/.gitkeep
+!server/wwwroot/uploads/chat/.gitkeep
+!server/wwwroot/uploads/proofs/.gitkeep
+
+# Local backups
+server/Views/Shared/_Layout.backup.cshtml
+
+# OS
+.DS_Store
+Thumbs.db

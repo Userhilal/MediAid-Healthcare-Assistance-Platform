@@ -1,4 +1,4 @@
-using MediAid.Data;
+﻿using MediAid.Data;
 using MediAid.Models;
 using MongoDB.Driver;
 
@@ -20,7 +20,8 @@ public class UserService : IUserService
 
     public async Task<User?> GetUserByEmailAsync(string email)
     {
-        return await _context.Users.Find(u => u.Email == email).FirstOrDefaultAsync();
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+        return await _context.Users.Find(u => u.Email == normalizedEmail).FirstOrDefaultAsync();
     }
 
     public async Task<bool> UpdateUserAsync(User user)
@@ -45,5 +46,6 @@ public class UserService : IUserService
         return await _context.Experts.Find(e => e.UserId == userId).FirstOrDefaultAsync();
     }
 }
+
 
 

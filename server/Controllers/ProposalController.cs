@@ -462,72 +462,70 @@ public class ProposalController : Controller
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
         var aidant = await _aidantService.GetAidantByUserIdAsync(userId);
-        if (aidant == null)
+
+        if (aidant == null || string.IsNullOrWhiteSpace(aidant.Id))
         {
-            return Json(new { success = false, message = "Aidant non trouvÃ©" });
+            return Json(new { success = false, message = "Aidant non trouvé." });
         }
 
         var request = await _requestService.GetRequestByIdAsync(requestId);
+
         if (request == null)
         {
-            return Json(new { success = false, message = "Demande non trouvÃ©e" });
+            return Json(new { success = false, message = "Demande non trouvée." });
         }
 
-        // VÃ©rifier que l'aidant est bien assignÃ© Ã  cette demande
         if (request.AssignedAidantId != aidant.Id)
         {
-            return Json(new { success = false, message = "Vous n'Ãªtes pas assignÃ© Ã  cette demande" });
+            return Json(new { success = false, message = "Vous n'êtes pas assigné à cette demande." });
         }
-
-        // Valider la transition de statut
-        var validTransitions = new Dictionary<string, List<string>>
-        {
-            { "Assigned", new List<string> { "InProgress" } },
-            { "InProgress", new List<string> { "Completed" } }
-        };
-
-        if (!validTransitions.ContainsKey(request.Status) || 
-            !validTransitions[request.Status].Contains(newStatus))
-        {
-            return Json(new { success = false, message = "Transition de statut invalide" });
-        }
-
-        // Mettre Ã  jour le statut
-        request.Status = newStatus;
-        request.UpdatedAt = DateTime.UtcNow;
 
         if (newStatus == "Completed")
         {
-            request.CompletedAt = DateTime.UtcNow;
+            return Json(new
+            {
+                success = false,
+                message = "La mission ne peut pas être terminée directement. Ajoutez une preuve ou demandez une vérification patient."
+            });
         }
+
+        if (request.Status != "Assigned" || newStatus != "InProgress")
+        {
+            return Json(new { success = false, message = "Transition de statut invalide." });
+        }
+
+        request.Status = "InProgress";
+        request.UpdatedAt = DateTime.UtcNow;
 
         var result = await _requestService.UpdateRequestAsync(request);
 
-        if (result)
+        if (!result)
         {
-            // CrÃ©er une notification pour le patient
-            var notificationService = HttpContext.RequestServices.GetRequiredService<INotificationService>();
-            var statusMessages = new Dictionary<string, string>
-            {
-                { "InProgress", "L'aidant a commencÃ© la mission" },
-                { "Completed", "La mission a Ã©tÃ© complÃ©tÃ©e" }
-            };
-
-            if (statusMessages.ContainsKey(newStatus))
-            {
-                await notificationService.CreateNotificationAsync(
-                    request.PatientId,
-                    "RequestStatusUpdated",
-                    $"Votre demande '{request.Title}' : {statusMessages[newStatus]}",
-                    statusMessages[newStatus],
-                    request.Id
-                );
-            }
-
-            return Json(new { success = true, message = "Statut mis Ã  jour avec succÃ¨s" });
+            return Json(new { success = false, message = "Erreur lors de la mise à jour." });
         }
 
-        return Json(new { success = false, message = "Erreur lors de la mise Ã  jour" });
+        var context = HttpContext.RequestServices.GetRequiredService<MongoDbContext>();
+        var aidantToUpdate = await context.Aidants.Find(a => a.Id == aidant.Id).FirstOrDefaultAsync();
+
+        if (aidantToUpdate != null)
+        {
+            aidantToUpdate.AvailabilityStatus = "Busy";
+            aidantToUpdate.UpdatedAt = DateTime.UtcNow;
+            await context.Aidants.ReplaceOneAsync(a => a.Id == aidantToUpdate.Id, aidantToUpdate);
+        }
+
+        var notificationService = HttpContext.RequestServices.GetRequiredService<INotificationService>();
+
+        await notificationService.CreateNotificationAsync(
+            request.PatientId,
+            "MissionStarted",
+            "Mission démarrée",
+            $"L'aidant a commencé la mission « {request.Title} ».",
+            request.Id,
+            "Request"
+        );
+
+        return Json(new { success = true, message = "Mission démarrée avec succès." });
     }
 
     private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
@@ -547,6 +545,7 @@ public class ProposalController : Controller
         return degrees * Math.PI / 180.0;
     }
 }
+
 
 
 

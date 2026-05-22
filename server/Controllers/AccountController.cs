@@ -1,4 +1,5 @@
-using MediAid.DTOs;
+﻿using MediAid.DTOs;
+using MediAid.Models;
 using MediAid.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -20,43 +21,47 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    public IActionResult Login()
+    public IActionResult Login(string? returnUrl = null)
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        ViewBag.ReturnUrl = returnUrl;
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginDto dto)
+    public async Task<IActionResult> Login(LoginDto dto, string? returnUrl = null)
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+
         if (!ModelState.IsValid)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View(dto);
         }
 
         var user = await _authService.LoginAsync(dto.Email, dto.Password);
+
         if (user == null)
         {
-            ModelState.AddModelError("", "Email ou mot de passe incorrect.");
+            ModelState.AddModelError("", "Email ou mot de passe incorrect, ou compte désactivé.");
+            ViewBag.ReturnUrl = returnUrl;
             return View(dto);
         }
 
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id!),
-            new Claim(ClaimTypes.Name, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
+        await SignInUserAsync(user);
 
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var authProperties = new AuthenticationProperties
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
         {
-            IsPersistent = true,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
-        };
-
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(claimsIdentity), authProperties);
+            return Redirect(returnUrl);
+        }
 
         return RedirectToAction("Index", "Dashboard");
     }
@@ -64,6 +69,11 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult Register()
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+
         return View();
     }
 
@@ -71,24 +81,44 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterDto dto)
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+
         if (!ModelState.IsValid)
         {
             return View(dto);
         }
 
-        var success = await _authService.RegisterAsync(dto.Email, dto.Password, dto.FirstName ?? "", dto.LastName ?? "", dto.PhoneNumber, dto.Role);
-        if (!success)
+        if (dto.Role != "Patient" && dto.Role != "Aidant")
         {
-            ModelState.AddModelError("", "Erreur lors de l'inscription. L'email existe peut-être déjà.");
+            ModelState.AddModelError("", "Le rôle sélectionné n'est pas autorisé à l'inscription publique.");
             return View(dto);
         }
 
-        TempData["SuccessMessage"] = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
-        return RedirectToAction("Login");
+        var success = await _authService.RegisterAsync(
+            dto.Email,
+            dto.Password,
+            dto.FirstName ?? "",
+            dto.LastName ?? "",
+            dto.PhoneNumber,
+            dto.Role
+        );
+
+        if (!success)
+        {
+            ModelState.AddModelError("", "Inscription impossible. Vérifiez vos informations ou utilisez un autre email.");
+            return View(dto);
+        }
+
+        TempData["SuccessMessage"] = "Inscription réussie. Vous pouvez maintenant vous connecter.";
+        return RedirectToAction(nameof(Login));
     }
 
     [Authorize]
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -112,23 +142,21 @@ public class AccountController : Controller
             return View(dto);
         }
 
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-        var user = await _userService.GetUserByIdAsync(userId);
+        var user = await GetCurrentUserAsync();
+
         if (user == null)
         {
-            return NotFound();
+            return RedirectToAction(nameof(Login));
         }
 
-        // Verify old password
-        var loginResult = await _authService.LoginAsync(user.Email, dto.OldPassword);
-        if (loginResult == null)
+        if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.PasswordHash))
         {
             ModelState.AddModelError("", "Ancien mot de passe incorrect.");
             return View(dto);
         }
 
-        // Update password
-        var success = await _authService.ChangePasswordAsync(userId, dto.NewPassword);
+        var success = await _authService.ChangePasswordAsync(user.Id!, dto.NewPassword);
+
         if (!success)
         {
             ModelState.AddModelError("", "Erreur lors du changement de mot de passe.");
@@ -136,22 +164,21 @@ public class AccountController : Controller
         }
 
         TempData["SuccessMessage"] = "Mot de passe changé avec succès.";
-        return RedirectToAction("Profile", "Patient");
+        return RedirectToAction("Index", "Profile");
     }
 
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> ChangeEmail()
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-        var user = await _userService.GetUserByIdAsync(userId);
+        var user = await GetCurrentUserAsync();
+
         if (user == null)
         {
-            return NotFound();
+            return RedirectToAction(nameof(Login));
         }
 
-        var dto = new ChangeEmailDto { CurrentEmail = user.Email };
-        return View(dto);
+        return View(new ChangeEmailDto { CurrentEmail = user.Email });
     }
 
     [Authorize]
@@ -164,52 +191,47 @@ public class AccountController : Controller
             return View(dto);
         }
 
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-        var user = await _userService.GetUserByIdAsync(userId);
+        var user = await GetCurrentUserAsync();
+
         if (user == null)
         {
-            return NotFound();
+            return RedirectToAction(nameof(Login));
         }
 
-        // Verify password
-        var loginResult = await _authService.LoginAsync(user.Email, dto.Password);
-        if (loginResult == null)
+        if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
         {
             ModelState.AddModelError("", "Mot de passe incorrect.");
+            dto.CurrentEmail = user.Email;
             return View(dto);
         }
 
-        // Check if new email already exists
-        var existingUser = await _userService.GetUserByEmailAsync(dto.NewEmail);
-        if (existingUser != null && existingUser.Id != userId)
+        var normalizedEmail = dto.NewEmail.Trim().ToLowerInvariant();
+
+        var existingUser = await _userService.GetUserByEmailAsync(normalizedEmail);
+
+        if (existingUser != null && existingUser.Id != user.Id)
         {
             ModelState.AddModelError("", "Cet email est déjà utilisé.");
+            dto.CurrentEmail = user.Email;
             return View(dto);
         }
 
-        // Update email
-        user.Email = dto.NewEmail;
+        user.Email = normalizedEmail;
         user.UpdatedAt = DateTime.UtcNow;
+
         var success = await _userService.UpdateUserAsync(user);
+
         if (!success)
         {
             ModelState.AddModelError("", "Erreur lors du changement d'email.");
+            dto.CurrentEmail = user.Email;
             return View(dto);
         }
 
-        // Update claims and re-sign in
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id!),
-            new Claim(ClaimTypes.Name, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(claimsIdentity));
+        await SignInUserAsync(user);
 
         TempData["SuccessMessage"] = "Email changé avec succès.";
-        return RedirectToAction("Profile", "Patient");
+        return RedirectToAction("Index", "Profile");
     }
 
     [Authorize]
@@ -225,12 +247,10 @@ public class AccountController : Controller
     [ActionName("LogoutAll")]
     public async Task<IActionResult> LogoutAllPost()
     {
-        // In a real application, you would invalidate all refresh tokens or session tokens
-        // For now, we'll just sign out the current session
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        
-        TempData["SuccessMessage"] = "Déconnexion effectuée sur tous les appareils.";
-        return RedirectToAction("Login");
+
+        TempData["SuccessMessage"] = "Déconnexion effectuée.";
+        return RedirectToAction(nameof(Login));
     }
 
     [Authorize]
@@ -250,25 +270,30 @@ public class AccountController : Controller
             return View(dto);
         }
 
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-        var user = await _userService.GetUserByIdAsync(userId);
+        var user = await GetCurrentUserAsync();
+
         if (user == null)
         {
-            return NotFound();
+            return RedirectToAction(nameof(Login));
         }
 
-        // Verify password
-        var loginResult = await _authService.LoginAsync(user.Email, dto.Password);
-        if (loginResult == null)
+        if (!dto.ConfirmDeletion)
+        {
+            ModelState.AddModelError("", "Vous devez confirmer la suppression du compte.");
+            return View(dto);
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
         {
             ModelState.AddModelError("", "Mot de passe incorrect.");
             return View(dto);
         }
 
-        // Delete account (soft delete - mark as deleted)
         user.IsActive = false;
         user.UpdatedAt = DateTime.UtcNow;
+
         var success = await _userService.UpdateUserAsync(user);
+
         if (!success)
         {
             ModelState.AddModelError("", "Erreur lors de la suppression du compte.");
@@ -276,7 +301,8 @@ public class AccountController : Controller
         }
 
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        TempData["SuccessMessage"] = "Votre compte a été supprimé avec succès.";
+
+        TempData["SuccessMessage"] = "Votre compte a été désactivé avec succès.";
         return RedirectToAction("Index", "Home");
     }
 
@@ -285,6 +311,53 @@ public class AccountController : Controller
     {
         ViewBag.ReturnUrl = returnUrl;
         return View();
+    }
+
+    private async Task<User?> GetCurrentUserAsync()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return null;
+        }
+
+        return await _userService.GetUserByIdAsync(userId);
+    }
+
+    private async Task SignInUserAsync(MediAid.Models.User user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id!),
+            new Claim(ClaimTypes.Name, user.Email),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role)
+        };
+
+        if (!string.IsNullOrWhiteSpace(user.FirstName))
+        {
+            claims.Add(new Claim("FirstName", user.FirstName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(user.LastName))
+        {
+            claims.Add(new Claim("LastName", user.LastName));
+        }
+
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var authProperties = new AuthenticationProperties
+        {
+            IsPersistent = true,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
+        };
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(claimsIdentity),
+            authProperties
+        );
     }
 }
 

@@ -516,6 +516,7 @@
         }
     </style>
     <link rel="stylesheet" href="~/css/frontend-refinement.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard-refinement.css" asp-append-version="true" />
 </head>
 <body>
     <header class="floating-navbar-wrapper">
@@ -529,7 +530,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1 premium-nav-links">
+                                        <ul class="navbar-nav flex-grow-1 premium-nav-links">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
@@ -538,18 +539,18 @@
                                     <i class="bi bi-speedometer2"></i> <span>Tableau de bord</span>
                                 </a>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link premium-nav-link" asp-controller="Chat" asp-action="Conversations">
+                                <a class="nav-link premium-nav-link" asp-controller="Notification" asp-action="Index">
                                     <span class="nav-link-indicator"></span>
-                                    <i class="bi bi-chat-dots"></i> <span>Messages</span>
+                                    <i class="bi bi-bell"></i> <span>Notifications</span>
+                                    @if (ViewBag.UnreadNotifications != null && ViewBag.UnreadNotifications > 0)
+                                    {
+                                        <span class="notification-badge">@ViewBag.UnreadNotifications</span>
+                                    }
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link premium-nav-link" asp-controller="Map" asp-action="Index">
-                                    <span class="nav-link-indicator"></span>
-                                    <i class="bi bi-map"></i> <span>Carte</span>
-                                </a>
-                            </li>
+
                             @if (User.IsInRole("Patient"))
                             {
                                 <li class="nav-item">
@@ -558,13 +559,29 @@
                                         <i class="bi bi-list-ul"></i> <span>Mes demandes</span>
                                     </a>
                                 </li>
+
                                 <li class="nav-item">
                                     <a class="nav-link premium-nav-link" asp-controller="Request" asp-action="Create">
                                         <span class="nav-link-indicator"></span>
                                         <i class="bi bi-plus-circle"></i> <span>Nouvelle demande</span>
                                     </a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Chat" asp-action="Conversations">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-chat-dots"></i> <span>Messages</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Map" asp-action="Index">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-map"></i> <span>Carte</span>
+                                    </a>
+                                </li>
                             }
+
                             @if (User.IsInRole("Aidant"))
                             {
                                 <li class="nav-item">
@@ -573,13 +590,36 @@
                                         <i class="bi bi-search"></i> <span>Demandes disponibles</span>
                                     </a>
                                 </li>
+
                                 <li class="nav-item">
                                     <a class="nav-link premium-nav-link" asp-controller="Proposal" asp-action="MyProposals">
                                         <span class="nav-link-indicator"></span>
                                         <i class="bi bi-list-check"></i> <span>Mes propositions</span>
                                     </a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Planning" asp-action="Index">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-calendar-week"></i> <span>Planning</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Chat" asp-action="Conversations">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-chat-dots"></i> <span>Messages</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Map" asp-action="Index">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-map"></i> <span>Carte</span>
+                                    </a>
+                                </li>
                             }
+
                             @if (User.IsInRole("Expert"))
                             {
                                 <li class="nav-item">
@@ -588,7 +628,15 @@
                                         <i class="bi bi-shield-check"></i> <span>Validation</span>
                                     </a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Map" asp-action="Index">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-map"></i> <span>Carte</span>
+                                    </a>
+                                </li>
                             }
+
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
@@ -597,16 +645,25 @@
                                         <i class="bi bi-speedometer2"></i> <span>Administration</span>
                                     </a>
                                 </li>
+
                                 <li class="nav-item">
                                     <a class="nav-link premium-nav-link" asp-controller="Admin" asp-action="Users">
                                         <span class="nav-link-indicator"></span>
                                         <i class="bi bi-people"></i> <span>Utilisateurs</span>
                                     </a>
                                 </li>
+
                                 <li class="nav-item">
                                     <a class="nav-link premium-nav-link" asp-controller="Admin" asp-action="AuditLogs">
                                         <span class="nav-link-indicator"></span>
                                         <i class="bi bi-journal-text"></i> <span>Logs</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link premium-nav-link" asp-controller="Chat" asp-action="Conversations">
+                                        <span class="nav-link-indicator"></span>
+                                        <i class="bi bi-chat-dots"></i> <span>Messages</span>
                                     </a>
                                 </li>
                             }
@@ -627,24 +684,58 @@
                                             <span class="notification-badge">@ViewBag.UnreadNotifications</span>
                                         }
                                     </div>
-                                    <ul class="dropdown-menu dropdown-menu-end modern-dropdown">
-                                                                                <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person-circle"></i> Mon compte</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Notification" asp-action="Index"><i class="bi bi-bell"></i> Mes notifications</a></li>
+                                                                        <ul class="dropdown-menu dropdown-menu-end modern-dropdown">
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
+                                                <i class="bi bi-person-circle"></i> Mon compte
+                                            </a>
+                                        </li>
+
                                         @if (User.IsInRole("Patient"))
                                         {
-                                            <li><a class="dropdown-item" asp-controller="Patient" asp-action="Profile"><i class="bi bi-heart-pulse"></i> Profil patient</a></li>
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="Patient" asp-action="Profile">
+                                                    <i class="bi bi-heart-pulse"></i> Profil patient
+                                                </a>
+                                            </li>
                                         }
+
                                         @if (User.IsInRole("Aidant"))
                                         {
-                                            <li><a class="dropdown-item" asp-controller="Aidant" asp-action="Profile"><i class="bi bi-person-heart"></i> Profil aidant</a></li>
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="Aidant" asp-action="Profile">
+                                                    <i class="bi bi-person-heart"></i> Profil aidant
+                                                </a>
+                                            </li>
                                         }
-                                        <li><hr class="dropdown-divider"></li>
+
                                         <li>
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            <a class="dropdown-item" asp-controller="Notification" asp-action="Index">
+                                                <i class="bi bi-bell"></i> Mes notifications
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
+                                                <i class="bi bi-key"></i> Mot de passe
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Account" asp-action="ChangeEmail">
+                                                <i class="bi bi-envelope"></i> Email
+                                            </a>
+                                        </li>
+
+                                        <li><hr class="dropdown-divider"></li>
+
+                                        <li>
+                                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
                                                 <button type="submit" class="dropdown-item text-danger">
-                                        <i class="bi bi-box-arrow-right"></i> DÃ©connexion
-                                    </button>
-                                </form>
+                                                    <i class="bi bi-box-arrow-right"></i> Déconnexion
+                                                </button>
+                                            </form>
                                         </li>
                                     </ul>
                                 </div>
@@ -852,6 +943,9 @@
     <script src="~/js/nav-active.js" asp-append-version="true"></script>
 </body>
 </html>
+
+
+
 
 
 

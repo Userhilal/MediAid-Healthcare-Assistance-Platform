@@ -1,4 +1,4 @@
-﻿# Build outputs
+﻿# .NET build output
 bin/
 obj/
 out/
@@ -11,10 +11,10 @@ publish/
 *.userosscache
 *.sln.docstates
 
-# Visual Studio / Rider / VS Code
+# IDE
 .vs/
-.idea/
 .vscode/
+.idea/
 
 # Environment files
 .env
@@ -25,11 +25,17 @@ appsettings.Production.json
 *.log
 logs/
 
+# Runtime uploads
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
+!wwwroot/uploads/chat/.gitkeep
+!wwwroot/uploads/proofs/.gitkeep
+
 # Docker / local data
 mongo-data/
 data/
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
@@ -37,8 +43,5 @@ Thumbs.db
 *.nupkg
 packages/
 
-# Uploaded runtime files
-wwwroot/uploads/*
-!wwwroot/uploads/.gitkeep
-!wwwroot/uploads/chat/.gitkeep
-!wwwroot/uploads/proofs/.gitkeep
+# Local layout backups
+Views/Shared/_Layout.backup.cshtml

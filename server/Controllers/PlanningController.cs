@@ -1,4 +1,4 @@
-using MediAid.Models;
+﻿using MediAid.Models;
 using MediAid.Services;
 using MediAid.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -49,7 +49,7 @@ public class PlanningController : Controller
         // Synchroniser les missions existantes avec le planning
         await SyncMissionsToPlanningAsync(aidant.Id!);
 
-        // Recharger le planning après synchronisation
+        // Recharger le planning aprÃ¨s synchronisation
         planning = await _planningService.GetPlanningByDateRangeAsync(aidant.Id!, startOfWeek, endOfWeek);
 
         ViewBag.Aidant = aidant;
@@ -62,7 +62,7 @@ public class PlanningController : Controller
         return View();
     }
 
-    // API: Ajouter un créneau disponible
+    // API: Ajouter un crÃ©neau disponible
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddAvailableSlot(DateTime date, string startTime, string endTime)
@@ -72,7 +72,7 @@ public class PlanningController : Controller
         
         if (aidant == null)
         {
-            return Json(new { success = false, message = "Aidant non trouvé" });
+            return Json(new { success = false, message = "Aidant non trouvÃ©" });
         }
 
         if (!TimeSpan.TryParse(startTime, out var start) || !TimeSpan.TryParse(endTime, out var end))
@@ -91,13 +91,13 @@ public class PlanningController : Controller
         
         if (!success)
         {
-            return Json(new { success = false, message = "Conflit avec un autre créneau" });
+            return Json(new { success = false, message = "Conflit avec un autre crÃ©neau" });
         }
 
-        return Json(new { success = true, message = "Créneau ajouté avec succès" });
+        return Json(new { success = true, message = "CrÃ©neau ajoutÃ© avec succÃ¨s" });
     }
 
-    // API: Bloquer un créneau
+    // API: Bloquer un crÃ©neau
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> BlockSlot(DateTime date, string startTime, string endTime, string? reason = null)
@@ -107,7 +107,7 @@ public class PlanningController : Controller
         
         if (aidant == null)
         {
-            return Json(new { success = false, message = "Aidant non trouvé" });
+            return Json(new { success = false, message = "Aidant non trouvÃ©" });
         }
 
         if (!TimeSpan.TryParse(startTime, out var start) || !TimeSpan.TryParse(endTime, out var end))
@@ -119,13 +119,13 @@ public class PlanningController : Controller
         
         if (!success)
         {
-            return Json(new { success = false, message = "Conflit avec un autre créneau" });
+            return Json(new { success = false, message = "Conflit avec un autre crÃ©neau" });
         }
 
-        return Json(new { success = true, message = "Créneau bloqué avec succès" });
+        return Json(new { success = true, message = "CrÃ©neau bloquÃ© avec succÃ¨s" });
     }
 
-    // API: Assigner une mission à un créneau
+    // API: Assigner une mission Ã  un crÃ©neau
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AssignMission(DateTime date, string startTime, string endTime, string requestId)
@@ -135,13 +135,13 @@ public class PlanningController : Controller
         
         if (aidant == null)
         {
-            return Json(new { success = false, message = "Aidant non trouvé" });
+            return Json(new { success = false, message = "Aidant non trouvÃ©" });
         }
 
         var request = await _requestService.GetRequestByIdAsync(requestId);
         if (request == null)
         {
-            return Json(new { success = false, message = "Demande non trouvée" });
+            return Json(new { success = false, message = "Demande non trouvÃ©e" });
         }
 
         if (!TimeSpan.TryParse(startTime, out var start) || !TimeSpan.TryParse(endTime, out var end))
@@ -159,13 +159,13 @@ public class PlanningController : Controller
 
         if (!success)
         {
-            return Json(new { success = false, message = "Conflit avec un autre créneau" });
+            return Json(new { success = false, message = "Conflit avec un autre crÃ©neau" });
         }
 
-        return Json(new { success = true, message = "Mission assignée au planning" });
+        return Json(new { success = true, message = "Mission assignÃ©e au planning" });
     }
 
-    // API: Supprimer un créneau
+    // API: Supprimer un crÃ©neau
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RemoveSlot(DateTime date, string slotId)
@@ -175,17 +175,17 @@ public class PlanningController : Controller
         
         if (aidant == null)
         {
-            return Json(new { success = false, message = "Aidant non trouvé" });
+            return Json(new { success = false, message = "Aidant non trouvÃ©" });
         }
 
         var success = await _planningService.RemoveTimeSlotAsync(aidant.Id!, date, slotId);
         
         if (!success)
         {
-            return Json(new { success = false, message = "Impossible de supprimer ce créneau" });
+            return Json(new { success = false, message = "Impossible de supprimer ce crÃ©neau" });
         }
 
-        return Json(new { success = true, message = "Créneau supprimé" });
+        return Json(new { success = true, message = "CrÃ©neau supprimÃ©" });
     }
 
     // API: Obtenir le planning d'une date
@@ -216,7 +216,7 @@ public class PlanningController : Controller
         });
     }
 
-    // API: Vérifier la disponibilité
+    // API: VÃ©rifier la disponibilitÃ©
     [HttpGet]
     public async Task<IActionResult> CheckAvailability(DateTime date, string startTime, string endTime)
     {
@@ -256,18 +256,18 @@ public class PlanningController : Controller
         
         if (aidant == null)
         {
-            return Json(new { success = false, message = "Aidant non trouvé" });
+            return Json(new { success = false, message = "Aidant non trouvÃ©" });
         }
 
         await SyncMissionsToPlanningAsync(aidant.Id!);
         
-        return Json(new { success = true, message = "Missions synchronisées avec succès" });
+        return Json(new { success = true, message = "Missions synchronisÃ©es avec succÃ¨s" });
     }
 
-    // Synchroniser les missions acceptées avec le planning
+    // Synchroniser les missions acceptÃ©es avec le planning
     private async Task SyncMissionsToPlanningAsync(string aidantId)
     {
-        // Récupérer toutes les demandes assignées à cet aidant
+        // RÃ©cupÃ©rer toutes les demandes assignÃ©es Ã  cet aidant
         var context = HttpContext.RequestServices.GetRequiredService<MongoDbContext>();
         var filter = Builders<Request>.Filter.And(
             Builders<Request>.Filter.Eq(r => r.AssignedAidantId, aidantId),
@@ -283,9 +283,9 @@ public class PlanningController : Controller
             {
                 var missionDate = request.RequestedDate.Value.Date;
                 var startTime = request.RequestedDate.Value.TimeOfDay;
-                var endTime = startTime.Add(TimeSpan.FromHours(1)); // Durée par défaut 1h
+                var endTime = startTime.Add(TimeSpan.FromHours(1)); // DurÃ©e par dÃ©faut 1h
 
-                // Vérifier si la mission existe déjà dans le planning
+                // VÃ©rifier si la mission existe dÃ©jÃ  dans le planning
                 var planning = await _planningService.GetPlanningByDateAsync(aidantId, missionDate);
                 var missionExists = planning?.TimeSlots.Any(s => 
                     s.Type == "Mission" && s.RequestId == request.Id) ?? false;
@@ -306,4 +306,5 @@ public class PlanningController : Controller
         }
     }
 }
+
 
