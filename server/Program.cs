@@ -195,6 +195,40 @@ app.UseRouting();
 
 app.UseSession();
 app.UseAuthentication();
+
+// MediAid no-cache policy for sensitive pages
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
+
+    var isSensitivePath =
+        path.StartsWith("/account") ||
+        path.StartsWith("/dashboard") ||
+        path.StartsWith("/profile") ||
+        path.StartsWith("/patient") ||
+        path.StartsWith("/aidant") ||
+        path.StartsWith("/expert") ||
+        path.StartsWith("/admin") ||
+        path.StartsWith("/request") ||
+        path.StartsWith("/proposal") ||
+        path.StartsWith("/mission") ||
+        path.StartsWith("/notification") ||
+        path.StartsWith("/chat");
+
+    if (isSensitivePath)
+    {
+        context.Response.OnStarting(() =>
+        {
+            context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
+            context.Response.Headers["Pragma"] = "no-cache";
+            context.Response.Headers["Expires"] = "0";
+            return Task.CompletedTask;
+        });
+    }
+
+    await next();
+});
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -220,6 +254,7 @@ app.MapGet("/health", () =>
     });
 }).AllowAnonymous();
 app.Run();
+
 
 
 
