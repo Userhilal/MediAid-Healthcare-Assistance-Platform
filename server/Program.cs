@@ -134,6 +134,17 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// MediAid security headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.TryAdd("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.TryAdd("X-Frame-Options", "DENY");
+    context.Response.Headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.TryAdd("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
+
+    await next();
+});
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -153,6 +164,7 @@ app.MapHub<MediAid.Hubs.ChatHub>("/chathub", options =>
 });
 
 app.Run();
+
 
 
 
