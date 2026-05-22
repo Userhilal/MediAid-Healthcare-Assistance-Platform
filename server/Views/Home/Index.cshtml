@@ -1,201 +1,202 @@
 ﻿@{
-    ViewData["Title"] = "MediAid - Healthcare Assistance Platform";
+    ViewData["Title"] = "MediAid - Human Healthcare Support";
 }
 
 <link rel="stylesheet" href="~/css/home-pro.css" asp-append-version="true" />
 
-<div class="ma-home">
-    <section class="ma-hero">
-        <div class="ma-hero-content">
-            <div class="ma-eyebrow">
-                <span class="ma-status-dot"></span>
-                Healthcare assistance workflow platform
+<main class="mediaid-home">
+    <section class="home-hero">
+        <div class="hero-copy">
+            <div class="eyebrow">
+                <span></span>
+                Human support, organized with care
             </div>
 
             <h1>
-                Coordinate healthcare assistance with structure, trust, and human support.
+                Healthcare assistance made easier, safer, and more human.
             </h1>
 
-            <p class="ma-hero-text">
-                MediAid connects patients, aidants, experts, and administrators through a complete workflow:
-                request creation, expert validation, aidant proposals, mission tracking, proof submission,
-                patient verification, notifications, and reviews.
+            <p>
+                MediAid helps patients ask for support, allows trusted helpers to offer assistance,
+                and keeps every mission clear from request to completion.
             </p>
 
-            <div class="ma-actions">
-                <a asp-controller="Account" asp-action="Register" class="ma-btn ma-btn-primary">
-                    Create an account
+            <div class="hero-actions">
+                <a asp-controller="Account" asp-action="Register" class="btn-main">
+                    Get started
                 </a>
-                <a asp-controller="Account" asp-action="Login" class="ma-btn ma-btn-secondary">
-                    Login
+                <a asp-controller="Account" asp-action="Login" class="btn-soft">
+                    Sign in
                 </a>
             </div>
 
-            <div class="ma-trust-row">
+            <div class="hero-points">
                 <div>
-                    <strong>Role-based access</strong>
-                    <span>Patient, Aidant, Expert, Admin</span>
+                    <strong>For patients</strong>
+                    <span>Create requests and follow your support journey.</span>
                 </div>
                 <div>
-                    <strong>Mission verification</strong>
-                    <span>Proof before completion</span>
+                    <strong>For helpers</strong>
+                    <span>Find meaningful missions and offer assistance.</span>
                 </div>
                 <div>
-                    <strong>MongoDB persistence</strong>
-                    <span>Real backend storage</span>
+                    <strong>For teams</strong>
+                    <span>Keep support organized, visible, and traceable.</span>
                 </div>
             </div>
         </div>
 
-        <div class="ma-hero-panel">
-            <div class="ma-panel-header">
-                <span>Live workflow</span>
-                <strong>MediAid</strong>
+        <div class="hero-visual" aria-label="MediAid process preview">
+            <div class="floating-card main-card">
+                <div class="card-top">
+                    <span class="pulse"></span>
+                    <span>Request journey</span>
+                </div>
+
+                <div class="journey-list">
+                    <div class="journey-item active">
+                        <span>1</span>
+                        <div>
+                            <strong>Ask for help</strong>
+                            <small>Patient creates a support request</small>
+                        </div>
+                    </div>
+
+                    <div class="journey-item">
+                        <span>2</span>
+                        <div>
+                            <strong>Receive proposals</strong>
+                            <small>Helpers can offer assistance</small>
+                        </div>
+                    </div>
+
+                    <div class="journey-item">
+                        <span>3</span>
+                        <div>
+                            <strong>Follow the mission</strong>
+                            <small>Progress stays clear and organized</small>
+                        </div>
+                    </div>
+
+                    <div class="journey-item">
+                        <span>4</span>
+                        <div>
+                            <strong>Confirm completion</strong>
+                            <small>Patient validates the support received</small>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="ma-flow">
-                <div class="ma-flow-step active">
-                    <span>01</span>
-                    <div>
-                        <strong>Patient request</strong>
-                        <p>A patient creates an assistance request.</p>
-                    </div>
-                </div>
+            <div class="mini-card mini-card-left">
+                <strong>Clear status</strong>
+                <span>Every request has a visible step.</span>
+            </div>
 
-                <div class="ma-flow-step">
-                    <span>02</span>
-                    <div>
-                        <strong>Expert validation</strong>
-                        <p>Sensitive requests can be validated before publication.</p>
-                    </div>
-                </div>
-
-                <div class="ma-flow-step">
-                    <span>03</span>
-                    <div>
-                        <strong>Aidant proposal</strong>
-                        <p>Aidants can propose help for validated requests.</p>
-                    </div>
-                </div>
-
-                <div class="ma-flow-step">
-                    <span>04</span>
-                    <div>
-                        <strong>Verified mission</strong>
-                        <p>Mission completion requires proof and patient verification.</p>
-                    </div>
-                </div>
+            <div class="mini-card mini-card-right">
+                <strong>Human care</strong>
+                <span>Built around people, not complexity.</span>
             </div>
         </div>
     </section>
 
-    <section class="ma-section">
-        <div class="ma-section-heading">
-            <span>Platform modules</span>
-            <h2>One system for the full assistance lifecycle</h2>
+    <section class="home-section">
+        <div class="section-title">
+            <span>What you can do</span>
+            <h2>Simple spaces for every role</h2>
             <p>
-                The homepage now describes the actual implemented project instead of showing fake company claims,
-                fake testimonials, or artificial impact statistics.
+                Each user has a focused experience with the actions they need most.
             </p>
         </div>
 
-        <div class="ma-grid">
-            <article class="ma-card">
-                <div class="ma-icon">P</div>
-                <h3>Patient Space</h3>
-                <p>Create requests, follow proposals, verify missions, receive notifications, and review completed assistance.</p>
+        <div class="role-grid">
+            <article class="role-card">
+                <div class="role-icon">P</div>
+                <h3>Patient</h3>
+                <p>Request support, review proposals, follow your mission, and confirm completion when help is received.</p>
             </article>
 
-            <article class="ma-card">
-                <div class="ma-icon">A</div>
-                <h3>Aidant Space</h3>
-                <p>Browse validated requests, send proposals, manage assigned missions, and upload proof after intervention.</p>
+            <article class="role-card">
+                <div class="role-icon">H</div>
+                <h3>Helper</h3>
+                <p>Browse available requests, offer help, manage missions, and provide proof after assistance.</p>
             </article>
 
-            <article class="ma-card">
-                <div class="ma-icon">E</div>
-                <h3>Expert Space</h3>
-                <p>Review sensitive requests before they become available to aidants, improving platform safety and consistency.</p>
+            <article class="role-card">
+                <div class="role-icon">E</div>
+                <h3>Expert</h3>
+                <p>Review sensitive requests and help keep the platform safer and more reliable.</p>
             </article>
 
-            <article class="ma-card">
-                <div class="ma-icon">M</div>
-                <h3>Admin Space</h3>
-                <p>Supervise users, monitor activity, review logs, and keep the platform organized through administrative tools.</p>
+            <article class="role-card">
+                <div class="role-icon">A</div>
+                <h3>Admin</h3>
+                <p>Supervise users, monitor activity, and keep the platform organized.</p>
             </article>
         </div>
     </section>
 
-    <section class="ma-section ma-workflow-section">
-        <div class="ma-section-heading">
-            <span>Core workflow</span>
-            <h2>From request to verified completion</h2>
+    <section class="home-section process-section">
+        <div class="section-title">
+            <span>How it works</span>
+            <h2>A guided support flow</h2>
             <p>
-                MediAid is structured around a real backend workflow, not a static landing page.
+                MediAid keeps the assistance process structured, from the first request to the final confirmation.
             </p>
         </div>
 
-        <div class="ma-timeline">
-            <div class="ma-timeline-item">
-                <strong>1. Request</strong>
-                <p>The patient creates a healthcare assistance request.</p>
+        <div class="process-grid">
+            <div class="process-step">
+                <span>01</span>
+                <strong>Create a request</strong>
+                <p>The patient explains the type of help needed.</p>
             </div>
 
-            <div class="ma-timeline-item">
-                <strong>2. Validation</strong>
-                <p>An expert validates sensitive requests when needed.</p>
+            <div class="process-step">
+                <span>02</span>
+                <strong>Choose support</strong>
+                <p>Available helpers can send proposals.</p>
             </div>
 
-            <div class="ma-timeline-item">
-                <strong>3. Proposal</strong>
-                <p>An aidant sends a proposal to help.</p>
+            <div class="process-step">
+                <span>03</span>
+                <strong>Track progress</strong>
+                <p>The mission status remains easy to follow.</p>
             </div>
 
-            <div class="ma-timeline-item">
-                <strong>4. Assignment</strong>
-                <p>The patient accepts one proposal and the mission is assigned.</p>
-            </div>
-
-            <div class="ma-timeline-item">
-                <strong>5. Proof</strong>
-                <p>The aidant uploads proof after completing the intervention.</p>
-            </div>
-
-            <div class="ma-timeline-item">
-                <strong>6. Verification</strong>
-                <p>The patient verifies the mission before it becomes completed.</p>
+            <div class="process-step">
+                <span>04</span>
+                <strong>Validate completion</strong>
+                <p>The patient confirms that the mission is finished.</p>
             </div>
         </div>
     </section>
 
-    <section class="ma-section ma-quality">
-        <div class="ma-quality-content">
-            <span>Project quality</span>
-            <h2>Built as a serious academic and portfolio project</h2>
+    <section class="home-section safety-section">
+        <div class="safety-copy">
+            <span>Designed for clarity</span>
+            <h2>Less confusion. More confidence.</h2>
             <p>
-                The project includes ASP.NET Core MVC, MongoDB, role-based authorization, cookie authentication,
-                BCrypt password hashing, security headers, rate limiting, no-cache protection for sensitive pages,
-                health check endpoint, and GitHub Actions CI.
+                MediAid focuses on clear actions, readable pages, organized roles, and a calm interface
+                that makes the support journey easier to understand.
             </p>
         </div>
 
-        <div class="ma-quality-list">
+        <div class="safety-list">
             <div>
-                <strong>Backend</strong>
-                <span>ASP.NET Core MVC, services, controllers, MongoDB</span>
+                <strong>Organized requests</strong>
+                <span>Patients can follow their support needs in one place.</span>
             </div>
+
             <div>
-                <strong>Security</strong>
-                <span>BCrypt, cookies, role protection, headers, rate limiting</span>
+                <strong>Clear mission steps</strong>
+                <span>Every mission moves through understandable stages.</span>
             </div>
+
             <div>
-                <strong>Workflow</strong>
-                <span>Request, proposal, mission, proof, verification</span>
-            </div>
-            <div>
-                <strong>GitHub</strong>
-                <span>README, CI workflow, docs, verification scripts</span>
+                <strong>Focused dashboards</strong>
+                <span>Each role sees the actions that matter to them.</span>
             </div>
         </div>
     </section>
-</div>
+</main>
