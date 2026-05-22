@@ -210,7 +210,7 @@ git --version
 ## Installation
 
 ```powershell
-git clone https://github.com/Userhilal/MediAid.git
+git clone https://github.com/Userhilal/MediAid-Healthcare-Assistance-Platform.git
 cd MediAid/server
 dotnet restore
 dotnet build
