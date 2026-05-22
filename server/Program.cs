@@ -1,4 +1,5 @@
-﻿using MediAid.Data;
+﻿using System.Threading.RateLimiting;
+using MediAid.Data;
 using MediAid.Models;
 using MediAid.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -122,6 +123,26 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: clientIp,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 120,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            });
+    });
+});
 var app = builder.Build();
 
 
@@ -145,6 +166,8 @@ app.Use(async (context, next) =>
 
     await next();
 });
+app.UseRateLimiter();
+
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -164,6 +187,7 @@ app.MapHub<MediAid.Hubs.ChatHub>("/chathub", options =>
 });
 
 app.Run();
+
 
 
 
