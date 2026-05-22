@@ -1,0 +1,280 @@
+﻿/* MediAid Professional Frontend Polish Layer */
+/* Global UI consistency layer. It does not add fake data or replace business logic. */
+
+:root {
+    --ma-bg: #f6f8fb;
+    --ma-surface: rgba(255, 255, 255, 0.92);
+    --ma-surface-solid: #ffffff;
+    --ma-border: rgba(226, 232, 240, 0.95);
+    --ma-border-strong: rgba(203, 213, 225, 0.95);
+    --ma-text: #0f172a;
+    --ma-muted: #64748b;
+    --ma-primary: #2563eb;
+    --ma-primary-dark: #1d4ed8;
+    --ma-success: #059669;
+    --ma-warning: #d97706;
+    --ma-danger: #dc2626;
+    --ma-radius: 18px;
+    --ma-radius-lg: 26px;
+    --ma-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+    --ma-shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.09), transparent 34rem),
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 32rem),
+        var(--ma-bg);
+    color: var(--ma-text);
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    text-rendering: optimizeLegibility;
+}
+
+main {
+    min-height: calc(100vh - 160px);
+}
+
+a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+.navbar,
+.main-navbar,
+.top-navbar {
+    backdrop-filter: blur(18px);
+    background: rgba(255, 255, 255, 0.86) !important;
+    border-bottom: 1px solid var(--ma-border);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.navbar-brand,
+.brand-logo,
+.logo-text {
+    font-weight: 850;
+    letter-spacing: -0.04em;
+}
+
+.nav-link {
+    font-weight: 650;
+    color: var(--ma-muted) !important;
+    border-radius: 999px;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--ma-primary) !important;
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.container,
+.container-fluid {
+    position: relative;
+}
+
+.card,
+.dashboard-card,
+.action-card,
+.request-card,
+.profile-card,
+.stat-card,
+.metric-card,
+.content-card,
+.auth-card,
+.panel,
+.table-card,
+.notification-card,
+.review-card {
+    background: var(--ma-surface);
+    border: 1px solid var(--ma-border);
+    border-radius: var(--ma-radius);
+    box-shadow: var(--ma-shadow-soft);
+}
+
+.card:hover,
+.dashboard-card:hover,
+.action-card:hover,
+.request-card:hover,
+.profile-card:hover,
+.stat-card:hover,
+.metric-card:hover {
+    border-color: rgba(37, 99, 235, 0.18);
+    box-shadow: var(--ma-shadow);
+}
+
+.card-header,
+.panel-header,
+.section-header {
+    border-bottom: 1px solid var(--ma-border);
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.92), rgba(255, 255, 255, 0.72));
+}
+
+h1,
+h2,
+h3,
+h4 {
+    color: var(--ma-text);
+    letter-spacing: -0.045em;
+}
+
+.text-muted,
+.muted,
+.subtitle,
+.section-subtitle,
+.action-subtitle {
+    color: var(--ma-muted) !important;
+}
+
+.btn {
+    border-radius: 999px;
+    font-weight: 750;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary,
+.btn-action,
+.btn-main {
+    background: linear-gradient(135deg, var(--ma-primary), var(--ma-primary-dark)) !important;
+    border-color: var(--ma-primary) !important;
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
+}
+
+.btn-primary:hover,
+.btn-action:hover,
+.btn-main:hover {
+    box-shadow: 0 16px 34px rgba(37, 99, 235, 0.28);
+}
+
+.btn-outline-primary {
+    color: var(--ma-primary) !important;
+    border-color: rgba(37, 99, 235, 0.32) !important;
+    background: rgba(37, 99, 235, 0.04);
+}
+
+.btn-outline-primary:hover {
+    color: #ffffff !important;
+    background: var(--ma-primary) !important;
+}
+
+.form-control,
+.form-select,
+.input-group-text,
+textarea,
+select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="number"] {
+    border-radius: 14px !important;
+    border-color: var(--ma-border-strong) !important;
+    background-color: rgba(255, 255, 255, 0.94) !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus,
+select:focus,
+input:focus {
+    border-color: rgba(37, 99, 235, 0.48) !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
+}
+
+.table {
+    vertical-align: middle;
+}
+
+.table thead th {
+    color: #475569;
+    background: rgba(248, 250, 252, 0.92);
+    border-bottom: 1px solid var(--ma-border);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.badge,
+.status-badge,
+.category-badge,
+.priority-badge {
+    border-radius: 999px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.alert {
+    border-radius: var(--ma-radius);
+    border: 1px solid var(--ma-border);
+}
+
+.dashboard-header,
+.dashboard-header-main,
+.hero-section,
+.page-hero,
+.page-header {
+    border-radius: var(--ma-radius-lg);
+    border: 1px solid var(--ma-border);
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.88)),
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.13), transparent 26rem);
+    box-shadow: var(--ma-shadow);
+}
+
+.stat-value,
+.metric-value,
+.kpi-value {
+    font-weight: 900;
+    letter-spacing: -0.055em;
+}
+
+.empty-state {
+    border: 1px dashed rgba(148, 163, 184, 0.75);
+    border-radius: var(--ma-radius-lg);
+    background: rgba(255, 255, 255, 0.64);
+    padding: 2rem;
+}
+
+.footer,
+.site-footer {
+    border-top: 1px solid var(--ma-border);
+    background: rgba(255, 255, 255, 0.72);
+}
+
+:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.28);
+    outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+    .dashboard-header,
+    .dashboard-header-main,
+    .hero-section,
+    .page-hero,
+    .page-header {
+        border-radius: 22px;
+    }
+
+    .card,
+    .dashboard-card,
+    .action-card,
+    .request-card,
+    .profile-card,
+    .stat-card,
+    .metric-card {
+        border-radius: 18px;
+    }
+
+    .btn {
+        width: auto;
+    }
+}

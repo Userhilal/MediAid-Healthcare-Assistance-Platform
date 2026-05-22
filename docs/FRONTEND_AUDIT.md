@@ -1,0 +1,161 @@
+# MediAid Frontend and Static Content Audit
+
+Generated on: 2026-05-22 21:39:12
+
+This audit identifies UI pages and possible demo/static content that should be reviewed.
+A finding does not always mean the content is wrong. It only means it should be checked.
+
+## Page Inventory
+
+- `server/Views/_ViewImports.cshtml`
+- `server/Views/_ViewStart.cshtml`
+- `server/Views/Account/AccessDenied.cshtml`
+- `server/Views/Account/ChangeEmail.cshtml`
+- `server/Views/Account/ChangePassword.cshtml`
+- `server/Views/Account/DeleteAccount.cshtml`
+- `server/Views/Account/ForgotPassword.cshtml`
+- `server/Views/Account/Login.cshtml`
+- `server/Views/Account/LogoutAll.cshtml`
+- `server/Views/Account/Register.cshtml`
+- `server/Views/Admin/AuditLogs.cshtml`
+- `server/Views/Admin/Index.cshtml`
+- `server/Views/Admin/Users.cshtml`
+- `server/Views/Aidant/Dashboard.cshtml`
+- `server/Views/Aidant/Profile.cshtml`
+- `server/Views/Chat/Conversations.cshtml`
+- `server/Views/Chat/Index.cshtml`
+- `server/Views/Dashboard/Index.cshtml`
+- `server/Views/Expert/Index.cshtml`
+- `server/Views/Expert/Validate.cshtml`
+- `server/Views/Home/Index.cshtml`
+- `server/Views/Home/Privacy.cshtml`
+- `server/Views/Map/Index.cshtml`
+- `server/Views/Notification/Index.cshtml`
+- `server/Views/Patient/Dashboard.cshtml`
+- `server/Views/Patient/History.cshtml`
+- `server/Views/Patient/Profile.cshtml`
+- `server/Views/Planning/Index.cshtml`
+- `server/Views/Profile/Index.cshtml`
+- `server/Views/Proposal/_RequestDetailsPartial.cshtml`
+- `server/Views/Proposal/Create.cshtml`
+- `server/Views/Proposal/Index.cshtml`
+- `server/Views/Proposal/MyProposals.cshtml`
+- `server/Views/Request/Create.cshtml`
+- `server/Views/Request/CreateWizard.cshtml`
+- `server/Views/Request/Details.cshtml`
+- `server/Views/Request/Index.cshtml`
+- `server/Views/Review/ByAidant.cshtml`
+- `server/Views/Review/Create.cshtml`
+- `server/Views/Shared/_Layout.cshtml`
+- `server/Views/Shared/_ValidationScriptsPartial.cshtml`
+
+## Suspicious Static or Demo Content
+
+- `server/Views/Account/AccessDenied.cshtml` line 25 - pattern `lorem` - @if (!string.IsNullOrEmpty(returnUrl))
+- `server/Views/Account/ChangeEmail.cshtml` line 40 - pattern `placeholder` - <input asp-for="NewEmail" type="email" class="form-control-modern" required placeholder=" " />
+- `server/Views/Account/ChangeEmail.cshtml` line 52 - pattern `placeholder` - <input asp-for="Password" type="password" class="form-control-modern" required placeholder=" " />
+- `server/Views/Account/ChangeEmail.cshtml` line 110 - pattern `placeholder` - .form-control-modern:not(:placeholder-shown) ~ .input-label {
+- `server/Views/Account/ChangeEmail.cshtml` line 120 - pattern `placeholder` - .form-control-modern:not(:placeholder-shown) ~ .input-icon {
+- `server/Views/Account/ChangePassword.cshtml` line 35 - pattern `placeholder` - <input asp-for="OldPassword" type="password" class="form-control-modern" required placeholder=" " />
+- `server/Views/Account/ChangePassword.cshtml` line 47 - pattern `placeholder` - <input asp-for="NewPassword" type="password" class="form-control-modern" required placeholder=" " />
+- `server/Views/Account/ChangePassword.cshtml` line 60 - pattern `placeholder` - <input asp-for="ConfirmPassword" type="password" class="form-control-modern" required placeholder=" " />
+- `server/Views/Account/ChangePassword.cshtml` line 117 - pattern `placeholder` - .form-control-modern:not(:placeholder-shown) ~ .input-label {
+- `server/Views/Account/ChangePassword.cshtml` line 127 - pattern `placeholder` - .form-control-modern:not(:placeholder-shown) ~ .input-icon {
+- `server/Views/Account/DeleteAccount.cshtml` line 51 - pattern `placeholder` - <input asp-for="Password" type="password" class="form-control-modern" required placeholder=" " />
+- `server/Views/Account/DeleteAccount.cshtml` line 121 - pattern `placeholder` - .form-control-modern:not(:placeholder-shown) ~ .input-label {
+- `server/Views/Account/DeleteAccount.cshtml` line 131 - pattern `placeholder` - .form-control-modern:not(:placeholder-shown) ~ .input-icon {
+- `server/Views/Account/ForgotPassword.cshtml` line 148 - pattern `placeholder` - <input type="email" name="email" id="email" class="form-control-modern" required placeholder=" " />
+- `server/Views/Account/Login.cshtml` line 216 - pattern `placeholder` - .input-field::placeholder {
+- `server/Views/Account/Login.cshtml` line 381 - pattern `placeholder` - <input asp-for="Email" class="input-field" type="email" placeholder="Email" required id="Email" />
+- `server/Views/Account/Login.cshtml` line 390 - pattern `placeholder` - <input asp-for="Password" class="input-field" type="password" placeholder="Mot de passe" required id="Password" />
+- `server/Views/Account/Register.cshtml` line 216 - pattern `placeholder` - .input-field::placeholder {
+- `server/Views/Account/Register.cshtml` line 226 - pattern `placeholder` - .input-field:not(:placeholder-shown) ~ .input-icon {
+- `server/Views/Account/Register.cshtml` line 245 - pattern `placeholder` - .input-field:not(:placeholder-shown) ~ .input-label {
+- `server/Views/Account/Register.cshtml` line 392 - pattern `placeholder` - <input asp-for="FirstName" class="input-field" type="text" placeholder=" " id="FirstName" />
+- `server/Views/Account/Register.cshtml` line 401 - pattern `placeholder` - <input asp-for="LastName" class="input-field" type="text" placeholder=" " id="LastName" />
+- `server/Views/Account/Register.cshtml` line 412 - pattern `placeholder` - <input asp-for="Email" class="input-field" type="email" placeholder=" " required id="Email" />
+- `server/Views/Account/Register.cshtml` line 422 - pattern `placeholder` - <input asp-for="PhoneNumber" class="input-field" type="tel" placeholder=" " id="PhoneNumber" />
+- `server/Views/Account/Register.cshtml` line 446 - pattern `placeholder` - <input asp-for="Password" class="input-field" type="password" placeholder=" " required id="Password" />
+- `server/Views/Account/Register.cshtml` line 457 - pattern `placeholder` - <input asp-for="ConfirmPassword" class="input-field" type="password" placeholder=" " required id="ConfirmPassword" />
+- `server/Views/Aidant/Dashboard.cshtml` line 231 - pattern `lorem` - @if (!string.IsNullOrEmpty(prop?.Message))
+- `server/Views/Aidant/Profile.cshtml` line 65 - pattern `lorem` - @if (!string.IsNullOrEmpty(targetAidant?.Bio))
+- `server/Views/Aidant/Profile.cshtml` line 197 - pattern `lorem` - @if (!string.IsNullOrEmpty(cert.IssuingOrganization))
+- `server/Views/Aidant/Profile.cshtml` line 294 - pattern `placeholder` - <textarea name="content" id="content" class="form-control" rows="4" required placeholder="Partagez votre expérience avec cet aidant...">@(existingComment?.Content ?? "")</textarea>
+- `server/Views/Aidant/Profile.cshtml` line 386 - pattern `lorem` - @if (!string.IsNullOrEmpty(review?.Comment))
+- `server/Views/Chat/Index.cshtml` line 148 - pattern `placeholder` - <textarea id="messageInput" class="message-input-whatsapp" rows="1" placeholder="Tapez un message" style="resize: none;"></textarea>
+- `server/Views/Expert/Index.cshtml` line 46 - pattern `lorem` - @if (!string.IsNullOrEmpty(request.Description) && request.Description.Length > 60)
+- `server/Views/Expert/Validate.cshtml` line 44 - pattern `lorem` - @if (!string.IsNullOrEmpty(Model.City))
+- `server/Views/Expert/Validate.cshtml` line 72 - pattern `placeholder` - <textarea name="recommendations" id="recommendations" class="form-control-modern" rows="6" placeholder="Ajoutez des recommandations spécifiques pour cette demande..."></textarea>
+- `server/Views/Patient/Dashboard.cshtml` line 263 - pattern `lorem` - @if (!string.IsNullOrEmpty(request.AssignedAidantId))
+- `server/Views/Patient/Dashboard.cshtml` line 331 - pattern `lorem` - @if (!string.IsNullOrEmpty(assignedAidant.Bio))
+- `server/Views/Patient/Dashboard.cshtml` line 358 - pattern `lorem` - @if (!string.IsNullOrEmpty(review.Comment))
+- `server/Views/Patient/Dashboard.cshtml` line 469 - pattern `lorem` - @if (!string.IsNullOrEmpty(req.AssignedAidantId) && assignedAidantUser != null)
+- `server/Views/Patient/Dashboard.cshtml` line 475 - pattern `lorem` - @if (!string.IsNullOrEmpty(req.Address))
+- `server/Views/Patient/Dashboard.cshtml` line 575 - pattern `placeholder` - <textarea class="evaluation-comment" placeholder="Commentaire (facultatif)" rows="3"></textarea>
+- `server/Views/Patient/Dashboard.cshtml` line 608 - pattern `placeholder` - <textarea class="notes-textarea" id="notesTextarea" placeholder="Écrivez vos notes ici..."></textarea>
+- `server/Views/Patient/History.cshtml` line 115 - pattern `lorem` - @if (request.Status == "Completed" && !string.IsNullOrEmpty(request.AssignedAidantId))
+- `server/Views/Patient/Profile.cshtml` line 117 - pattern `placeholder` - <input asp-for="EmergencyContact!.Name" class="form-control-modern" placeholder="Nom" />
+- `server/Views/Patient/Profile.cshtml` line 120 - pattern `placeholder` - <input asp-for="EmergencyContact!.PhoneNumber" class="form-control-modern" placeholder="Téléphone" />
+- `server/Views/Patient/Profile.cshtml` line 123 - pattern `placeholder` - <input asp-for="EmergencyContact!.Relationship" class="form-control-modern" placeholder="Relation" />
+- `server/Views/Patient/Profile.cshtml` line 132 - pattern `placeholder` - <input type="text" id="medicalConditionsInput" class="form-control-modern" value="@string.Join(", ", Model.MedicalConditions)" placeholder="Séparées par des virgules" />
+- `server/Views/Planning/Index.cshtml` line 97 - pattern `lorem` - @if (!string.IsNullOrEmpty(slot.Description))
+- `server/Views/Planning/Index.cshtml` line 101 - pattern `lorem` - @if (slot.Type == "Mission" && !string.IsNullOrEmpty(slot.RequestId))
+- `server/Views/Proposal/_RequestDetailsPartial.cshtml` line 11 - pattern `placeholder` - <div class="detail-placeholder">
+- `server/Views/Proposal/_RequestDetailsPartial.cshtml` line 57 - pattern `lorem` - @if (!string.IsNullOrEmpty(request.City))
+- `server/Views/Proposal/Create.cshtml` line 67 - pattern `placeholder` - <textarea name="message" id="message" class="form-control-modern" rows="5" placeholder="Ajoutez un message personnel pour expliquer comment vous pouvez aider..."></textarea>
+- `server/Views/Proposal/Index.cshtml` line 224 - pattern `lorem` - @if (!string.IsNullOrEmpty(request.City))
+- `server/Views/Proposal/Index.cshtml` line 265 - pattern `placeholder` - <div class="detail-placeholder">
+- `server/Views/Request/CreateWizard.cshtml` line 128 - pattern `placeholder` - <input asp-for="Title" class="modern-input" required placeholder=" " />
+- `server/Views/Request/CreateWizard.cshtml` line 136 - pattern `placeholder` - <textarea asp-for="Description" class="modern-input modern-textarea" rows="6" required placeholder=" "></textarea>
+- `server/Views/Request/CreateWizard.cshtml` line 250 - pattern `placeholder` - <input asp-for="City" class="modern-input" required placeholder=" " />
+- `server/Views/Request/CreateWizard.cshtml` line 260 - pattern `placeholder` - <input asp-for="PostalCode" class="modern-input" placeholder=" " />
+- `server/Views/Request/CreateWizard.cshtml` line 269 - pattern `placeholder` - <input asp-for="Address" class="modern-input" placeholder=" " />
+- `server/Views/Request/CreateWizard.cshtml` line 717 - pattern `placeholder` - .modern-input:not(:placeholder-shown) + .floating-label,
+- `server/Views/Request/CreateWizard.cshtml` line 719 - pattern `placeholder` - .modern-textarea:not(:placeholder-shown) + .floating-label {
+- `server/Views/Request/Details.cshtml` line 82 - pattern `lorem` - @if (!string.IsNullOrEmpty(Model.Address))
+- `server/Views/Request/Details.cshtml` line 152 - pattern `lorem` - var aidantInitial = !string.IsNullOrEmpty(rec.AidantUser.FirstName)
+- `server/Views/Request/Details.cshtml` line 160 - pattern `lorem` - @if (!string.IsNullOrEmpty(rec.AidantUser.FirstName))
+- `server/Views/Request/Details.cshtml` line 190 - pattern `lorem` - @if (!string.IsNullOrEmpty(rec.Proposal.Message))
+- `server/Views/Request/Details.cshtml` line 225 - pattern `lorem` - @if (!string.IsNullOrEmpty(proposal.Message))
+- `server/Views/Request/Index.cshtml` line 156 - pattern `lorem` - @if (!string.IsNullOrEmpty(request.Address))
+- `server/Views/Review/ByAidant.cshtml` line 93 - pattern `lorem` - @if (!string.IsNullOrEmpty(currentUserId) && reviewableRequests.Any())
+- `server/Views/Review/ByAidant.cshtml` line 145 - pattern `placeholder` - <textarea asp-for="Comment" class="form-textarea-modern" rows="4" placeholder="Partagez votre expérience avec cet aidant..."></textarea>
+- `server/Views/Review/ByAidant.cshtml` line 157 - pattern `lorem` - else if (!string.IsNullOrEmpty(currentUserId) && !reviewableRequests.Any())
+- `server/Views/Review/ByAidant.cshtml` line 214 - pattern `lorem` - @if (!string.IsNullOrEmpty(review.Comment))
+- `server/Views/Review/Create.cshtml` line 72 - pattern `placeholder` - <textarea asp-for="Comment" class="form-control-modern" rows="6" placeholder="Partagez votre expérience avec cet aidant..."></textarea>
+- `server/Controllers/AidantController.cs` line 297 - pattern `lorem` - if (!string.IsNullOrEmpty(status))
+- `server/Controllers/AidantController.cs` line 310 - pattern `lorem` - if (!string.IsNullOrEmpty(category) && request.Category != category)
+- `server/Controllers/AidantController.cs` line 355 - pattern `lorem` - if (!string.IsNullOrEmpty(id))
+- `server/Controllers/AidantController.cs` line 437 - pattern `lorem` - if (currentAidant == null \|\| string.IsNullOrEmpty(currentAidant.Id))
+- `server/Controllers/AidantController.cs` line 495 - pattern `lorem` - if (currentAidant == null \|\| string.IsNullOrEmpty(currentAidant.Id))
+- `server/Controllers/ChatController.cs` line 81 - pattern `lorem` - if (string.IsNullOrEmpty(otherUserId)) continue;
+- `server/Controllers/ChatController.cs` line 97 - pattern `lorem` - if (string.IsNullOrEmpty(preview) && lastMessage.Attachments.Any())
+- `server/Controllers/DashboardController.cs` line 25 - pattern `lorem` - if (string.IsNullOrEmpty(userId))
+- `server/Controllers/MissionController.cs` line 90 - pattern `lorem` - if (string.IsNullOrEmpty(request.VerificationCode))
+- `server/Controllers/MissionController.cs` line 274 - pattern `lorem` - if (string.IsNullOrEmpty(request.VerificationCode) \|\| request.VerificationCode != code)
+- `server/Controllers/PatientController.cs` line 89 - pattern `lorem` - foreach (var req in activeRequests.Where(r => !string.IsNullOrEmpty(r.AssignedAidantId)))
+- `server/Controllers/PatientController.cs` line 116 - pattern `lorem` - .Where(r => r.Status == "Completed" && !string.IsNullOrEmpty(r.AssignedAidantId))
+- `server/Controllers/PatientController.cs` line 135 - pattern `lorem` - if (!string.IsNullOrEmpty(req.AssignedAidantId))
+- `server/Controllers/PatientController.cs` line 155 - pattern `lorem` - if (stats.AssignedAidant != null && !string.IsNullOrEmpty(stats.AssignedAidant.UserId) && !string.IsNullOrEmpty(stats.AssignedAidant.Id))
+- `server/Controllers/PatientController.cs` line 221 - pattern `lorem` - if (!string.IsNullOrEmpty(request.AssignedAidantId))
+- `server/Controllers/ProposalController.cs` line 53 - pattern `lorem` - if (!string.IsNullOrEmpty(category))
+- `server/Controllers/ProposalController.cs` line 57 - pattern `lorem` - if (!string.IsNullOrEmpty(urgency))
+- `server/Controllers/ProposalController.cs` line 77 - pattern `lorem` - if (!string.IsNullOrEmpty(category))
+- `server/Controllers/ProposalController.cs` line 81 - pattern `lorem` - if (!string.IsNullOrEmpty(urgency))
+- `server/Controllers/RequestController.cs` line 55 - pattern `lorem` - if (!string.IsNullOrEmpty(category))
+- `server/Controllers/ReviewController.cs` line 46 - pattern `lorem` - if (string.IsNullOrEmpty(request.AssignedAidantId))
+- `server/Controllers/ReviewController.cs` line 90 - pattern `lorem` - if (string.IsNullOrEmpty(request.AssignedAidantId) \|\| request.AssignedAidantId != dto.AidantId)
+- `server/Controllers/ReviewController.cs` line 126 - pattern `lorem` - if (string.IsNullOrEmpty(aidantId))
+- `server/Controllers/ReviewController.cs` line 161 - pattern `lorem` - if (!string.IsNullOrEmpty(userId))
+- `server/Controllers/ReviewController.cs` line 167 - pattern `lorem` - && !string.IsNullOrEmpty(r.AssignedAidantId))
+- `server/Controllers/ReviewController.cs` line 215 - pattern `lorem` - if (string.IsNullOrEmpty(request.AssignedAidantId) \|\| request.AssignedAidantId != dto.AidantId)
+- `server/Services/PlanningService.cs` line 128 - pattern `lorem` - if (slot.Type == "Mission" && !string.IsNullOrEmpty(slot.RequestId))
+- `server/Services/RequestService.cs` line 103 - pattern `lorem` - if (!string.IsNullOrEmpty(category))
+- `server/Services/RequestService.cs` line 108 - pattern `lorem` - if (!string.IsNullOrEmpty(urgency))
+
+## Frontend Consistency Notes
+
+- Global UI polish layer exists in `server/wwwroot/css/frontend-polish.css`.
+- No fake business data was added by this audit.
+- Dynamic data should remain connected to controllers, services, and MongoDB.
+- Demo-only or misleading text should be replaced with real workflow explanations.
