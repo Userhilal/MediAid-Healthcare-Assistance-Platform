@@ -136,7 +136,7 @@ Patient can review the aidant
 | Framework | .NET 8 |
 | Database | MongoDB |
 | Frontend | Razor Views, HTML, CSS, Bootstrap |
-| Authentication | Cookie Authentication |
+| Authentication | Cookie Authentication for MVC sessions |
 | Password Security | BCrypt |
 | Data Access | MongoDB Driver |
 | Infrastructure | Docker Compose |
@@ -319,7 +319,7 @@ The project includes:
 - Account deactivation check during login
 - Role-based controller protection
 - Public registration restricted to Patient and Aidant
-- Consistent JWT configuration through `JwtSettings`
+- Cookie authentication for MVC sessions, with `JwtSettings` prepared for future API usage
 - Notifications linked to correct user IDs
 - Expert validation before aidants can propose help
 - Safer file upload handling
@@ -329,6 +329,15 @@ The project includes:
 - Mission workflow that prevents direct completion without proof or verification
 
 ---
+
+
+---
+
+## Authentication Clarification
+
+MediAid currently uses **Cookie Authentication** for ASP.NET Core MVC sessions.
+
+JWT settings are kept in the configuration for future API usage, but the current web application authentication flow is session-based.
 
 ## Development Commands
 
@@ -395,7 +404,7 @@ The project is still under development. Some features need production hardening:
 - Add admin analytics dashboard
 - Add advanced geolocation matching
 - Add request recommendation system for aidants
-- Add data export and account deletion workflow
+- Add data export and full account deactivation/anonymization workflow
 - Add deployment guide
 
 ---
@@ -412,4 +421,5 @@ GitHub: [@Userhilal](https://github.com/Userhilal)
 ## License
 
 This project was developed for academic and portfolio purposes.
+
 

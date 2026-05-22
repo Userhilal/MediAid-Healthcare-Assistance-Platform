@@ -1,42 +1,42 @@
-# MediAid - Plateforme Web d'Assistance Médicale Communautaire
+﻿# MediAid - Plateforme Web d'Assistance MÃ©dicale Communautaire
 
-## 📋 Description
+## ðŸ“‹ Description
 
-MediAid est une plateforme web sécurisée basée sur ASP.NET Core MVC (.NET 8) permettant la mise en relation entre patients et aidants pour une assistance médicale non urgente, sous supervision d'experts et d'administrateurs.
+MediAid est une plateforme web sÃ©curisÃ©e basÃ©e sur ASP.NET Core MVC (.NET 8) permettant la mise en relation entre patients et aidants pour une assistance mÃ©dicale non urgente, sous supervision d'experts et d'administrateurs.
 
-## 🏗️ Architecture
+## ðŸ—ï¸ Architecture
 
 - **Backend**: ASP.NET Core MVC (.NET 8)
-- **Base de données**: MongoDB (local)
+- **Base de donnÃ©es**: MongoDB (local)
 - **Authentification**: Cookie-based avec support JWT
-- **Temps réel**: SignalR pour le chat
+- **Temps rÃ©el**: SignalR pour le chat
 - **Frontend**: Razor Views + Bootstrap 5
 
-## 📁 Structure du Projet
+## ðŸ“ Structure du Projet
 
 ```
 server/
-├── Controllers/       # Contrôleurs MVC
-├── Data/             # Contexte MongoDB
-├── DTOs/             # Data Transfer Objects
-├── Hubs/             # SignalR Hubs
-├── Models/           # Modèles de domaine
-├── Services/         # Services métier
-├── Views/            # Vues Razor
-└── wwwroot/          # Fichiers statiques (CSS, JS)
+â”œâ”€â”€ Controllers/       # ContrÃ´leurs MVC
+â”œâ”€â”€ Data/             # Contexte MongoDB
+â”œâ”€â”€ DTOs/             # Data Transfer Objects
+â”œâ”€â”€ Hubs/             # SignalR Hubs
+â”œâ”€â”€ Models/           # ModÃ¨les de domaine
+â”œâ”€â”€ Services/         # Services mÃ©tier
+â”œâ”€â”€ Views/            # Vues Razor
+â””â”€â”€ wwwroot/          # Fichiers statiques (CSS, JS)
 ```
 
-## 🚀 Prérequis
+## ðŸš€ PrÃ©requis
 
 - .NET 8 SDK
 - MongoDB (local ou distant)
 - Visual Studio 2022 ou VS Code
 
-## ⚙️ Configuration
+## âš™ï¸ Configuration
 
-1. **MongoDB**: Assurez-vous que MongoDB est installé et fonctionne sur `mongodb://localhost:27017`
+1. **MongoDB**: Assurez-vous que MongoDB est installÃ© et fonctionne sur `mongodb://localhost:27017`
 
-2. **Configuration**: Modifiez `appsettings.json` si nécessaire:
+2. **Configuration**: Modifiez `appsettings.json` si nÃ©cessaire:
    ```json
    {
      "ConnectionStrings": {
@@ -46,16 +46,16 @@ server/
    }
    ```
 
-3. **JWT Secret Key**: Changez la clé secrète dans `appsettings.json` pour la production:
+3. **JWT Secret Key**: Changez la clÃ© secrÃ¨te dans `appsettings.json` pour la production:
    ```json
    {
      "JwtSettings": {
-       "SecretKey": "VotreCléSecrèteTrèsLongueEtComplexeIci"
+       "SecretKey": "VotreClÃ©SecrÃ¨teTrÃ¨sLongueEtComplexeIci"
      }
    }
    ```
 
-## 🏃 Démarrage
+## ðŸƒ DÃ©marrage
 
 ```bash
 cd server
@@ -66,43 +66,44 @@ dotnet run
 
 L'application sera accessible sur `https://localhost:5001` ou `http://localhost:5000`
 
-## 👥 Rôles
+## ðŸ‘¥ RÃ´les
 
-- **Patient**: Créer et gérer des demandes d'aide
+- **Patient**: CrÃ©er et gÃ©rer des demandes d'aide
 - **Aidant**: Proposer son aide aux demandes
 - **Expert**: Valider les demandes sensibles
-- **Admin**: Gérer la plateforme et les utilisateurs
+- **Admin**: GÃ©rer la plateforme et les utilisateurs
 
-## 🔐 Sécurité
+## ðŸ” SÃ©curitÃ©
 
 - Authentification par cookies avec support JWT
 - Hashage des mots de passe avec BCrypt (work factor 12)
-- Protection contre brute force (lockout après 5 tentatives)
+- Protection contre brute force (lockout aprÃ¨s 5 tentatives)
 - Audit logs complets
-- Séparation stricte des rôles (RBAC)
+- SÃ©paration stricte des rÃ´les (RBAC)
 
-## 📝 Fonctionnalités Principales
+## ðŸ“ FonctionnalitÃ©s Principales
 
-- ✅ Inscription/Connexion sécurisée
-- ✅ Gestion des demandes (CRUD)
-- ✅ Système de propositions
-- ✅ Chat en temps réel (SignalR)
-- ✅ Notifications
-- ✅ Système de réputation
-- ✅ Validation par experts
-- ✅ Tableau de bord administrateur
-- ✅ Logs d'audit
+- âœ… Inscription/Connexion sÃ©curisÃ©e
+- âœ… Gestion des demandes (CRUD)
+- âœ… SystÃ¨me de propositions
+- âœ… Chat en temps rÃ©el (SignalR)
+- âœ… Notifications
+- âœ… SystÃ¨me de rÃ©putation
+- âœ… Validation par experts
+- âœ… Tableau de bord administrateur
+- âœ… Logs d'audit
 
-## 🛠️ Développement
+## ðŸ› ï¸ DÃ©veloppement
 
-Pour créer un utilisateur administrateur, utilisez l'interface d'administration ou modifiez directement la base de données MongoDB.
+Pour crÃ©er un utilisateur administrateur, utilisez l'interface d'administration ou modifiez directement la base de donnÃ©es MongoDB.
 
-## 📄 Licence
+## ðŸ“„ Licence
 
-Ce projet est développé dans le cadre d'un projet académique.
+Ce projet est dÃ©veloppÃ© dans le cadre d'un projet acadÃ©mique.
 
-## 🤝 Contribution
+## ðŸ¤ Contribution
 
-Ce projet est un travail académique. Pour toute question ou suggestion, contactez l'équipe de développement.
+Ce projet est un travail acadÃ©mique. Pour toute question ou suggestion, contactez l'Ã©quipe de dÃ©veloppement.
+
 
 
