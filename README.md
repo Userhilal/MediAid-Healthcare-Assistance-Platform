@@ -4,21 +4,23 @@
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-MVC-blue?style=for-the-badge)
 ![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 ![Razor Views](https://img.shields.io/badge/Frontend-Razor%20Views-purple?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Development-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Portfolio%20Project-success?style=for-the-badge)
 
 **MediAid** is a healthcare assistance platform built with **ASP.NET Core MVC**, **.NET 8**, and **MongoDB**.
 
-The platform connects patients, caregivers, experts, and administrators through a structured workflow for healthcare assistance requests, proposals, mission tracking, notifications, chat, reviews, and safety reporting.
+The platform connects patients, aidants, experts, and administrators through a structured workflow for healthcare assistance requests, expert validation, proposals, mission tracking, proof submission, notifications, reviews, and account management.
+
+The project is designed as a real end-to-end academic and portfolio web application with role-based access, MongoDB persistence, backend workflows, Razor views, and a professional GitHub setup.
 
 ---
 
 ## Overview
 
-MediAid is a web platform designed to coordinate healthcare assistance between patients who need support and aidants who can provide help.
+MediAid helps coordinate non-emergency healthcare assistance between people who need help and people who can provide support.
 
-Patients can create assistance requests, aidants can send proposals, experts can validate sensitive requests, and administrators can supervise platform activity.
+Patients can create assistance requests. Aidants can browse validated available requests and send proposals. Patients can accept proposals and follow mission progress. Experts validate sensitive requests before they become visible. Administrators supervise users, logs, and platform activity.
 
-The project focuses on a real end-to-end workflow with authentication, role-based access, MongoDB persistence, mission tracking, notification management, and a professional Razor-based interface.
+The application is not a static demo. It implements a complete workflow from account creation to mission completion.
 
 ---
 
@@ -27,7 +29,7 @@ The project focuses on a real end-to-end workflow with authentication, role-base
 ### Authentication and Account Management
 
 - User registration and login
-- Cookie-based authentication
+- Cookie-based authentication for MVC sessions
 - BCrypt password hashing
 - Account activation and deactivation logic
 - Role-based access control
@@ -42,34 +44,37 @@ The project focuses on a real end-to-end workflow with authentication, role-base
 - View personal requests
 - Accept or reject aidant proposals
 - Follow mission status
-- Access notifications and chat
+- Access notifications
+- Access conversations
 - Review completed missions
-- Manage patient profile information
+- Manage patient-specific profile information
 
 ### Aidant Features
 
 - Aidant dashboard
 - View available validated requests
-- Send proposals
+- Send proposals to patients
 - Track sent proposals
 - Start assigned missions
 - Upload mission proof
 - Manage availability, skills, and location
-- Access planning, notifications, and chat
+- Access planning
+- Access notifications and conversations
 
 ### Expert Features
 
 - Expert dashboard
-- Review sensitive requests
+- Review sensitive healthcare-related requests
 - Validate or reject requests requiring expert supervision
+- Help protect the quality and safety of published requests
 
 ### Admin Features
 
 - Admin dashboard
 - User management
-- Account suspension
+- Account supervision
 - Audit logs
-- Platform supervision
+- Platform monitoring
 - Safety incident monitoring
 
 ---
@@ -81,16 +86,16 @@ The project focuses on a real end-to-end workflow with authentication, role-base
 | Patient | Creates assistance requests and follows missions |
 | Aidant | Sends proposals and completes assistance missions |
 | Expert | Validates sensitive healthcare-related requests |
-| Admin | Manages users, logs, and platform activity |
+| Admin | Manages users, logs, and platform supervision |
 
-Public registration is limited to:
+Public registration is intentionally limited to:
 
 ```text
 Patient
 Aidant
 ```
 
-Expert and Admin roles should be assigned through controlled administration logic.
+Admin and Expert accounts are created through a controlled role promotion script.
 
 ---
 
@@ -139,8 +144,9 @@ Patient can review the aidant
 | Authentication | Cookie Authentication for MVC sessions |
 | Password Security | BCrypt |
 | Data Access | MongoDB Driver |
-| Infrastructure | Docker Compose |
-| Development OS | Windows / PowerShell |
+| Local Infrastructure | Docker Compose |
+| Development Environment | Windows / PowerShell |
+| CI | GitHub Actions |
 
 ---
 
@@ -150,16 +156,29 @@ Patient can review the aidant
 Browser
    |
    v
-ASP.NET Core MVC
+ASP.NET Core MVC Application
    |
    |-- Controllers
    |-- Services
    |-- Filters
    |-- Razor Views
+   |-- Models / DTOs
    |
    v
 MongoDB Database
 ```
+
+### Main Layers
+
+| Layer | Responsibility |
+|---|---|
+| Controllers | Handle HTTP requests and user actions |
+| Services | Business logic and workflow rules |
+| Models | Domain entities stored in MongoDB |
+| DTOs | Form and input data |
+| Views | Razor pages rendered to the user |
+| Filters | Shared layout data such as notifications |
+| MongoDbContext | MongoDB collections and database access |
 
 ---
 
@@ -169,6 +188,14 @@ MongoDB Database
 MediAid/
 │
 ├── README.md
+├── docs/
+│   ├── PROJECT_OVERVIEW.md
+│   ├── QUALITY_CHECKLIST.md
+│   └── WORKFLOWS.md
+│
+├── .github/
+│   └── workflows/
+│       └── dotnet-ci.yml
 │
 └── server/
     ├── Controllers/
@@ -180,6 +207,9 @@ MediAid/
     ├── Services/
     ├── Views/
     ├── wwwroot/
+    ├── Scripts/
+    │   ├── promote-role.ps1
+    │   └── verify-project.ps1
     ├── Program.cs
     ├── MediAid.csproj
     ├── appsettings.json
@@ -213,10 +243,22 @@ git --version
 
 ## Installation
 
+Clone the repository:
+
 ```powershell
 git clone https://github.com/Userhilal/MediAid-Healthcare-Assistance-Platform.git
 cd MediAid-Healthcare-Assistance-Platform/server
+```
+
+Restore dependencies:
+
+```powershell
 dotnet restore
+```
+
+Build the project:
+
+```powershell
 dotnet build
 ```
 
@@ -224,7 +266,7 @@ dotnet build
 
 ## Run the Project
 
-### Recommended
+### Recommended Development Run
 
 From the `server` folder:
 
@@ -232,7 +274,7 @@ From the `server` folder:
 .\start-dev.ps1
 ```
 
-Open:
+Open the application:
 
 ```text
 http://localhost:5000
@@ -250,11 +292,41 @@ Mongo Express credentials:
 admin / admin
 ```
 
+---
+
 ### Manual Run
+
+Start MongoDB:
 
 ```powershell
 docker compose up -d
+```
+
+Run the application:
+
+```powershell
 dotnet run --launch-profile http
+```
+
+Open:
+
+```text
+http://localhost:5000
+```
+
+---
+
+### Stop the Local App
+
+```powershell
+.\stop-dev.ps1
+```
+
+Or manually:
+
+```powershell
+Get-Process MediAid -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-Process dotnet -ErrorAction SilentlyContinue | Stop-Process -Force
 ```
 
 ---
@@ -289,6 +361,35 @@ Production secrets should not be committed.
 
 ---
 
+## Authentication Clarification
+
+MediAid currently uses **Cookie Authentication** for ASP.NET Core MVC sessions.
+
+JWT settings are kept in the configuration for future API usage, but the current web application authentication flow is session-based.
+
+---
+
+## Creating Admin and Expert Accounts
+
+Public registration is limited to `Patient` and `Aidant`.
+
+To create an `Admin` or `Expert` account in development:
+
+1. Start the application.
+2. Register a normal account from `/Account/Register`.
+3. Promote the account using the role promotion script.
+
+From the repository root:
+
+```powershell
+.\server\Scripts\promote-role.ps1 -Email "admin@example.com" -Role Admin
+.\server\Scripts\promote-role.ps1 -Email "expert@example.com" -Role Expert
+```
+
+This keeps public registration safe while still allowing development and testing of privileged roles.
+
+---
+
 ## Main Routes
 
 | Route | Description |
@@ -319,93 +420,123 @@ The project includes:
 - Account deactivation check during login
 - Role-based controller protection
 - Public registration restricted to Patient and Aidant
-- Cookie authentication for MVC sessions, with `JwtSettings` prepared for future API usage
+- Cookie authentication for MVC sessions
+- JWT settings prepared for future API usage
 - Notifications linked to correct user IDs
 - Expert validation before aidants can propose help
-- Safer file upload handling
 - Runtime uploads excluded from Git
 - Basic location privacy for unassigned users
-- Clear separation between account, patient profile, and aidant profile
-- Mission workflow that prevents direct completion without proof or verification
+- Clear separation between account profile, patient profile, and aidant profile
+- Mission workflow that prevents direct completion without proof and verification
+- Controlled Admin and Expert role promotion script
 
 ---
 
+## Quality and Verification
+
+A final verification script is available:
+
+```powershell
+.\server\Scripts\verify-project.ps1
+```
+
+It checks:
+
+- Required project files
+- Encoding issues
+- Backup source files that could break the build
+- Runtime upload tracking
+- README presence
+- .NET build status
+- Git status
 
 ---
 
-## Authentication Clarification
+## Documentation
 
-MediAid currently uses **Cookie Authentication** for ASP.NET Core MVC sessions.
+Additional documentation is available in the `docs/` folder:
 
-JWT settings are kept in the configuration for future API usage, but the current web application authentication flow is session-based.
+| File | Description |
+|---|---|
+| `docs/PROJECT_OVERVIEW.md` | Project objective, architecture, and improvements |
+| `docs/WORKFLOWS.md` | Functional workflows |
+| `docs/QUALITY_CHECKLIST.md` | Quality, security, and production-readiness checklist |
+
+---
 
 ## Development Commands
 
+Clean:
+
 ```powershell
-cd server
 dotnet clean
+```
+
+Restore:
+
+```powershell
 dotnet restore
+```
+
+Build:
+
+```powershell
 dotnet build
+```
+
+Run:
+
+```powershell
 dotnet run --launch-profile http
 ```
 
-Stop local app processes:
+Check Git status:
 
 ```powershell
-Get-Process MediAid -ErrorAction SilentlyContinue | Stop-Process -Force
-Get-Process dotnet -ErrorAction SilentlyContinue | Stop-Process -Force
+git status
 ```
 
----
+Commit and push:
 
-## Screenshots
-
-Recommended screenshots to add later:
-
-```text
-docs/screenshots/home.png
-docs/screenshots/login.png
-docs/screenshots/patient-dashboard.png
-docs/screenshots/aidant-dashboard.png
-docs/screenshots/request-create.png
-docs/screenshots/proposals.png
-docs/screenshots/mission-tracking.png
-docs/screenshots/notifications.png
-docs/screenshots/admin-dashboard.png
-docs/screenshots/map.png
+```powershell
+git add .
+git commit -m "Update MediAid project"
+git push origin main
 ```
 
 ---
 
 ## Current Limitations
 
-The project is still under development. Some features need production hardening:
+The project is still under development. Some features require production hardening:
 
 - Full email verification workflow
 - Password reset by email
-- Complete refresh token implementation
-- Advanced audit logging
+- Complete API authentication if JWT is used later
 - Cloud file storage
+- Authorized file serving outside `wwwroot`
 - Automated tests
-- CI/CD pipeline
+- Advanced audit logs
+- CI test stage
 - Production deployment configuration
-- Full legal privacy compliance workflow
+- Full account anonymization and export workflow
+- Legal privacy compliance review
 
 ---
 
 ## Future Improvements
 
-- Add automated tests
-- Add GitHub Actions CI
-- Add Dockerfile for the ASP.NET Core app
+- Add automated unit and integration tests
+- Add GitHub Actions test stage
+- Add production Dockerfile for the ASP.NET Core app
 - Improve real-time chat with SignalR events
 - Add email notifications
 - Add stricter upload validation
+- Store sensitive files outside `wwwroot`
 - Add admin analytics dashboard
 - Add advanced geolocation matching
 - Add request recommendation system for aidants
-- Add data export and full account deactivation/anonymization workflow
-- Add deployment guide
+- Add deployment guide for Azure, Render, or Railway
 
 ---
 
@@ -421,5 +552,3 @@ GitHub: [@Userhilal](https://github.com/Userhilal)
 ## License
 
 This project was developed for academic and portfolio purposes.
-
-
