@@ -207,7 +207,20 @@ app.MapHub<MediAid.Hubs.ChatHub>("/chathub", options =>
                          Microsoft.AspNetCore.Http.Connections.HttpTransportType.LongPolling;
 });
 
+
+// MediAid health endpoint
+app.MapGet("/health", () =>
+{
+    return Results.Ok(new
+    {
+        status = "Healthy",
+        application = "MediAid",
+        environment = app.Environment.EnvironmentName,
+        timestamp = DateTime.UtcNow
+    });
+}).AllowAnonymous();
 app.Run();
+
 
 
 
