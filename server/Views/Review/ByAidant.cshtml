@@ -179,6 +179,12 @@
                                 @foreach (var reviewItem in reviews)
                                 {
                                     var review = reviewItem.Review as MediAid.Models.Review;
+
+                                    if (review == null)
+                                    {
+                                        continue;
+                                    }
+
                                     var patientName = reviewItem.PatientName as string ?? "Patient anonyme";
                                     
                                     <div class="review-item-modern">
@@ -186,7 +192,7 @@
                                             <div class="review-patient-info">
                                                 <div class="review-patient-avatar">
                                                     @{
-                                                        var patientInitial = patientName.Substring(0, 1).ToUpper();
+                                                        var patientInitial = !string.IsNullOrWhiteSpace(patientName) ? patientName.Substring(0, 1).ToUpper() : "P";
                                                     }
                                                     <span>@patientInitial</span>
                                                 </div>
