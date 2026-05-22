@@ -143,6 +143,27 @@ builder.Services.AddRateLimiter(options =>
             });
     });
 });
+
+// MediAid cookie security configuration
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.Cookie.Name = "MediAid.Auth";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+});
+
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.Name = "MediAid.AntiForgery";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
 var app = builder.Build();
 
 
@@ -187,6 +208,7 @@ app.MapHub<MediAid.Hubs.ChatHub>("/chathub", options =>
 });
 
 app.Run();
+
 
 
 
